@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Entity
                 directionChecks[i] = new MovementHitBox(enemy)
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.1f, 0.1f),
+                    Size = new Vector2(0.5f, 0.05f),
                     Rotation = rotation,
                     Position = MathBase.GetAngleToVector(rotation) * DISTANCE
                 };

@@ -6,7 +6,7 @@ namespace GentrysQuest.Game.Content.Weapons
     public class Spear : Weapon
     {
         public override string Type { get; } = "Spear";
-        public override int Distance { get; set; } = 150;
+        public override int Distance { get; set; } = 300;
         public override string Name { get; set; } = "Spear";
         public override string Description { get; protected set; } = "Just a spear";
 

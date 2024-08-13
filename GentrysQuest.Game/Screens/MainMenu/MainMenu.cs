@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
+using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
@@ -99,9 +100,18 @@ namespace GentrysQuest.Game.Screens.MainMenu
             {
                 Character character = new BraydenMesserschmidt();
                 Weapon weapon = new BraydensOsuPen();
+                character.Experience.Level.Current.Value = 100;
+                character.UpdateStats();
+                weapon.Experience.Level.Current.Value = 100;
+                weapon.UpdateStats();
                 character.Weapon = weapon;
                 GameData.Add(character);
                 GameData.EquipCharacter(character);
+                character.Artifacts.Equip(new MadokaChibiPlush(), 0);
+                character.Artifacts.Equip(new MadokaChibiPlush(), 1);
+                character.Artifacts.Equip(new MadokaChibiPlush(), 2);
+                character.Artifacts.Equip(new MadokaChibiPlush(), 3);
+                character.Artifacts.Equip(new MadokaChibiPlush(), 4);
                 this.Push(new Gameplay.Gameplay());
             });
             quitButton.SetAction(delegate
