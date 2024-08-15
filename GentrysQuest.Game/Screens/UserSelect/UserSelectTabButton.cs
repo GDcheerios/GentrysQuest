@@ -39,7 +39,7 @@ namespace GentrysQuest.Game.Screens.UserSelect
         protected override void OnHoverLost(HoverLostEvent e)
         {
             base.OnHoverLost(e);
-            backrground.Colour = Colour4.Gray;
+            backrground.Colour = Colour4.DarkGray;
         }
     }
 }

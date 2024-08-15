@@ -3,15 +3,23 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osuTK;
+using osuTK.Graphics;
 
 namespace GentrysQuest.Game.Screens.UserSelect
 {
     public partial class UserSelectScreen : Screen
     {
+        private Box background;
+
         public UserSelectScreen()
         {
             InternalChildren = new Drawable[]
             {
+                background = new Box
+                {
+                    Colour = Color4.Gray,
+                    RelativeSizeAxes = Axes.Both,
+                },
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -43,7 +51,7 @@ namespace GentrysQuest.Game.Screens.UserSelect
                                     new Box
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Colour = Colour4.Gray
+                                        Colour = Colour4.DarkGray
                                     }
                                 }
                             }
