@@ -16,14 +16,12 @@ using GentrysQuest.Game.Screens.Gameplay.Results;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
-using osuTK.Graphics;
 using osuTK.Input;
 
 namespace GentrysQuest.Game.Screens.Gameplay
@@ -86,7 +84,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             {
                 new Box
                 {
-                    Colour = ColourInfo.GradientVertical(Color4.DarkGray, Color4.White),
+                    Colour = Colour4.Gray,
                     RelativeSizeAxes = Axes.Both
                 },
                 gameplayHud = new GameplayHud(),
@@ -354,10 +352,12 @@ namespace GentrysQuest.Game.Screens.Gameplay
         {
             if (GameData.CurrentUser.Value != null)
             {
-                var scoreTask = new SubmitScoreRequest(GameData.CurrentUser.Value.ID, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
+                _ = new SubmitScoreRequest(GameData.CurrentUser.Value.ID, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
             }
 
             Pause();
+
+            foreach (DrawableEntity enemy in enemies) enemy.GetBase().Die();
 
             playerEntity.RemoveClickContainer();
             NotificationContainer.Instance.MoveToY(0);
@@ -382,7 +382,10 @@ namespace GentrysQuest.Game.Screens.Gameplay
             gameplayHud.Delay(3000).Then().FadeOut();
             Scheduler.AddDelayed(() => map.Unload(), 3000);
             deathContainer.FadeIn(3000);
-            Scheduler.AddDelayed(delegate { this.Push(new ResultScreen()); }, 3000);
+            Scheduler.AddDelayed(delegate
+            {
+                this.Push(new ResultScreen());
+            }, 3000);
         }
 
         protected override bool OnKeyDown(KeyDownEvent e)

@@ -4,7 +4,6 @@ using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
@@ -28,17 +27,19 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void load()
         {
             AddInternal(enemyController = new EnemyController(this));
-#if DEBUG
             AddInternal(directionTrack = new Box
             {
                 Colour = Colour4.Yellow,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.1f, 1),
                 Origin = Anchor.BottomCentre,
+#if DEBUG
                 Alpha = 0.5f,
+#else
+                Alpha = 0f,
+#endif
                 Anchor = Anchor.Centre
             });
-#endif
         }
 
         public void FollowEntity(DrawableEntity drawableEntity) => followEntity = drawableEntity;
@@ -59,8 +60,6 @@ namespace GentrysQuest.Game.Entity.Drawables
                 desirableDirection += weight * dotProduct * directionVector;
                 totalWeight += Math.Abs(dotProduct);
             }
-
-            Logger.Log(totalWeight.ToString());
 
             if (totalWeight == 0)
                 return playerDirection;
