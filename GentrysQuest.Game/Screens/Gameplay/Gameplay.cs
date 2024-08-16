@@ -397,6 +397,10 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     if (isPaused) UnPause();
                     else Pause();
                     break;
+
+                case Key.T:
+                    playerEntity.Position += Vector2.One;
+                    break;
             }
 
             return base.OnKeyDown(e);

@@ -12,7 +12,7 @@ namespace GentrysQuest.Game.Entity
         private DrawableEntity parent;
         private MovementHitBox[] directionChecks;
         private const int DIRECTIONS = 8;
-        private const float DISTANCE = 0.5f;
+        private const float DISTANCE = 0.2f;
 
         public EnemyController(DrawableEnemyEntity enemy)
         {
@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Entity
                 directionChecks[i] = new MovementHitBox(enemy)
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.5f, 0.05f),
+                    Size = new Vector2(0.1f, 0.1f),
                     Rotation = rotation,
                     Position = MathBase.GetAngleToVector(rotation) * DISTANCE
                 };
@@ -44,8 +44,16 @@ namespace GentrysQuest.Game.Entity
 
             for (int i = 0; i < DIRECTIONS; i++)
             {
-                if (HitBoxScene.Collides(directionChecks[i])) points.Add(i * (360 / DIRECTIONS), true);
-                else points.Add(i * (360 / DIRECTIONS), false);
+                if (HitBoxScene.Collides(directionChecks[i]))
+                {
+                    points.Add(i * (360 / DIRECTIONS), true);
+                    directionChecks[i].Colour = Colour4.Red;
+                }
+                else
+                {
+                    points.Add(i * (360 / DIRECTIONS), false);
+                    directionChecks[i].Colour = Colour4.Green;
+                }
             }
 
             return points;

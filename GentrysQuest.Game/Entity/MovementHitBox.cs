@@ -5,6 +5,8 @@ namespace GentrysQuest.Game.Entity
 {
     public partial class MovementHitBox : HitBox
     {
+        protected override float alphaValue { get; set; } = 1f;
+
         public MovementHitBox(DrawableEnemyEntity parent)
             : base(parent)
         {

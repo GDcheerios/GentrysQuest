@@ -16,6 +16,7 @@ namespace GentrysQuest.Game.Entity
         public bool Enabled = true;
         public readonly AffiliationType Affiliation;
         private dynamic parent;
+        protected virtual float alphaValue { get; set; } = 0.2f;
 
         private Quad collisionQuad
         {
@@ -35,7 +36,7 @@ namespace GentrysQuest.Game.Entity
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
             Colour = Colour4.Red;
-            Alpha = (float)(DEBUG ? .2 : 0);
+            Alpha = (float)(DEBUG ? alphaValue : 0);
             InternalChild = new Box
             {
                 RelativeSizeAxes = Axes.Both
