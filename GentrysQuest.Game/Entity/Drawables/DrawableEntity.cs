@@ -50,6 +50,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public int DirectionLooking;
         public Vector2 Direction = Vector2.Zero;
+        public Vector2 FocusedPosition = Vector2.Zero;
         private Vector2 knockbackDirection;
         private float knockbackForce;
         private double knockbackDuration;
@@ -102,6 +103,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             Colour = Colour4.White;
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
+            AlwaysPresent = true;
             InternalChildren = new Drawable[]
             {
                 Sprite = new Sprite

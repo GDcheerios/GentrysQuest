@@ -247,6 +247,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             HitBoxScene.Remove(enemy.HitBox);
             HitBoxScene.Remove(enemy.ColliderBox);
             HitBoxScene.Remove(enemy.Weapon.HitBox);
+            enemy.EnemyController.Destroy();
             enemies.Remove(enemy);
             RemoveInternal(enemy, false);
             playerEntity.SetEntities(enemies);
@@ -343,6 +344,13 @@ namespace GentrysQuest.Game.Screens.Gameplay
         {
             var value = (float)(Clock.ElapsedFrameTime * speed);
             drawable.MoveTo(drawable.Position + -direction * value);
+        }
+
+        private void manage_direction(Vector2 direction, double speed, DrawableEntity drawable)
+        {
+            var value = (float)(Clock.ElapsedFrameTime * speed);
+            drawable.MoveTo(drawable.Position + -direction * value);
+            drawable.FocusedPosition += -direction * value;
         }
 
         /// <summary>

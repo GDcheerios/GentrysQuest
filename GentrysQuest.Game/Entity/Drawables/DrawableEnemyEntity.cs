@@ -11,12 +11,13 @@ namespace GentrysQuest.Game.Entity.Drawables
     public partial class DrawableEnemyEntity : DrawableEntity
     {
         private DrawableEntity followEntity;
-        private EnemyController enemyController;
+        public EnemyController EnemyController;
         private Box directionTrack;
         private Vector2 lastPosition;
         private int stuckCounter = 0;
         private const int stuckThreshold = 1; // Number of frames to consider as "stuck"
         private const float stuckDistanceThreshold = 1f; // Minimum movement to consider as not stuck
+        private VisibilityBox surroundingVisibility;
 
         public DrawableEnemyEntity(Entity entity)
             : base(entity, AffiliationType.Enemy)
@@ -30,7 +31,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         [BackgroundDependencyLoader]
         private void load()
         {
-            AddInternal(enemyController = new EnemyController(this));
+            AddInternal(surroundingVisibility = new VisibilityBox(this, true));
+            AddInternal(EnemyController = new EnemyController(this));
             AddInternal(directionTrack = new Box
             {
                 Colour = Colour4.Yellow,
@@ -53,16 +55,16 @@ namespace GentrysQuest.Game.Entity.Drawables
             float totalWeight = 0f;
             Vector2 desirableDirection = Vector2.Zero;
 
-            Vector2 playerDirection = -getDirectionToPlayer().Normalized();
-
             // Weight factor to balance obstacle avoidance and player pursuit
             const float AVOIDANCE_WEIGHT = 0.7f;
             const float PLAYER_WEIGHT = 0.3f;
 
-            foreach (KeyValuePair<int, bool> angle in enemyController.GetIntersectedAngles())
+            Vector2 goToPosition = -MathBase.GetDirection(Position, FocusedPosition);
+
+            foreach (KeyValuePair<int, bool> angle in EnemyController.GetIntersectedAngles())
             {
                 Vector2 directionVector = MathBase.GetAngleToVector((float)angle.Key).Normalized();
-                float dotProduct = Vector2.Dot(playerDirection, directionVector);
+                float dotProduct = Vector2.Dot(goToPosition, directionVector);
 
                 // Adjust the weight based on whether this direction is obstructed
                 float weight = angle.Value ? AVOIDANCE_WEIGHT : -AVOIDANCE_WEIGHT;
@@ -72,11 +74,11 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
 
             // Add some influence of the direct player direction regardless of obstacles
-            desirableDirection += playerDirection * PLAYER_WEIGHT;
+            desirableDirection += goToPosition * PLAYER_WEIGHT;
             totalWeight += PLAYER_WEIGHT;
 
             if (totalWeight == 0)
-                return playerDirection;
+                return goToPosition;
 
             desirableDirection /= totalWeight;
 
@@ -113,6 +115,27 @@ namespace GentrysQuest.Game.Entity.Drawables
             return new Vector2((float)Math.Cos(randomAngle), (float)Math.Sin(randomAngle)).Normalized();
         }
 
+        private bool canSeePlayer()
+        {
+            int x = 1;
+            const int VISIBILITY_DISTANCE = 20;
+            bool seenPlayer = false;
+            VisibilityBox[] boxes = new VisibilityBox[VISIBILITY_DISTANCE];
+
+            while (x < VISIBILITY_DISTANCE)
+            {
+                VisibilityBox box = new VisibilityBox(this)
+                {
+                    Position = MathBase.GetAngleToVector(MathBase.GetAngle(Position, Vector2.Zero)) * x
+                };
+                AddInternal(box);
+                x++;
+            }
+
+            foreach (VisibilityBox box in boxes) RemoveInternal(box, true);
+            return seenPlayer;
+        }
+
         private Vector2 getDirectionToPlayer() => MathBase.GetDirection(Position, followEntity.Position);
 
         protected override void Update()
@@ -125,11 +148,18 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             DirectionLooking = (int)MathBase.GetAngle(Position, followEntity.Position);
 
-            if (Entity.CanMove) Direction += getDesirableDirection();
-            // if (Entity.CanMove) Direction += getDirectionToPlayer();
-            if (Direction != Vector2.Zero) Move(Direction.Normalized(), GetSpeed());
-            float rotation = MathBase.GetAngle(Vector2.Zero, Direction) + 90;
-            if (!float.IsNaN(rotation)) directionTrack.Rotation = rotation;
+            if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
+            {
+                FocusedPosition = Vector2.Zero;
+            }
+
+            if (GetBase().CanMove)
+            {
+                Direction += getDesirableDirection();
+                if (Direction != Vector2.Zero) Move(Direction.Normalized(), GetSpeed());
+                float rotation = MathBase.GetAngle(Vector2.Zero, Direction) + 90;
+                if (!float.IsNaN(rotation)) directionTrack.Rotation = rotation;
+            }
         }
     }
 }

@@ -58,5 +58,13 @@ namespace GentrysQuest.Game.Entity
 
             return points;
         }
+
+        public void Destroy()
+        {
+            for (int i = 0; i < DIRECTIONS; i++)
+            {
+                HitBoxScene.Remove(directionChecks[i]);
+            }
+        }
     }
 }
