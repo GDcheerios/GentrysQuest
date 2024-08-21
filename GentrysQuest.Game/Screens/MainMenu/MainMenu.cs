@@ -1,7 +1,6 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online.API;
-using GentrysQuest.Game.Screens.UserSelect;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
@@ -22,10 +21,20 @@ namespace GentrysQuest.Game.Screens.MainMenu
         private DrawableTrack menuTheme;
         private MainMenuButton playButton;
         private MainMenuButton quitButton;
+        private PlayerSelectBox playerSelect;
 
         [BackgroundDependencyLoader]
         private void load(ITrackStore trackStore)
         {
+            playerSelect = new PlayerSelectBox(this)
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                RelativeSizeAxes = Axes.Both,
+                RelativePositionAxes = Axes.Both,
+                Scale = new Vector2(0.6f, 0.9f),
+                Y = -1.05f
+            };
             menuTheme = new DrawableTrack(trackStore.Get("Gentrys_Quest_Ambient_1.mp3"));
             InternalChildren = new Drawable[]
             {
@@ -59,9 +68,10 @@ namespace GentrysQuest.Game.Screens.MainMenu
                             Origin = Anchor.Centre
                         }
                     }
-                }
+                },
+                playerSelect
             };
-            playButton.SetAction(delegate { this.Push(new UserSelectScreen()); });
+            playButton.SetAction(PressPlay);
             quitButton.SetAction(delegate
             {
                 _ = APIAccess.DeleteToken();
@@ -69,9 +79,20 @@ namespace GentrysQuest.Game.Screens.MainMenu
             });
         }
 
-        public void press_play()
+        public void PressPlay()
         {
             title.FadeOut(200);
+            playButton.FadeOut(200);
+            quitButton.FadeOut(200);
+            playerSelect.MoveToY(-0.05f, 200, Easing.Out);
+        }
+
+        public void PressBack()
+        {
+            title.FadeIn(200);
+            playButton.FadeIn(200);
+            quitButton.FadeIn(200);
+            playerSelect.MoveToY(-1.05f, 200, Easing.Out);
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
