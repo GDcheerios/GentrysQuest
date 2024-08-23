@@ -1,15 +1,18 @@
+using System.Collections.Generic;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Scoring;
+using GentrysQuest.Game.Screens.Gameplay.Results;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
-namespace GentrysQuest.Game.Screens.Gameplay.Results
+namespace GentrysQuest.Game.Overlays.Results
 {
     public partial class ResultsLeaderboard : CompositeDrawable
     {
         private FillFlowContainer<LeaderboardPanel> leaderboardPanels = new();
+        public List<LeaderboardPlacement> Placements = new();
 
         public ResultsLeaderboard()
         {
@@ -57,6 +60,7 @@ namespace GentrysQuest.Game.Screens.Gameplay.Results
         public void AddListing(LeaderboardPlacement placement)
         {
             LeaderboardPanel panel = new LeaderboardPanel(placement);
+            Placements.Add(placement);
             leaderboardPanels.Add(panel);
             panel.Scale = new Vector2(0, 1);
             panel.ScaleTo(new Vector2(1, 1), 100);

@@ -13,7 +13,6 @@ using GentrysQuest.Game.Location.Drawables;
 using GentrysQuest.Game.Online.API.Requests;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Overlays.Notifications;
-using GentrysQuest.Game.Screens.Gameplay.Results;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -43,6 +42,11 @@ namespace GentrysQuest.Game.Screens.Gameplay
         private InventoryOverlay inventoryOverlay;
 
         private bool showingInventory = false;
+
+        /// <summary>
+        /// if this is connected to a leaderboard
+        /// </summary>
+        private readonly int? leaderboardId;
 
         /// <summary>
         /// Maximum enemies allowed to spawn at once
@@ -77,6 +81,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
         private const double MAX_TIME_TO_SPAWN = 20000;
 
         private delegate void GameplayEvent();
+
+        public Gameplay(int? leaderboardId = null) => this.leaderboardId = leaderboardId;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -383,7 +389,9 @@ namespace GentrysQuest.Game.Screens.Gameplay
             gameplayHud.Delay(3000).Then().FadeOut();
             Scheduler.AddDelayed(() => map.Unload(), 3000);
             deathContainer.FadeIn(3000);
-            Scheduler.AddDelayed(delegate { this.Push(new ResultScreen()); }, 3000);
+
+            if (leaderboardId != null) Scheduler.AddDelayed(delegate { this.Push(new ResultScreen((int)leaderboardId)); }, 3000);
+            else Scheduler.AddDelayed(delegate { this.Push(new MainMenu.MainMenu()); }, 3000);
         }
 
         protected override bool OnKeyDown(KeyDownEvent e)

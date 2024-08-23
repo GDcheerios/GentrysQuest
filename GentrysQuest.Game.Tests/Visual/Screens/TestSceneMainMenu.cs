@@ -15,8 +15,9 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         public TestSceneMainMenu()
         {
             Add(new ScreenStack(mainMenu = new MainMenu()) { RelativeSizeAxes = Axes.Both });
-            AddStep("return", () => mainMenu.OnEntering(null));
+            AddStep("return", () => mainMenu.PressBack());
             AddStep("press play", () => mainMenu.PressPlay());
+            AddStep("enter selection", () => mainMenu.EnterSelection());
         }
     }
 }

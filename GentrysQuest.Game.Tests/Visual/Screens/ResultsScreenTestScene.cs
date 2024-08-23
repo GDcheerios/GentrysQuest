@@ -1,4 +1,4 @@
-using GentrysQuest.Game.Screens.Gameplay.Results;
+using GentrysQuest.Game.Screens.Gameplay;
 using NUnit.Framework;
 using osu.Framework.Screens;
 
@@ -13,7 +13,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         public ResultsScreenTestScene()
         {
             Add(screens = new ScreenStack());
-            screens.Push(resultScreen = new ResultScreen());
+            screens.Push(resultScreen = new ResultScreen(1));
         }
     }
 }

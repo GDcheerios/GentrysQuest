@@ -5,7 +5,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Screens;
 using osuTK;
 
 namespace GentrysQuest.Game.Screens.MainMenu
@@ -49,7 +48,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 }
             };
 
-            playButton.SetAction(delegate { mainMenuScreen.Push(new Gameplay.Gameplay()); });
+            playButton.SetAction(mainMenuScreen.EnterSelection);
             backButton.SetAction(mainMenuScreen.PressBack);
         }
 

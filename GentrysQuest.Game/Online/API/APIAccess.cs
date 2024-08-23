@@ -11,7 +11,8 @@ namespace GentrysQuest.Game.Online.API
         public APIAccess()
         {
 #if DEBUG
-            Endpoint = new DevelopmentEndpointConfiguration();
+            // Endpoint = new DevelopmentEndpointConfiguration();
+            Endpoint = new LocalhostEndpointConfiguration();
 #else
             Endpoint = new ProductionEndpointConfiguration();
 #endif
