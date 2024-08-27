@@ -48,7 +48,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 {
                     Alpha = 0
                 },
-                selection = new Selection(),
+                selection = new Selection(this),
                 new FillFlowContainer
                 {
                     AutoSizeAxes = Axes.Y,
@@ -126,6 +126,12 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 new Colour4(58, 58, 58, 255)
             ), 500);
             title.Delay(120).Then().FadeIn(120);
+        }
+
+        public override void OnResuming(ScreenTransitionEvent e)
+        {
+            PressBack();
+            EnterSelection();
         }
 
         private void resetTitle()

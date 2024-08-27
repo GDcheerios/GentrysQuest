@@ -357,11 +357,11 @@ namespace GentrysQuest.Game.Screens.Gameplay
         /// <summary>
         /// Manages how to end the gameplay scene
         /// </summary>
-        public void End()
+        public virtual void End()
         {
-            if (GameData.CurrentUser.Value != null)
+            if (GameData.CurrentUser.Value != null && leaderboardId != null)
             {
-                var scoreTask = new SubmitScoreRequest(GameData.CurrentUser.Value.ID, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
+                var scoreTask = new SubmitScoreRequest(GameData.CurrentUser.Value.ID, (int)leaderboardId, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
             }
 
             Pause();
@@ -389,9 +389,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             gameplayHud.Delay(3000).Then().FadeOut();
             Scheduler.AddDelayed(() => map.Unload(), 3000);
             deathContainer.FadeIn(3000);
-
-            if (leaderboardId != null) Scheduler.AddDelayed(delegate { this.Push(new ResultScreen((int)leaderboardId)); }, 3000);
-            else Scheduler.AddDelayed(delegate { this.Push(new MainMenu.MainMenu()); }, 3000);
+            Scheduler.AddDelayed(this.Exit, 3000);
         }
 
         protected override bool OnKeyDown(KeyDownEvent e)

@@ -33,14 +33,14 @@ namespace GentrysQuest.Game.Overlays.Inventory
         /// </summary>
         private readonly Bindable<InventoryDisplay> displayingSection = new Bindable<InventoryDisplay>(InventoryDisplay.Hidden);
 
-        private readonly DrawSizePreservingFillContainer topButtons;
+        private readonly Container topButtons;
 
         private readonly InventoryButton charactersButton;
         private readonly InventoryButton artifactsButton;
         private readonly InventoryButton weaponsButton;
         private readonly InventoryButton exitButton;
 
-        private readonly DrawSizePreservingFillContainer itemContainerBox;
+        private readonly Container itemContainerBox;
 
         private readonly FillFlowContainer inventoryTop;
 
@@ -71,7 +71,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             Depth = -3;
             InternalChildren = new Drawable[]
             {
-                topButtons = new DrawSizePreservingFillContainer
+                topButtons = new Container
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -96,18 +96,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         }
                     }
                 },
-                itemContainerBox = new DrawSizePreservingFillContainer
+                itemContainerBox = new Container
                 {
                     Masking = true,
                     CornerExponent = 2,
                     CornerRadius = 20,
                     RelativeSizeAxes = Axes.Both,
                     RelativePositionAxes = Axes.Both,
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
                     Size = new Vector2(0.7f, 0.78f),
-                    Position = new Vector2(0, -0.01f),
-                    Margin = new MarginPadding { Vertical = 10 },
+                    Margin = new MarginPadding { Vertical = 180 },
                     Children = new Drawable[]
                     {
                         new Box

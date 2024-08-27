@@ -9,15 +9,16 @@ namespace GentrysQuest.Game.Screens.MainMenu
     public partial class Selection : CompositeDrawable
     {
         private readonly FillFlowContainer navBar;
-        private Bindable<SelectionState> state = new Bindable<SelectionState>(SelectionState.WeeklyChallenge);
-        private MainMenuButton weeklyChallenge;
+        private Bindable<SelectionState> state = new Bindable<SelectionState>(SelectionState.WeeklyEvent);
+        private MainMenuButton backButton;
+        private MainMenuButton weeklyEvent;
         private MainMenuButton travelButton;
         private MainMenuButton inventoryButton;
         private Container focusContainer;
-        private InventoryOverlay inventoryOverlay = new InventoryOverlay();
-        private WeeklyChallengeOverlay weeklyChallengeOverlay = new WeeklyChallengeOverlay();
+        private InventoryOverlay inventoryOverlay = new InventoryOverlay() { Y = -0.05f };
+        private WeeklyEventOverlay weeklyEventOverlay = new WeeklyEventOverlay();
 
-        public Selection()
+        public Selection(MainMenu parent)
         {
             RelativeSizeAxes = Axes.Both;
             InternalChildren = new Drawable[]
@@ -25,7 +26,6 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    FillMode = FillMode.Fit,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Children = new Drawable[]
@@ -41,7 +41,13 @@ namespace GentrysQuest.Game.Screens.MainMenu
                             Y = -300,
                             Children = new Drawable[]
                             {
-                                weeklyChallenge = new MainMenuButton("Weekly Challenge")
+                                backButton = new MainMenuButton("Back")
+                                {
+                                    Size = new Vector2(200, 100),
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre
+                                },
+                                weeklyEvent = new MainMenuButton("Weekly Event")
                                 {
                                     Size = new Vector2(200, 100),
                                     Anchor = Anchor.Centre,
@@ -63,26 +69,29 @@ namespace GentrysQuest.Game.Screens.MainMenu
                         },
                         focusContainer = new Container
                         {
-                            Size = new Vector2(1000, 800),
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Y = 100,
+                            RelativeSizeAxes = Axes.Both,
+                            Size = new Vector2(0.9f, 0.75f),
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.BottomCentre,
                             Children = new Drawable[]
                             {
                                 inventoryOverlay,
-                                weeklyChallengeOverlay
+                                weeklyEventOverlay
                             }
                         }
                     }
                 }
             };
 
+            backButton.SetAction(parent.PressBack);
             inventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
-            weeklyChallenge.SetAction(delegate { state.Value = SelectionState.WeeklyChallenge; });
+            weeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
 
             state.ValueChanged += delegate
             {
                 inventoryOverlay.Hide();
+                weeklyEventOverlay.Hide();
+                weeklyEventOverlay.EndLeaderboard();
 
                 switch (state.Value)
                 {
@@ -90,8 +99,9 @@ namespace GentrysQuest.Game.Screens.MainMenu
                         inventoryOverlay.Show();
                         break;
 
-                    case SelectionState.WeeklyChallenge:
-                        weeklyChallengeOverlay.Show();
+                    case SelectionState.WeeklyEvent:
+                        weeklyEventOverlay.Show();
+                        weeklyEventOverlay.ReloadLeaderboard();
                         break;
                 }
             };
@@ -99,7 +109,9 @@ namespace GentrysQuest.Game.Screens.MainMenu
 
         public void Appear()
         {
-            state.Value = SelectionState.WeeklyChallenge;
+            state.Value = SelectionState.WeeklyEvent;
+            state.TriggerChange();
+            weeklyEventOverlay.Show();
             this.FadeIn();
             navBar.X = -2;
             navBar.MoveToX(0, 250, Easing.OutQuint);
@@ -108,6 +120,8 @@ namespace GentrysQuest.Game.Screens.MainMenu
         public void Disappear()
         {
             inventoryOverlay.Hide();
+            weeklyEventOverlay.Hide();
+            weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(2, 250, Easing.OutQuint);
         }
     }

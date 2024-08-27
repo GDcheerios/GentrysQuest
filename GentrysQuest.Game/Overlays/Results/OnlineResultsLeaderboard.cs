@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Online.API.Requests;
 using GentrysQuest.Game.Scoring;
 
@@ -16,13 +17,23 @@ namespace GentrysQuest.Game.Overlays.Results
             return leaderboardResult.Response;
         }
 
+        public async void Load()
+        {
+            var placements = await fetchLeaderboard(id);
+            populate(placements);
+        }
+
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            var placements = await fetchLeaderboard(id);
+            Load();
+        }
 
+        private void populate(List<LeaderboardPlacement> placements)
+        {
             foreach (LeaderboardPlacement placement in placements)
             {
+                if (GameData.CurrentUser.Value != null && placement.Username == GameData.CurrentUser.Value.Name) ScoreText.Text = $"#{placement.Placement}    {placement.Score} score";
                 AddListing(placement);
             }
         }
