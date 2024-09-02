@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity
@@ -263,6 +264,10 @@ namespace GentrysQuest.Game.Entity
         protected static double CalculatePointBenefit(double normalValue, int point, double pointBenefit)
         {
             return normalValue + (point * pointBenefit);
+        }
+
+        public override void LoadJson(string json)
+        {
         }
     }
 }

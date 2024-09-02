@@ -2,8 +2,9 @@
 
 namespace GentrysQuest.Game.Entity
 {
-    public class EntityBase
+    public abstract class EntityBase
     {
+        public int ID { get; private set; }
         public virtual string Name { get; set; } = "Entity";
         public virtual StarRating StarRating { get; protected set; } = new StarRating(1);
         public virtual string Description { get; protected set; } = "This is a description";
@@ -36,6 +37,10 @@ namespace GentrysQuest.Game.Entity
 
             OnLevelUp?.Invoke();
         }
+
+        public void LinkOnlineItem(int idLink) => ID = idLink;
+
+        public abstract void LoadJson(string json);
 
         public virtual void CalculateXpRequirement() => Experience.Xp.CalculateRequirement(Experience.Level.Current.Value, StarRating.Value);
     }
