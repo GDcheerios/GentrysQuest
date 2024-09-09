@@ -66,7 +66,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The base speed variable for all entities
         /// </summary>
-        protected const double SPEED_MAIN = 0.35;
+        protected const double SPEED_MAIN = 0.15;
 
         private const int DODGE_TIME = 250;
         private const int DODGE_INTERVAL = 1000;
@@ -197,7 +197,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void Move(Vector2 direction, double speed)
         {
             float value = (float)(Clock.ElapsedFrameTime * speed);
-            ColliderBox.Position += (direction * 0.06f) * value;
+            ColliderBox.Position += (direction * 0.05f) * value;
 
             if (!HitBoxScene.Collides(ColliderBox)) OnMove?.Invoke(direction, speed);
         }

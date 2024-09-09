@@ -24,6 +24,18 @@ namespace GentrysQuest.Game.Entity.Weapon
             selectedCaseHolder.AddEvent(attackPatternEvent);
         }
 
+        public AttackPatternEvent GetLastCaseEvent()
+        {
+            List<AttackPatternEvent> theEvents = selectedCaseHolder.GetEvents();
+            return theEvents[theEvents.Count];
+        }
+
+        public AttackPatternEvent GetFirstCaseEvent()
+        {
+            List<AttackPatternEvent> theEvents = selectedCaseHolder.GetEvents();
+            return theEvents[0];
+        }
+
         public AttackPatternCaseHolder GetCase(int caseNumber)
         {
             foreach (AttackPatternCaseHolder caseHolder in caseEventList)

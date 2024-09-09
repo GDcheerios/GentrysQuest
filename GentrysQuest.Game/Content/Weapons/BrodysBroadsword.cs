@@ -37,20 +37,19 @@ namespace GentrysQuest.Game.Content.Weapons
 
             var distance = 0.35f;
             var time = new Second(0.75f);
-            var movementSpeed = 0.25f;
             OnHitEffect hiltAttack = new OnHitEffect
             {
                 Effect = new Stun()
             };
 
             AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Direction = 110, Distance = distance, MovementSpeed = movementSpeed, DamagePercent = 15 });
-            AttackPattern.Add(new AttackPatternEvent(time) { Direction = -75, Distance = distance, MovementSpeed = movementSpeed, Transition = Easing.InCubic, DamagePercent = 15 });
+            AttackPattern.Add(new AttackPatternEvent { Direction = 110, Distance = distance, DamagePercent = 15 });
+            AttackPattern.Add(new AttackPatternEvent(time) { Direction = -75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 15 });
 
             AttackPattern.AddCase(2);
-            AttackPattern.Add(new AttackPatternEvent { Direction = -75, Distance = distance, MovementSpeed = movementSpeed, DamagePercent = 30 });
-            AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = -110, Distance = distance, MovementSpeed = movementSpeed, Transition = Easing.OutCubic, DamagePercent = 30 });
-            AttackPattern.Add(new AttackPatternEvent(time) { Direction = 75, Distance = distance, MovementSpeed = movementSpeed, Transition = Easing.InCubic, DamagePercent = 30 });
+            AttackPattern.Add(new AttackPatternEvent { Direction = -75, Distance = distance, DamagePercent = 30 });
+            AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = -110, Distance = distance, Transition = Easing.OutCubic, DamagePercent = 30 });
+            AttackPattern.Add(new AttackPatternEvent(time) { Direction = 75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 30 });
 
             Vector2 boxSize = new Vector2(0);
 
