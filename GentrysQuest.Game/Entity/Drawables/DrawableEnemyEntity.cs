@@ -4,6 +4,7 @@ using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
@@ -19,6 +20,10 @@ namespace GentrysQuest.Game.Entity.Drawables
         private const float stuckDistanceThreshold = 1f; // Minimum movement to consider as not stuck
         private VisibilityBox surroundingVisibility;
         private AiState aiState = AiState.Idle;
+
+        /// <summary>
+        /// The last position check to determine if we should set a new destination.
+        /// </summary>
         private double lastPositionCheckTime;
 
         /// <summary>
@@ -29,7 +34,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableEnemyEntity(Entity entity)
             : base(entity, AffiliationType.Enemy)
         {
-            lastPositionCheckTime = Clock.CurrentTime;
             OnMove += delegate(Vector2 direction, double speed)
             {
                 Position += direction * (float)Clock.ElapsedFrameTime * (float)speed;
@@ -39,7 +43,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         [BackgroundDependencyLoader]
         private void load()
         {
-            ColliderBox.Disable();
+            checkTime();
             AddInternal(surroundingVisibility = new VisibilityBox(this, true));
             AddInternal(EnemyController = new EnemyController(this));
             AddInternal(directionTrack = new Box
@@ -143,6 +147,10 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         private Vector2 getDirectionToPlayer() => MathBase.GetDirection(Position, followEntity.Position);
 
+        private bool checkTime() => Clock.CurrentTime - lastPositionCheckTime > NEW_POSITION_INTERVAL;
+        private void updateTime() => lastPositionCheckTime = Clock.CurrentTime;
+        private void updatePosition() => FocusedPosition = new Vector2(MathBase.RandomFloat(-1000, 1000), MathBase.RandomFloat(-1000, 1000));
+
         protected override void Update()
         {
             base.Update();
@@ -151,24 +159,38 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (aiState)
             {
                 case AiState.Pursuing:
-                    break;
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance) Attack(followEntity.Position);
 
-                case AiState.AgressivePursuing:
-                    break;
+                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
+                    {
+                        FocusedPosition = Vector2.Zero;
+                        updateTime();
+                        break;
+                    }
 
-                case AiState.DefensivePursuing:
+                    aiState = AiState.Idle;
+
                     break;
 
                 case AiState.Idle:
+                    if (checkTime())
+                    {
+                        updateTime();
+                        updatePosition();
+                    }
+
+                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) aiState = AiState.Pursuing;
+
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance) Attack(followEntity.Position);
-            DirectionLooking = (int)MathBase.GetAngle(Position, followEntity.Position);
-            if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) FocusedPosition = Vector2.Zero;
+            Logger.Log($"{GetBase().Name} {FocusedPosition}");
+
+            DirectionLooking = (int)MathBase.GetAngle(Position, FocusedPosition);
+
             if (!GetBase().CanMove) return;
 
             Direction += getDesirableDirection();
