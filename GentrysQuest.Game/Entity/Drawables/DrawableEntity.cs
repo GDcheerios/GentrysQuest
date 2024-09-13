@@ -206,7 +206,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Attacks towards a direction
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public void Attack(Vector2 position)
+        public virtual void Attack(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 

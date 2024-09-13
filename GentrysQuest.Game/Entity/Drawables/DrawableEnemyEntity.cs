@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
@@ -29,7 +29,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// Determines how long until the enemy will find a new position to move to while Idle.
         /// </summary>
-        private const int NEW_POSITION_INTERVAL = 10000;
+        private const int NEW_POSITION_INTERVAL = 5000;
 
         public DrawableEnemyEntity(Entity entity)
             : base(entity, AffiliationType.Enemy)
@@ -97,23 +97,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             Vector2 currentPosition = Position;
 
-            // Check if the enemy is stuck
-            if ((currentPosition - lastPosition).Length < stuckDistanceThreshold)
-            {
-                stuckCounter++;
-            }
-            else
-            {
-                stuckCounter = 0; // Reset if the enemy moved
-            }
-
             lastPosition = currentPosition;
-
-            // If stuck, encourage the enemy to move in a different direction
-            if (stuckCounter < stuckThreshold) return desirableDirection.Normalized();
-
-            stuckCounter = 0; // Reset the counter
-            desirableDirection += getUnstuckDirection();
 
             return desirableDirection.Normalized();
         }
@@ -151,6 +135,12 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void updateTime() => lastPositionCheckTime = Clock.CurrentTime;
         private void updatePosition() => FocusedPosition = new Vector2(MathBase.RandomFloat(-1000, 1000), MathBase.RandomFloat(-1000, 1000));
 
+        public override void Attack(Vector2 position)
+        {
+            base.Attack(position);
+            GetBase().AddEffect(new Stall(500));
+        }
+
         protected override void Update()
         {
             base.Update();
@@ -187,18 +177,17 @@ namespace GentrysQuest.Game.Entity.Drawables
                     throw new ArgumentOutOfRangeException();
             }
 
-            Logger.Log($"{GetBase().Name} {FocusedPosition}");
-
             DirectionLooking = (int)MathBase.GetAngle(Position, FocusedPosition);
 
-            if (!GetBase().CanMove) return;
-
-            Direction += getDesirableDirection();
-            if (!float.IsFinite(Direction.X) && !float.IsFinite(Direction.Y)) return;
+            if (GetBase().CanMove)
+            {
+                Direction += getDesirableDirection();
+                if (!float.IsFinite(Direction.X) && !float.IsFinite(Direction.Y)) return;
+            }
 
             float rotation = MathBase.GetAngle(Vector2.Zero, Direction) + 90;
             if (!float.IsNaN(rotation)) directionTrack.Rotation = rotation;
-            if (Direction != Vector2.Zero) Move(Direction.Normalized(), GetSpeed());
+            Move(Direction != Vector2.Zero ? Direction.Normalized() : Vector2.Zero, GetSpeed());
         }
     }
 }
