@@ -138,7 +138,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public override void Attack(Vector2 position)
         {
             base.Attack(position);
-            GetBase().AddEffect(new Stall(500));
+            GetBase().AddEffect(new Stun(500));
         }
 
         protected override void Update()
@@ -149,7 +149,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (aiState)
             {
                 case AiState.Pursuing:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance) Attack(followEntity.Position);
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) Attack(followEntity.Position);
 
                     if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
                     {
