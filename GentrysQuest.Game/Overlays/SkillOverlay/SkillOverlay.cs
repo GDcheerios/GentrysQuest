@@ -40,6 +40,7 @@ namespace GentrysQuest.Game.Overlays.SkillOverlay
 
         public void SetUpSkills(Entity.Entity entity)
         {
+            skillContainer.Add(new SkillDrawable(entity.Weapon?.SkillRef));
             skillContainer.Add(new SkillDrawable(entity.Secondary));
             skillContainer.Add(new SkillDrawable(entity.Utility));
             skillContainer.Add(new SkillDrawable(entity.Ultimate));
