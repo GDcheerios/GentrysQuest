@@ -75,7 +75,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                                     },
                                     skillDisplay = new Sprite
                                     {
-                                        Size = new Vector2(64),
+                                        Size = new Vector2(84),
                                         Origin = Anchor.Centre,
                                         Margin = new MarginPadding(2)
                                     },

@@ -2,6 +2,7 @@ using GentrysQuest.Game.Entity.Drawables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 
 namespace GentrysQuest.Game.Overlays.SkillOverlay
 {
@@ -31,7 +32,8 @@ namespace GentrysQuest.Game.Overlays.SkillOverlay
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             AutoSizeAxes = Axes.Both,
-                            Direction = FillDirection.Horizontal
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(25,0)
                         }
                     }
                 }
