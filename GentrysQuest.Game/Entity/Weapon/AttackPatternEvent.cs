@@ -48,6 +48,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public int DamagePercent = 0;
 
         /// <summary>
+        /// How much stronger the knockback is
+        /// </summary>
+        public int KnockbackMultiplier = 1;
+
+        /// <summary>
         /// affects how quick the wielder will move.
         /// big for game stabilization and making it feel more enjoyable
         /// </summary>

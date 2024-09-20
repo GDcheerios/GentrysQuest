@@ -61,6 +61,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public Buff Buff;
 
         /// <summary>
+        /// The current knockback strength
+        /// </summary>
+        public int KnockbackMultiplier;
+
+        /// <summary>
         /// The valid buffs that this weapon can have
         /// </summary>
         public virtual List<StatType> ValidBuffs { get; set; } = new();

@@ -103,7 +103,6 @@ namespace GentrysQuest.Game.Entity.Drawables
             Weapon.AttackAmount += 1;
             AttackPatternCaseHolder caseHolder = Weapon.AttackPattern.GetCase(Weapon.AttackAmount); // set the caseHolder
             Weapon.Holder.Attack(); // Call the holder base method to handle events.
-            LastUseTime = Clock.CurrentTime;
 
             if (caseHolder == null)
             {
@@ -130,6 +129,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             GetBase().SkillRef.SetCooldown(delay);
             GetBase().SkillRef.Act();
 
+            LastUseTime = Clock.CurrentTime + delay;
             Scheduler.AddDelayed(() => RestWeapon(true), delay);
         }
 
@@ -192,6 +192,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
                 onHitEffect = pattern.OnHitEffect;
                 doesDamage = pattern.DoesDamage;
+                Weapon.KnockbackMultiplier = pattern.KnockbackMultiplier;
             }
 
             if (!HitBox.Enabled) return; // don't need to continue if there's no hitbox
