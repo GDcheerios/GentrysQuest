@@ -20,7 +20,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
 
         public TestSceneGameplay()
         {
-            theGuy = new TestCharacter(1);
+            theGuy = new BraydenMesserschmidt();
             testWeapon = new BraydensOsuPen();
             GameData.EquipCharacter(theGuy);
             GameData.Money.InfiniteMoney = true;

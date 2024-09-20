@@ -63,7 +63,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// The current knockback strength
         /// </summary>
-        public int KnockbackMultiplier;
+        public float KnockbackMultiplier;
 
         /// <summary>
         /// The valid buffs that this weapon can have

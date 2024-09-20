@@ -50,7 +50,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// How much stronger the knockback is
         /// </summary>
-        public int KnockbackMultiplier = 1;
+        public float KnockbackMultiplier = 1;
 
         /// <summary>
         /// affects how quick the wielder will move.

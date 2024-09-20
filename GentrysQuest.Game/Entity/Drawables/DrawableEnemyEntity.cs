@@ -138,7 +138,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         public override void Attack(Vector2 position)
         {
             base.Attack(position);
-            GetBase().AddEffect(new Stun(500));
+            GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
+            GetBase().AddEffect(new Disarm(2000));
         }
 
         protected override void Update()
