@@ -17,15 +17,17 @@ namespace GentrysQuest.Game.Content.Weapons
             Damage.SetDefaultValue(20);
 
             AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Size = new Vector2(0.5f), Distance = 50 });
-            AttackPattern.Add(new AttackPatternEvent(500) { Size = new Vector2(0.5f), Distance = 40 });
-            AttackPattern.Add(new AttackPatternEvent(10) { Size = new Vector2(0.5f), Distance = 30 });
-            AttackPattern.Add(new AttackPatternEvent(750)
+            AttackPattern.Add(new AttackPatternEvent
             {
                 Size = new Vector2(0.5f),
                 Distance = 50,
                 HitboxSize = new Vector2(0),
-                MovementSpeed = 0f,
+            });
+            AttackPattern.Add(new AttackPatternEvent
+            {
+                Size = new Vector2(0.5f),
+                Distance = 40,
+                HitboxSize = new Vector2(0),
                 Projectiles =
                 [
                     new ProjectileParameters
@@ -37,6 +39,12 @@ namespace GentrysQuest.Game.Content.Weapons
                         TakesDefense = true
                     }
                 ]
+            });
+            AttackPattern.Add(new AttackPatternEvent(800)
+            {
+                Size = new Vector2(0.5f),
+                Distance = 50,
+                HitboxSize = new Vector2(0),
             });
         }
     }
