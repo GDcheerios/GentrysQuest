@@ -12,7 +12,7 @@ namespace GentrysQuest.Game.Entity
         private DrawableEntity parent;
         private MovementHitBox[] directionChecks;
         private const int DIRECTIONS = 8;
-        private const float DISTANCE = 0.2f;
+        private const float DISTANCE = 0.3f;
 
         public EnemyController(DrawableEnemyEntity enemy)
         {

@@ -33,6 +33,12 @@ namespace GentrysQuest.Game.Entity.Weapon
         public bool CanAttack;
 
         /// <summary>
+        /// Access the skill information for the weapon.
+        /// This is how we display cooldown information on the HUD.
+        /// </summary>
+        public WeaponSkill SkillRef { get; protected set; }
+
+        /// <summary>
         /// If the weapon itself can deal damage or just other things
         /// </summary>
         public virtual bool IsGeneralDamageMode { get; protected set; } = true;
@@ -55,6 +61,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public Buff Buff;
 
         /// <summary>
+        /// The current knockback strength
+        /// </summary>
+        public float KnockbackMultiplier;
+
+        /// <summary>
         /// The valid buffs that this weapon can have
         /// </summary>
         public virtual List<StatType> ValidBuffs { get; set; } = new();
@@ -74,15 +85,13 @@ namespace GentrysQuest.Game.Entity.Weapon
         protected Weapon()
         {
             Buff = ValidBuffs.Count > 0 ? new Buff(this, ValidBuffs[MathBase.RandomChoice(ValidBuffs.Count)]) : new Buff(this);
-
+            SkillRef = new WeaponSkill();
             OnLevelUp += delegate
             {
                 UpdateStats();
                 Buff.Improve();
                 Holder?.UpdateStats();
             };
-
-            CalculateXpRequirement();
         }
 
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);

@@ -34,10 +34,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         public void Gameplay()
         {
             AddStep("Ready", () => { });
-            AddStep("AddEnemy", () =>
-            {
-                gameplay.AddEnemy(theGuy.Experience.Level.Current.Value);
-            });
+            AddStep("AddEnemy", () => gameplay.AddEnemy(theGuy.Experience.Level.Current.Value));
             AddSliderStep("Difficulty", 0, 10, 0, i => gameplay.SetDifficulty(i));
             AddStep("Damage", (() => theGuy.Damage(10)));
             AddStep("Slow", () => theGuy.AddEffect(new Slowness()));

@@ -48,6 +48,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public int DamagePercent = 0;
 
         /// <summary>
+        /// How much stronger the knockback is
+        /// </summary>
+        public float KnockbackMultiplier = 1;
+
+        /// <summary>
         /// affects how quick the wielder will move.
         /// big for game stabilization and making it feel more enjoyable
         /// </summary>
@@ -77,6 +82,26 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// The projectiles
         /// </summary>
         public List<ProjectileParameters> Projectiles = null;
+
+        /// <summary>
+        /// If this forces the wielder to move in a certain direction.
+        /// </summary>
+        public bool ForcedMovement = false;
+
+        /// <summary>
+        /// The direction the character will move towards.
+        /// </summary>
+        public int ForcedMovementDirection = 0;
+
+        /// <summary>
+        /// How strong the movement is.
+        /// </summary>
+        public int ForcedMovementStrength = 1;
+
+        /// <summary>
+        /// How long the movement will last.
+        /// </summary>
+        public int ForcedMovementDuration = 0;
 
         public override string ToString()
         {

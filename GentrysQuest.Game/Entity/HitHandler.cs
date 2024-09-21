@@ -73,9 +73,9 @@ public class HitHandler
     private void applyKnockback()
     {
         Vector2 direction = MathBase.GetDirection(sender.positionRef, receiver.Position);
-        float knockbackForce = (float)(1 + sender.Weapon!.Damage.GetDefault() / 100);
+        float knockbackForce = sender.Weapon!.KnockbackMultiplier / receiverBase.KnockbackModifier;
         if (Details.IsCrit) knockbackForce *= 1.5f;
-        if (receiverBase.HasTenacity()) receiver.ApplyKnockback(direction, 0.54f, 100, KnockbackType.StopsMovement);
+        if (receiverBase.HasTenacity()) receiver.ApplyKnockback(direction, knockbackForce, (int)knockbackForce * 100, KnockbackType.StopsMovement);
         else receiver.ApplyKnockback(direction, knockbackForce, (int)knockbackForce * 200, KnockbackType.Stuns);
     }
 

@@ -9,6 +9,10 @@ using osuTK.Input;
 
 namespace GentrysQuest.Game.Screens.Gameplay;
 
+/// <summary>
+/// A clickable container to determine where the player is looking and where they click.
+/// </summary>
+/// <param name="player">The player to follow</param>
 public partial class GameplayClickContainer(DrawablePlayableEntity player) : Container
 {
     private double holdStart;
@@ -39,7 +43,7 @@ public partial class GameplayClickContainer(DrawablePlayableEntity player) : Con
                 if (player.GetBase().Secondary?.PercentToDone == 100 || player.GetBase().Secondary?.UsesAvailable > 0)
                 {
                     player.GetBase().Secondary?.Act();
-                    player.GetBase().Secondary.TimeActed = Clock.CurrentTime;
+                    player.GetBase().Secondary.LastUseTime = Clock.CurrentTime;
                 }
 
                 break;

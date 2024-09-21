@@ -37,6 +37,7 @@ namespace GentrysQuest.Game.Entity
         public float DamageModifier = 1;
         public float DefenseModifier = 1;
         public float PositionJump = 0; // For teleporting
+        public float KnockbackModifier = 1;
 
         // Skills
         public Skill Secondary = null;

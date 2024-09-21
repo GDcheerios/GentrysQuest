@@ -23,10 +23,10 @@ namespace GentrysQuest.Game.Content.Weapons
             AttackPattern.AddCase(1);
             AttackPattern.Add(new AttackPatternEvent { Position = new Vector2(50, 0), HitboxSize = hitbox, Size = size });
             AttackPattern.Add(new AttackPatternEvent(50) { Position = new Vector2(25, 0), HitboxSize = hitbox, Size = size, DoesDamage = false });
-            AttackPattern.Add(new AttackPatternEvent(125) { Distance = 50, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size, DoesDamage = false });
-            AttackPattern.Add(new AttackPatternEvent(125) { Distance = 100, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size });
+            AttackPattern.Add(new AttackPatternEvent(100) { Distance = 50, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size, DoesDamage = false });
             AttackPattern.Add(new AttackPatternEvent(100) { Distance = 100, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size });
-            AttackPattern.Add(new AttackPatternEvent(250) { Distance = 0, Position = new Vector2(50, 0), HitboxSize = hitbox, Size = size, DoesDamage = false});
+            AttackPattern.Add(new AttackPatternEvent(100) { Distance = 100, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size });
+            AttackPattern.Add(new AttackPatternEvent(80) { Distance = 0, Position = new Vector2(50, 0), HitboxSize = hitbox, Size = size, DoesDamage = false});
         }
     }
 }

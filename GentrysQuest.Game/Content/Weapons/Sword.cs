@@ -22,13 +22,13 @@ namespace GentrysQuest.Game.Content.Weapons
 
             AttackPattern.AddCase(1);
             AttackPattern.Add(new AttackPatternEvent { Direction = 115, Distance = 100, Size = size });
-            AttackPattern.Add(new AttackPatternEvent(650) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, MovementSpeed = 0.75f });
-            AttackPattern.Add(new AttackPatternEvent(100) { Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, MovementSpeed = 0.75f });
+            AttackPattern.Add(new AttackPatternEvent(650) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
+            AttackPattern.Add(new AttackPatternEvent(100) { Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 1.5f });
 
             AttackPattern.AddCase(2);
             AttackPattern.Add(new AttackPatternEvent { Direction = -115, Distance = 100, Size = size });
-            AttackPattern.Add(new AttackPatternEvent(650) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, MovementSpeed = 0.75f });
-            AttackPattern.Add(new AttackPatternEvent(100) { Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, MovementSpeed = 0.75f });
+            AttackPattern.Add(new AttackPatternEvent(650) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
+            AttackPattern.Add(new AttackPatternEvent(100) { Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 1.5f });
         }
     }
 }

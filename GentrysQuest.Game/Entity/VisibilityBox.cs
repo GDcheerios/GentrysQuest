@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Entity
             : base(parent)
         {
             Colour = Colour4.White;
-            Size = surrounding ? new Vector2(5) : new Vector2(0.1f);
+            Size = surrounding ? new Vector2(6) : new Vector2(0.1f);
         }
     }
 }

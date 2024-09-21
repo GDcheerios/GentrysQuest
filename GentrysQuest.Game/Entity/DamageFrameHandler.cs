@@ -25,5 +25,34 @@ namespace GentrysQuest.Game.Entity
                 queue.Add(hitBox);
             }
         }
+
+        /// <summary>
+        /// Damage Frame Handler for projectiles
+        /// </summary>
+        public DamageFrameHandler(List<HitBox> intersections, DamageQueue queue, Entity sender, Projectile projectile)
+        {
+            foreach (var box in intersections.Where(box =>
+                         box.GetType() == typeof(MovementHitBox)
+                         || box.GetType() == typeof(VisibilityBox)
+                         || box.GetParent().GetType() == typeof(Projectile)
+                         || box.GetParent().GetType() == typeof(DrawableWeapon)
+                         || queue.Check(box)).ToList())
+            {
+                intersections.Remove(box);
+            }
+
+            foreach (var hitBox in intersections)
+            {
+                if (hitBox.GetType() == typeof(CollisonHitBox))
+                {
+                    projectile.Disable();
+                    return;
+                }
+
+                _ = new HitHandler(sender, hitBox.GetParent());
+                projectile.Hits++;
+                queue.Add(hitBox);
+            }
+        }
     }
 }

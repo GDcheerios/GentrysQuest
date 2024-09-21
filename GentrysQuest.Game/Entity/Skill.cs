@@ -26,13 +26,13 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// The time since last start
         /// </summary>
-        public double TimeActed = 0;
+        public double LastUseTime;
 
         /// <summary>
         /// How much longer until the skill is ready to use again
         /// </summary>
         /// <returns></returns>
-        public int PercentToDone = 0;
+        public int PercentToDone;
 
         /// <summary>
         /// Who has this skill?
@@ -69,7 +69,7 @@ namespace GentrysQuest.Game.Entity
 
         public void SetPercent(double currentTime)
         {
-            var elapsedTime = currentTime - TimeActed;
+            var elapsedTime = currentTime - LastUseTime;
 
             if (PercentToDone < 100 && UsesAvailable < MaxStack) { PercentToDone = (int)((elapsedTime / (float)Cooldown) * 100); }
             else
@@ -78,7 +78,7 @@ namespace GentrysQuest.Game.Entity
                 {
                     UsesAvailable++;
                     PercentToDone = 0;
-                    TimeActed = currentTime;
+                    LastUseTime = currentTime;
                 }
                 else PercentToDone = 100;
             }
