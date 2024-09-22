@@ -12,6 +12,7 @@ namespace GentrysQuest.Game.Online.API
         {
 #if DEBUG
             Endpoint = new DevelopmentEndpointConfiguration();
+            // Endpoint = new LocalhostEndpointConfiguration();
 #else
             Endpoint = new ProductionEndpointConfiguration();
 #endif

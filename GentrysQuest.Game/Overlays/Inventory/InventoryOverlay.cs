@@ -26,21 +26,21 @@ namespace GentrysQuest.Game.Overlays.Inventory
         /// <summary>
         /// if the inventory is being displayed
         /// </summary>
-        private bool isShowing = false;
+        public bool IsShowing = false;
 
         /// <summary>
         /// The section being displayed in the inventory
         /// </summary>
         private readonly Bindable<InventoryDisplay> displayingSection = new Bindable<InventoryDisplay>(InventoryDisplay.Hidden);
 
-        private readonly DrawSizePreservingFillContainer topButtons;
+        private readonly Container topButtons;
 
         private readonly InventoryButton charactersButton;
         private readonly InventoryButton artifactsButton;
         private readonly InventoryButton weaponsButton;
         private readonly InventoryButton exitButton;
 
-        private readonly DrawSizePreservingFillContainer itemContainerBox;
+        private readonly Container itemContainerBox;
 
         private readonly FillFlowContainer inventoryTop;
 
@@ -71,13 +71,12 @@ namespace GentrysQuest.Game.Overlays.Inventory
             Depth = -3;
             InternalChildren = new Drawable[]
             {
-                topButtons = new DrawSizePreservingFillContainer
+                topButtons = new Container
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     RelativePositionAxes = Axes.Both,
-                    Position = new Vector2(0),
                     Size = new Vector2(0.98f, 200),
                     Child = new FillFlowContainer<InventoryButton>
                     {
@@ -97,18 +96,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         }
                     }
                 },
-                itemContainerBox = new DrawSizePreservingFillContainer
+                itemContainerBox = new Container
                 {
                     Masking = true,
                     CornerExponent = 2,
                     CornerRadius = 20,
                     RelativeSizeAxes = Axes.Both,
                     RelativePositionAxes = Axes.Both,
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
                     Size = new Vector2(0.7f, 0.78f),
-                    Position = new Vector2(0, -0.01f),
-                    Margin = new MarginPadding { Vertical = 10 },
+                    Margin = new MarginPadding { Vertical = 180 },
                     Children = new Drawable[]
                     {
                         new Box
@@ -500,7 +498,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void ToggleDisplay()
         {
-            switch (isShowing)
+            switch (IsShowing)
             {
                 case true:
                     Hide();
@@ -528,7 +526,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public override void Show()
         {
-            isShowing = true;
+            IsShowing = true;
             base.Show();
             topButtons.MoveToY(0, FADE_TIME, Easing.InOutCubic);
             itemContainerBox.FadeIn(FADE_TIME, Easing.InOutCubic);
@@ -540,7 +538,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public override void Hide()
         {
             unDisplayInfo();
-            isShowing = false;
+            IsShowing = false;
             topButtons.MoveToY(-2, FADE_TIME, Easing.InOutCubic);
             itemContainer.ClearList();
             displayingSection.Value = InventoryDisplay.Hidden;

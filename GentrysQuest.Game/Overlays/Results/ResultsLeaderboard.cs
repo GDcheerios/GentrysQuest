@@ -1,15 +1,22 @@
+using System.Collections.Generic;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Scoring;
+using GentrysQuest.Game.Screens.Gameplay.Results;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
-namespace GentrysQuest.Game.Screens.Gameplay.Results
+namespace GentrysQuest.Game.Overlays.Results
 {
     public partial class ResultsLeaderboard : CompositeDrawable
     {
-        private FillFlowContainer<LeaderboardPanel> leaderboardPanels = new();
+        private BasicScrollContainer scrollContainer;
+
+        public readonly FillFlowContainer<LeaderboardPanel> LeaderboardPanels = new();
+        public List<LeaderboardPlacement> Placements = new();
+
+        protected SpriteText ScoreText;
 
         public ResultsLeaderboard()
         {
@@ -29,20 +36,20 @@ namespace GentrysQuest.Game.Screens.Gameplay.Results
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             Height = 80,
-                            Child = new SpriteText
+                            Child = ScoreText = new SpriteText
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 Text = $"{(int)GameData.CurrentStats.GetStat(StatTypes.Score).Value} Score",
                                 Colour = Colour4.Black,
                                 Font = FontUsage.Default.With(size: 42)
-                            }
+                            },
                         },
-                        new BasicScrollContainer
+                        scrollContainer = new BasicScrollContainer
                         {
                             RelativeSizeAxes = Axes.X,
-                            Height = 1000,
-                            Child = leaderboardPanels = new FillFlowContainer<LeaderboardPanel>
+                            Height = 500,
+                            Child = LeaderboardPanels = new FillFlowContainer<LeaderboardPanel>
                             {
                                 Direction = FillDirection.Vertical,
                                 AutoSizeAxes = Axes.Y,
@@ -57,7 +64,8 @@ namespace GentrysQuest.Game.Screens.Gameplay.Results
         public void AddListing(LeaderboardPlacement placement)
         {
             LeaderboardPanel panel = new LeaderboardPanel(placement);
-            leaderboardPanels.Add(panel);
+            Placements.Add(placement);
+            LeaderboardPanels.Add(panel);
             panel.Scale = new Vector2(0, 1);
             panel.ScaleTo(new Vector2(1, 1), 100);
         }

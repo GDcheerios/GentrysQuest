@@ -1,4 +1,4 @@
-using GentrysQuest.Game.Screens.Gameplay.Results;
+using GentrysQuest.Game.Screens.Gameplay;
 using NUnit.Framework;
 using osu.Framework.Screens;
 

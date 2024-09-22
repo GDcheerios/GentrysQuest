@@ -1,12 +1,6 @@
 using GentrysQuest.Game.Audio;
-using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Weapons;
-using GentrysQuest.Game.Database;
-using GentrysQuest.Game.Entity;
-using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online.API;
-using GentrysQuest.Game.Overlays.LoginOverlay;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
@@ -27,11 +21,21 @@ namespace GentrysQuest.Game.Screens.MainMenu
         private DrawableTrack menuTheme;
         private MainMenuButton playButton;
         private MainMenuButton quitButton;
-        private LoginOverlay loginOverlay;
+        private PlayerSelectBox playerSelect;
+        private Selection selection;
 
         [BackgroundDependencyLoader]
         private void load(ITrackStore trackStore)
         {
+            playerSelect = new PlayerSelectBox(this)
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                RelativeSizeAxes = Axes.Both,
+                RelativePositionAxes = Axes.Both,
+                Scale = new Vector2(0.6f, 0.9f),
+                Y = -1.05f
+            };
             menuTheme = new DrawableTrack(trackStore.Get("Gentrys_Quest_Ambient_1.mp3"));
             InternalChildren = new Drawable[]
             {
@@ -44,6 +48,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 {
                     Alpha = 0
                 },
+                selection = new Selection(this),
                 new FillFlowContainer
                 {
                     AutoSizeAxes = Axes.Y,
@@ -66,53 +71,51 @@ namespace GentrysQuest.Game.Screens.MainMenu
                         }
                     }
                 },
-                new Container
-                {
-                    Size = new Vector2(400),
-                    Y = 35,
-                    X = -100,
-                    Origin = Anchor.CentreRight,
-                    Anchor = Anchor.CentreRight,
-                    Masking = true,
-                    CornerExponent = 2,
-                    CornerRadius = 15,
-                    Children = new Drawable[]
-                    {
-                        new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = new Color4(20, 20, 20, 200)
-                        },
-                        new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.95f),
-                            Child = loginOverlay = new LoginOverlay()
-                        }
-                    }
-                }
+                playerSelect
             };
-            playButton.SetAction(delegate
-            {
-                Character character = new BraydenMesserschmidt();
-                Weapon weapon = new BraydensOsuPen();
-                character.Weapon = weapon;
-                GameData.Add(character);
-                GameData.EquipCharacter(character);
-                this.Push(new Gameplay.Gameplay());
-            });
+            playButton.SetAction(PressPlay);
             quitButton.SetAction(delegate
             {
                 _ = APIAccess.DeleteToken();
                 Game.Exit();
             });
+            selection.FadeOut();
         }
 
-        public void press_play()
+        public void PressPlay()
         {
             title.FadeOut(200);
+            selection.Disappear();
+            playButton.FadeOut(200);
+            quitButton.FadeOut(200);
+            playerSelect.MoveToY(-0.05f, 200, Easing.Out);
+            resetTitle();
+        }
+
+        public void PressBack()
+        {
+            selection.Disappear();
+            title.FadeIn(200);
+            resetTitle();
+            playButton.FadeIn(200);
+            quitButton.FadeIn(200);
+            playerSelect.MoveToY(-1.05f, 200, Easing.Out);
+        }
+
+        public void EnterSelection()
+        {
+            title.FadeIn(200);
+            Scheduler.AddDelayed(
+                delegate
+                {
+                    title.MoveToY(-400, 200, Easing.In);
+                    title.ScaleTo(0.5f, 200, Easing.Out);
+                }, 200
+            );
+            playButton.FadeOut(200);
+            quitButton.FadeOut(200);
+            playerSelect.MoveToY(-1.05f, 200, Easing.Out);
+            Scheduler.AddDelayed(selection.Appear, 450);
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
@@ -123,6 +126,18 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 new Colour4(58, 58, 58, 255)
             ), 500);
             title.Delay(120).Then().FadeIn(120);
+        }
+
+        public override void OnResuming(ScreenTransitionEvent e)
+        {
+            PressBack();
+            EnterSelection();
+        }
+
+        private void resetTitle()
+        {
+            title.MoveToY(-200, 200, Easing.Out);
+            title.ScaleTo(1, 200, Easing.Out);
         }
 
         protected override void LoadComplete()

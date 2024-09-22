@@ -1,28 +1,25 @@
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity.Drawables;
-using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Online.API.Requests;
 using GentrysQuest.Game.Overlays.Inventory;
-using GentrysQuest.Game.Scoring;
+using GentrysQuest.Game.Overlays.Results;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osuTK;
 
-namespace GentrysQuest.Game.Screens.Gameplay.Results
+namespace GentrysQuest.Game.Screens.Gameplay
 {
     public partial class ResultScreen : Screen
     {
-        private ResultsLeaderboard leaderboard;
-        private LoadingIndicator loadingIndicator;
-        private StatDrawableContainer statisticsContainer;
-        private InventoryButton retryButton;
+        private readonly int id;
+        private readonly ResultsLeaderboard leaderboard;
+        private readonly StatDrawableContainer statisticsContainer;
+        private readonly InventoryButton retryButton;
 
-        public ResultScreen()
+        public ResultScreen(int id)
         {
+            this.id = id;
             AddInternal(new Box
             {
                 RelativeSizeAxes = Axes.Both,
@@ -57,35 +54,6 @@ namespace GentrysQuest.Game.Screens.Gameplay.Results
             foreach (var statistic in GameData.CurrentStats.GetStats().Where(statistic => statistic.Name != "Score"))
             {
                 statisticsContainer.AddStat(new StatDrawable(statistic.Name, statistic.Value, false));
-            }
-        }
-
-        private static async Task<List<LeaderboardPlacement>> fetchLeaderboard()
-        {
-            var leaderboardResult = new GetLeaderboardRequest();
-            await leaderboardResult.PerformAsync();
-            return leaderboardResult.Response;
-        }
-
-        protected override async void LoadComplete()
-        {
-            base.LoadComplete();
-            var placements = await fetchLeaderboard();
-            Populate(placements);
-        }
-
-        public void Populate(List<LeaderboardPlacement> placements)
-        {
-            int tracker = 1;
-
-            foreach (LeaderboardPlacement placement in placements)
-            {
-                Scheduler.AddDelayed(() =>
-                {
-                    leaderboard.AddListing(placement);
-                }, tracker * 50);
-
-                tracker++;
             }
         }
 
