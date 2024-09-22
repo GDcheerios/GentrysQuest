@@ -44,6 +44,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void load()
         {
             checkTime();
+            ColliderBox.Size = new Vector2(0.1f);
             AddInternal(surroundingVisibility = new VisibilityBox(this, true));
             AddInternal(EnemyController = new EnemyController(this));
             AddInternal(directionTrack = new Box
