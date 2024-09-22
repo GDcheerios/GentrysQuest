@@ -28,9 +28,12 @@ public partial class DrawablePlayableEntity : DrawableEntity
         : base(entity, AffiliationType.Player, false)
     {
         entity.OnLevelUp += delegate { NotificationContainer.Instance.AddNotification(new Notification("Leveled up!", NotificationType.Informative)); };
+        if (entity.Secondary != null) entity.Secondary.User = this;
+        if (entity.Utility != null) entity.Utility.User = this;
+        if (entity.Ultimate != null) entity.Ultimate.User = this;
     }
 
-    public void SetupClickContainer() => AddInternal(clickContainer = new GameplayClickContainer(this));
+    public void SetupClickContainer() => AddInternal(clickContainer = new GameplayClickContainer(this)); // Add clickable container to the player scene
 
     public void RemoveClickContainer()
     {
@@ -67,7 +70,7 @@ public partial class DrawablePlayableEntity : DrawableEntity
                 if (Entity.Utility?.PercentToDone == 100 || Entity.Utility?.UsesAvailable > 0)
                 {
                     Entity.Utility?.Act();
-                    if (Entity.Utility != null) Entity.Utility.TimeActed = Clock.CurrentTime;
+                    if (Entity.Utility != null) Entity.Utility.LastUseTime = Clock.CurrentTime;
                 }
 
                 break;
@@ -76,7 +79,7 @@ public partial class DrawablePlayableEntity : DrawableEntity
                 if (Entity.Ultimate?.PercentToDone == 100 || Entity.Ultimate?.UsesAvailable > 0)
                 {
                     Entity.Ultimate?.Act();
-                    if (Entity.Ultimate != null) Entity.Ultimate.TimeActed = Clock.CurrentTime;
+                    if (Entity.Ultimate != null) Entity.Ultimate.LastUseTime = Clock.CurrentTime;
                 }
 
                 break;

@@ -38,6 +38,7 @@ namespace GentrysQuest.Game.Entity
         public float DamageModifier = 1;
         public float DefenseModifier = 1;
         public float PositionJump = 0; // For teleporting
+        public float KnockbackModifier = 1;
 
         // Skills
         public Skill Secondary = null;
@@ -215,15 +216,11 @@ namespace GentrysQuest.Game.Entity
             {
                 var effect = Effects[index];
 
-                if (effect.Name != name) continue;
-
-                effect.OnRemove?.Invoke();
-                Effects.Remove(effect);
-                int health = (int)Stats.Health.Current.Value;
-                UpdateStats();
-
-                // because the stats get reset we set health to normal
-                Stats.Health.Current.Value = health;
+                if (effect.Name.Equals(name))
+                {
+                    effect.OnRemove?.Invoke();
+                    Effects.Remove(effect);
+                }
             }
 
             OnEffect?.Invoke();

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Content.Effects;
-using GentrysQuest.Game.Content.Enemies;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Database;
@@ -16,14 +15,12 @@ using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
-using osuTK.Graphics;
 using osuTK.Input;
 
 namespace GentrysQuest.Game.Screens.Gameplay
@@ -93,7 +90,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             {
                 new Box
                 {
-                    Colour = ColourInfo.GradientVertical(Color4.DarkGray, Color4.White),
+                    Colour = Colour4.Gray,
                     RelativeSizeAxes = Axes.Both
                 },
                 gameplayHud = new GameplayHud(),
@@ -129,7 +126,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
         /// <param name="enemy">For if you want to use custom enemies</param>
         public void AddEnemy(int level, Enemy enemy = null)
         {
-            enemy ??= new TestEnemy(1);
+            enemy ??= (Enemy)Activator.CreateInstance(map.MapReference.Enemies[MathBase.RandomChoice(map.MapReference.Enemies.Count)].GetType());
             enemy.Experience.Level.Current.Value = level;
             enemy.UpdateStats();
             DrawableEnemyEntity newEnemy = new DrawableEnemyEntity(enemy);
@@ -137,8 +134,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
             AddInternal(newEnemy);
             enemies.Add(newEnemy);
             enemy.SetWeapon();
-            newEnemy.GetEntityObject().OnDeath += delegate { Scheduler.AddDelayed(() => RemoveEnemy(newEnemy), 100); };
-            newEnemy.GetEntityObject().OnDeath += delegate
+            newEnemy.GetBase().OnDeath += delegate { Scheduler.AddDelayed(() => RemoveEnemy(newEnemy), 100); };
+            newEnemy.GetBase().OnDeath += delegate
             {
                 bool notValidArtifact = true;
                 int spendAmount = (int)(Math.Pow(gameplayDifficulty + 1, 2) * 1000);
@@ -175,7 +172,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
             while (enemies.Count < enemyLimit)
             {
-                AddEnemy(HelpMe.GetScaledLevel(gameplayDifficulty, playerEntity.GetEntityObject().Experience.Level.Current.Value));
+                AddEnemy(HelpMe.GetScaledLevel(gameplayDifficulty, playerEntity.GetBase().Experience.Level.Current.Value));
                 currentAmount++;
                 if (currentAmount > enemySpawnLimit) break;
             }
@@ -186,17 +183,17 @@ namespace GentrysQuest.Game.Screens.Gameplay
         public void SetDifficulty()
         {
             gameplayDifficulty = map.MapReference.Difficulty;
-            if (map.MapReference.DifficultyScales) gameplayDifficulty += playerEntity.GetEntityObject().Difficulty;
+            if (map.MapReference.DifficultyScales) gameplayDifficulty += playerEntity.GetBase().Difficulty;
             enemyLimit = (gameplayDifficulty + 1) * 2;
         }
 
         public void Pause()
         {
-            playerEntity.GetEntityObject().AddEffect(new Paused());
+            playerEntity.GetBase().AddEffect(new Paused());
 
             foreach (DrawableEntity enemy in enemies)
             {
-                enemy.GetEntityObject().AddEffect(new Paused());
+                enemy.GetBase().AddEffect(new Paused());
             }
 
             isPaused = true;
@@ -204,11 +201,11 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
         public void UnPause()
         {
-            playerEntity.GetEntityObject().RemoveEffect("Paused");
+            playerEntity.GetBase().RemoveEffect("Paused");
 
             foreach (DrawableEntity enemy in enemies)
             {
-                enemy.GetEntityObject().RemoveEffect("Paused");
+                enemy.GetBase().RemoveEffect("Paused");
             }
 
             isPaused = false;
@@ -227,7 +224,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
                 if (MathBase.RandomInt(1, 10000 / 1 + gameplayDifficulty) < 5)
                 {
-                    if (!atEnemyLimit()) AddEnemy(HelpMe.GetScaledLevel(gameplayDifficulty, playerEntity.GetEntityObject().Experience.Level.Current.Value));
+                    if (!atEnemyLimit()) AddEnemy(HelpMe.GetScaledLevel(gameplayDifficulty, playerEntity.GetBase().Experience.Level.Current.Value));
                 }
 
                 if (elapsedTime > MAX_TIME_TO_SPAWN)
@@ -256,6 +253,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             HitBoxScene.Remove(enemy.HitBox);
             HitBoxScene.Remove(enemy.ColliderBox);
             HitBoxScene.Remove(enemy.Weapon.HitBox);
+            enemy.EnemyController.Destroy();
             enemies.Remove(enemy);
             RemoveInternal(enemy, false);
             playerEntity.SetEntities(enemies);
@@ -295,15 +293,15 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     foreach (DrawableEntity enemyEntity in enemies) manage_direction(direction, speed, enemyEntity);
                     foreach (Projectile projectile in projectiles) manage_direction(direction, speed, projectile);
                 };
-                playerEntity.GetEntityObject().OnDeath += End;
-                playerEntity.GetEntityObject().OnLevelUp += SetDifficulty;
-                playerEntity.GetEntityObject().OnLevelUp += delegate
+                playerEntity.GetBase().OnDeath += End;
+                playerEntity.GetBase().OnLevelUp += SetDifficulty;
+                playerEntity.GetBase().OnLevelUp += delegate
                 {
-                    if (playerEntity.GetEntityObject().Experience.CurrentLevel() % 5 == 0)
+                    if (playerEntity.GetBase().Experience.CurrentLevel() % 5 == 0)
                     {
                         removeAllEnemies();
                         Character character = GameData.Content.Characters[MathBase.RandomChoice(GameData.Content.Characters.Count)];
-                        character.Experience.Level.Current.Value = playerEntity.GetEntityObject().Experience.CurrentLevel();
+                        character.Experience.Level.Current.Value = playerEntity.GetBase().Experience.CurrentLevel();
                         character.Stats.Health.point += 5;
                         WeaponChoices weaponChoices = new WeaponChoices();
 
@@ -320,7 +318,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                                 break;
                         }
 
-                        AddEnemy(playerEntity.GetEntityObject().Experience.CurrentLevel(), character.CreateEnemy(weaponChoices));
+                        AddEnemy(playerEntity.GetBase().Experience.CurrentLevel(), character.CreateEnemy(weaponChoices));
                     }
                 };
             }
@@ -354,6 +352,13 @@ namespace GentrysQuest.Game.Screens.Gameplay
             drawable.MoveTo(drawable.Position + -direction * value);
         }
 
+        private void manage_direction(Vector2 direction, double speed, DrawableEntity drawable)
+        {
+            var value = (float)(Clock.ElapsedFrameTime * speed);
+            drawable.MoveTo(drawable.Position + -direction * value);
+            drawable.FocusedPosition += -direction * value;
+        }
+
         /// <summary>
         /// Manages how to end the gameplay scene
         /// </summary>
@@ -365,6 +370,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
             }
 
             Pause();
+
+            foreach (DrawableEntity enemy in enemies) enemy.GetBase().Die();
 
             playerEntity.RemoveClickContainer();
             NotificationContainer.Instance.MoveToY(0);
@@ -400,6 +407,10 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     inventoryOverlay.ToggleDisplay();
                     if (isPaused) UnPause();
                     else Pause();
+                    break;
+
+                case Key.T:
+                    playerEntity.Position += Vector2.One;
                     break;
             }
 

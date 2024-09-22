@@ -13,7 +13,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         public ResultsScreenTestScene()
         {
             Add(screens = new ScreenStack());
-            screens.Push(resultScreen = new ResultScreen(1));
+            screens.Push(resultScreen = new ResultScreen());
         }
     }
 }

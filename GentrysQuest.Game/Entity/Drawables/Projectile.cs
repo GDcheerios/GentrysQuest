@@ -1,8 +1,5 @@
-using System.Linq;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics.TextStyles;
-using GentrysQuest.Game.Location.Drawables;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -56,7 +53,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The amount of hits that the projectile has hit
         /// </summary>
-        private int hits;
+        public int Hits;
 
         /// <summary>
         /// track whether the projectile has been started or not.
@@ -83,6 +80,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         private readonly DamageQueue damageQueue = new DamageQueue();
 
         public AffiliationType Affiliation;
+
+        private bool enabled = true;
 
         public Projectile(ProjectileParameters parameters)
         {
@@ -114,93 +113,28 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void ShootFrom(DrawableEntity shooter)
         {
             this.shooter = shooter;
-            hits = 0;
+            Hits = 0;
             Position = shooter.Position;
             Affiliation = shooter.Affiliation;
             AddInternal(HitBox = new HitBox(this));
             started = true;
-            if (TakesHolderDamage) Damage += (int)shooter.GetEntityObject().Stats.Attack.Current.Value;
+            if (TakesHolderDamage) Damage += (int)shooter.GetBase().Stats.Attack.Current.Value;
+        }
+
+        public void Disable()
+        {
+            enabled = false;
+            Hide();
         }
 
         protected override void Update()
         {
             base.Update();
-
             if (!started) return;
 
             Position += (MathBase.GetAngleToVector(Direction) * 0.05f) * (float)(Speed * Clock.ElapsedFrameTime);
-
-            foreach (var hitBox in HitBoxScene.GetIntersections(HitBox).Where(hitBox => !damageQueue.Check(hitBox)))
-            {
-                DamageDetails details = new();
-                Entity entity;
-                bool isValid = true;
-
-                switch (hitBox.GetParent())
-                {
-                    case DrawableEntity drawableEntity:
-                        entity = drawableEntity.GetEntityObject();
-                        break;
-
-                    case DrawableMapObject mapObject:
-                        entity = new Entity();
-                        isValid = false;
-                        Hide();
-                        HitBox.Disable();
-                        break;
-
-                    default:
-                        isValid = false;
-                        entity = new Entity();
-                        break;
-                }
-
-                if (!isValid) continue;
-
-                hits++;
-                int damage = Damage;
-                if (TakesDefense) entity.DamageWithDefense(damage);
-                else entity.Damage(damage);
-
-                details.Damage = damage;
-                details.Receiver = entity;
-                details.Sender = shooter.GetEntityObject();
-
-                entity.OnHit(details);
-
-                if (OnHitEffect != null && OnHitEffect.Applies()) entity.AddEffect(OnHitEffect.Effect);
-
-                switch (entity)
-                {
-                    case Character character:
-                        GameData.CurrentStats.AddToStat(StatTypes.HitsTaken);
-                        GameData.CurrentStats.AddToStat(StatTypes.DamageTaken, damage);
-                        GameData.CurrentStats.AddToStat(StatTypes.MostDamageTaken, damage);
-                        if (character.IsDead) GameData.CurrentStats.AddToStat(StatTypes.Deaths);
-                        break;
-
-                    case Enemy enemy:
-                        GameData.CurrentStats.AddToStat(StatTypes.Hits);
-                        GameData.CurrentStats.AddToStat(StatTypes.Damage, damage);
-                        GameData.CurrentStats.AddToStat(StatTypes.MostDamage, damage);
-
-                        if (entity.IsDead)
-                        {
-                            GameData.CurrentStats.AddToStat(StatTypes.Kills);
-                            int money = enemy.GetMoneyReward();
-                            GameData.CurrentStats.AddToStat(StatTypes.MoneyGained, money);
-                            GameData.CurrentStats.AddToStat(StatTypes.MoneyGainedOnce, money);
-                            details.Sender.AddXp(enemy.GetXpReward());
-                            GameData.Money.Hand(money);
-                        }
-
-                        break;
-                }
-
-                damageQueue.Add(hitBox);
-            }
-
-            if (hits < PassthroughAmount) return;
+            if (enabled) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), damageQueue, shooter.GetBase(), this);
+            if (Hits < PassthroughAmount) return;
 
             Hide();
         }

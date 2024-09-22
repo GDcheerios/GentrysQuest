@@ -26,6 +26,6 @@ namespace GentrysQuest.Game.Entity
 
         public static List<CollisonHitBox> GetCollisions(CollisonHitBox theHitBox) => (from hitBox in hitBoxes where hitBox.GetType() == typeof(CollisonHitBox) where theHitBox.CheckCollision(hitBox) select (CollisonHitBox)hitBox).ToList();
 
-        public static bool Collides(CollisonHitBox theHitBox) => hitBoxes.Where(hitBox => hitBox.GetType() == typeof(CollisonHitBox)).Any(theHitBox.CheckCollision);
+        public static bool Collides(HitBox theHitBox) => hitBoxes.Where(hitBox => hitBox.GetType() == typeof(CollisonHitBox)).Any(theHitBox.CheckCollision);
     }
 }

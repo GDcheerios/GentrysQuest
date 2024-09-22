@@ -3,6 +3,7 @@ using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Enemies;
 using GentrysQuest.Game.Content.Families;
 using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
+using GentrysQuest.Game.Content.Families.JVee;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
@@ -31,12 +32,15 @@ public class ContentManager
 
         Families.Add(new TestFamily());
         Families.Add(new BraydenMesserschmidtFamily());
+        Families.Add(new JVeeFamily());
 
         #endregion
 
         #region Enemies
 
-        Enemies.Add(new TestEnemy(1));
+        Enemies.Add(new TestEnemy());
+        Enemies.Add(new AngryPedestrian());
+        Enemies.Add(new AngryChineseMan());
 
         #endregion
 
@@ -49,7 +53,12 @@ public class ContentManager
         #region Weapons
 
         Weapons.Add(new Knife());
+        Weapons.Add(new Sword());
+        Weapons.Add(new Bow());
+        Weapons.Add(new Spear());
+        Weapons.Add(new Hammer());
         Weapons.Add(new BraydensOsuPen());
+        Weapons.Add(new BrodysBroadsword());
 
         #endregion
     }

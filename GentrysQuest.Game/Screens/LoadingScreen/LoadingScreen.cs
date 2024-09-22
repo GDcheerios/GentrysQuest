@@ -113,11 +113,8 @@ namespace GentrysQuest.Game.Screens.LoadingScreen
             }, 1500);
             Scheduler.AddDelayed(() => status.FadeOut(250), 2700);
 
-#if DEBUG
             Scheduler.AddDelayed(() => { this.Push(new MainMenu.MainMenu()); }, 3000);
-#else
-            Scheduler.AddDelayed(() => { this.Push(new Intro.Intro()); }, 3000);
-#endif
+            // Scheduler.AddDelayed(() => { this.Push(new Intro.Intro()); }, 3000);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Entity
             : base(parent)
         {
             Colour = Colour4.LimeGreen;
-            Size = new Vector2(0.2f);
+            Size = new Vector2(0.3f);
         }
 
         public CollisonHitBox(DrawableMapObject parent)

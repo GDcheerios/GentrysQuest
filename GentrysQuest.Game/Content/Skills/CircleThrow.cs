@@ -3,7 +3,7 @@ using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Content.Skills
 {
-    public class CircleThrow(Entity.Entity skillHaver) : Skill(skillHaver)
+    public class CircleThrow : Skill
     {
         public override string Name { get; protected set; } = "Circle Throw";
         public override string Description { get; protected set; } = "Brayden's amazing secondary skill";
@@ -13,12 +13,12 @@ namespace GentrysQuest.Game.Content.Skills
         {
             base.Act();
 
-            skillHaver.AddProjectile(new ProjectileParameters
+            User.GetBase().AddProjectile(new ProjectileParameters
             {
                 Speed = 20,
                 PassthroughAmount = 2,
                 Lifetime = new Second(0.4),
-                Damage = (int)skillHaver.Stats.Attack.GetPercentFromTotal(120)
+                Damage = (int)User.GetBase().Stats.Attack.GetPercentFromTotal(120)
             });
         }
     }

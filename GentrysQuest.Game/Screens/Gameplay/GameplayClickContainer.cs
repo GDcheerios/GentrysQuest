@@ -9,10 +9,16 @@ using osuTK.Input;
 
 namespace GentrysQuest.Game.Screens.Gameplay;
 
+/// <summary>
+/// A clickable container to determine where the player is looking and where they click.
+/// </summary>
+/// <param name="player">The player to follow</param>
 public partial class GameplayClickContainer(DrawablePlayableEntity player) : Container
 {
+    private double holdStart;
     private bool isHeld;
     private Vector2 mousePos;
+    private const int HOLD_TIME = 300;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -29,14 +35,15 @@ public partial class GameplayClickContainer(DrawablePlayableEntity player) : Con
         switch (e.Button)
         {
             case MouseButton.Left:
+                holdStart = Clock.CurrentTime;
                 isHeld = true;
                 break;
 
             case MouseButton.Right:
-                if (player.GetEntityObject().Secondary?.PercentToDone == 100 || player.GetEntityObject().Secondary?.UsesAvailable > 0)
+                if (player.GetBase().Secondary?.PercentToDone == 100 || player.GetBase().Secondary?.UsesAvailable > 0)
                 {
-                    player.GetEntityObject().Secondary?.Act();
-                    player.GetEntityObject().Secondary.TimeActed = Clock.CurrentTime;
+                    player.GetBase().Secondary?.Act();
+                    player.GetBase().Secondary.LastUseTime = Clock.CurrentTime;
                 }
 
                 break;
@@ -50,13 +57,18 @@ public partial class GameplayClickContainer(DrawablePlayableEntity player) : Con
         switch (e.Button)
         {
             case MouseButton.Left:
+                holdStart = 0;
                 isHeld = false;
-                var weapon = player.GetEntityObject().Weapon;
-                if (weapon != null) weapon.AttackAmount = 0;
                 break;
         }
 
         base.OnMouseUp(e);
+    }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        player.Attack(mousePos);
+        return base.OnClick(e);
     }
 
     protected override bool OnMouseMove(MouseMoveEvent e)
@@ -68,7 +80,12 @@ public partial class GameplayClickContainer(DrawablePlayableEntity player) : Con
     protected override void Update()
     {
         base.Update();
-        if (isHeld) player.Attack(mousePos);
+
+        if (isHeld && new ElapsedTime(Clock.CurrentTime, holdStart) > HOLD_TIME)
+        {
+            // Todo: implement hold logic
+        }
+
         player.DirectionLooking = (int)MathBase.GetAngle(player.Position + new Vector2(50), mousePos);
     }
 }

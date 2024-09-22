@@ -50,6 +50,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public int DirectionLooking;
         public Vector2 Direction = Vector2.Zero;
+        public Vector2 FocusedPosition = Vector2.Zero;
         private Vector2 knockbackDirection;
         private float knockbackForce;
         private double knockbackDuration;
@@ -65,7 +66,11 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The base speed variable for all entities
         /// </summary>
-        protected const double SPEED_MAIN = 0.35;
+        protected const double SPEED_MAIN = 0.15;
+
+        private const int DODGE_TIME = 250;
+        private const int DODGE_INTERVAL = 1000;
+        private const int BASE_DODGE_SPEED = 3;
 
         /// <summary>
         /// When doing some math you might need this
@@ -98,6 +103,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             Colour = Colour4.White;
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
+            AlwaysPresent = true;
             InternalChildren = new Drawable[]
             {
                 Sprite = new Sprite
@@ -180,7 +186,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
                 case KnockbackType.Stuns:
                     Entity.AddEffect(new Stun(duration + 300));
-                    Weapon.Disable(50);
+                    Weapon.RestWeapon();
                     break;
 
                 default:
@@ -191,7 +197,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void Move(Vector2 direction, double speed)
         {
             float value = (float)(Clock.ElapsedFrameTime * speed);
-            ColliderBox.Position += (direction * 0.06f) * value;
+            ColliderBox.Position += (direction * 0.05f) * value;
 
             if (!HitBoxScene.Collides(ColliderBox)) OnMove?.Invoke(direction, speed);
         }
@@ -200,13 +206,13 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Attacks towards a direction
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public void Attack(Vector2 position)
+        public virtual void Attack(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 
             Vector2 center = new Vector2(50);
             double angle = MathBase.GetAngle(Position + center, position);
-            if (Weapon.GetWeaponObject().CanAttack) Weapon.Attack((float)angle + 90);
+            if (Weapon.GetBase().CanAttack) Weapon.Attack((float)angle + 90);
         }
 
         /// <summary>
@@ -254,10 +260,9 @@ namespace GentrysQuest.Game.Entity.Drawables
             {
                 Entity.CanDodge = false;
                 Entity.IsDodging = true;
-                Entity.SpeedModifier = 3;
-                Scheduler.AddDelayed(() => { Entity.SpeedModifier = 1; }, 100);
-                Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, 100);
-                Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, 1000);
+                Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, DODGE_TIME);
+                Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, DODGE_INTERVAL);
+                ApplyKnockback(Direction, (int)(BASE_DODGE_SPEED + GetSpeed()), DODGE_TIME, KnockbackType.StopsMovement);
             }
         }
 
@@ -287,7 +292,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// In some cases you'll want to get the entity reference for this drawable class
         /// <returns>The entity reference for this drawable</returns>
-        public Entity GetEntityObject() => Entity;
+        public Entity GetBase() => Entity;
 
         /// <summary>
         /// Manages the speed of the entity
