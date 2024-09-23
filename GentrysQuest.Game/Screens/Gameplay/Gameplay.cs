@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Content.Maps;
+using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
@@ -326,6 +328,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             Scheduler.AddDelayed(() =>
             {
                 NotificationContainer.Instance.MoveToY(0.1f, 100);
+                AudioManager.Instance.ChangeMusic(new Overwhelm());
             }, 100);
 
             gameplayHud.SetEntity(GameData.EquipedCharacter);
