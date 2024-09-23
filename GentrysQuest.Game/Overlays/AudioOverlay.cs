@@ -18,7 +18,7 @@ namespace GentrysQuest.Game.Overlays
             RelativeSizeAxes = Axes.Both;
             InternalChild = musicInfoContainer = new Container
             {
-                Scale = new Vector2(1.5f),
+                Scale = new Vector2(2.4f),
                 X = 1000,
                 Y = 20,
                 AutoSizeAxes = Axes.X,
