@@ -4,7 +4,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
 
 namespace GentrysQuest.Game.Screens.MainMenu
@@ -68,13 +67,22 @@ namespace GentrysQuest.Game.Screens.MainMenu
                         RelativeSizeAxes = Axes.Both,
                         Colour = Colour4.Gray
                     },
-                    new SpriteText
+                    new Container()
                     {
-                        Text = "Please Login",
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
-                        Colour = Colour4.Black,
-                        Font = FontUsage.Default.With(size: 42)
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Child = new TextFlowContainer
+                        {
+                            Text = "Please login with GDcheerios.com account",
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Colour = Colour4.Black,
+                            Scale = new Vector2(1.5f, 1.5f),
+                            TextAnchor = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.Both
+                        }
                     },
                     loginOverlay = new LoginOverlay
                     {
