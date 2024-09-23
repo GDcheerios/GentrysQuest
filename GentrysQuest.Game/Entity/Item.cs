@@ -2,6 +2,9 @@
 {
     public class Item : EntityBase
     {
-        // empty?
+        public override void LoadJson(string json)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

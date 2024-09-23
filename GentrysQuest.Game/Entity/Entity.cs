@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity

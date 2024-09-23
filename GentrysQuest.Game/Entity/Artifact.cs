@@ -59,6 +59,10 @@ namespace GentrysQuest.Game.Entity
             CalculateXpRequirement();
         }
 
+        public override void LoadJson(string json)
+        {
+        }
+
         public override void CalculateXpRequirement()
         {
             Experience.Xp.Requirement.Value = (Experience.CurrentLevel() * (100 * StarRating)) + ((Experience.CurrentLevel() / 4) * (1000 * StarRating));
