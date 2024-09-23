@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Audio;
+using GentrysQuest.Game.Audio.Music;
+using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
-using osu.Framework.Audio.Track;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -21,13 +23,13 @@ namespace GentrysQuest.Game.Screens.Intro
     {
         private Sprite logo;
         private TextFlowContainer framework;
-        private DrawableTrack theme;
+        private ISong introSong;
+        bool isBandits = false;
         private List<ITextPart> osuText = new List<ITextPart>();
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures, ITrackStore tracks)
+        private void load(TextureStore textures)
         {
-            theme = new DrawableTrack(tracks.Get("Gentry_Quest_Intro.mp3"));
             InternalChildren = new Drawable[]
             {
                 new Box
@@ -56,10 +58,19 @@ namespace GentrysQuest.Game.Screens.Intro
             };
         }
 
+        private void setIntroSong()
+        {
+            ISong[] songs = new ISong[] { new GentrysThemeOG(), new GentrysThemeSecond() };
+            introSong = songs[MathBase.RandomChoice(2)];
+            isBandits = introSong.Name == "Gentrys Quest Theme OG";
+        }
+
         public override void OnEntering(ScreenTransitionEvent e)
         {
-            AudioManager.ChangeMusic(theme);
-            logo.Delay(1000).Then()
+            setIntroSong();
+            AudioManager.Instance.ChangeMusic(introSong);
+            Logger.Log(introSong.TimingPoints.GetPoint("LogoStart").ToString());
+            logo.Delay(introSong.TimingPoints.GetPoint("LogoStart")).Then()
                 .FadeInFromZero(2600, Easing.InOutBounce);
 
             osuText.Add(framework.AddText("osu!", t =>
@@ -74,23 +85,23 @@ namespace GentrysQuest.Game.Screens.Intro
                 t.Colour = ColourInfo.GradientVertical(Color4.White, Color4.DarkGray);
             });
 
-            framework.Delay(3000).Then()
-                     .FadeInFromZero(1000, Easing.InExpo);
+            framework.Delay(introSong.TimingPoints.GetPoint("FrameworkStart")).Then()
+                     .FadeInFromZero(introSong.TimingPoints.GetPoint("FrameworkFade"), Easing.InExpo);
 
             Schedule(() => osuText.SelectMany(t => t.Drawables).ForEach(t =>
             {
-                t.Delay(5000).Then()
+                t.Delay(introSong.TimingPoints.GetPoint("OsuStart")).Then()
                  .FadeIn(300)
                  .ScaleTo(new Vector2(1, 1), 300, Easing.OutQuart);
                 t.Colour = Color4.LightPink;
             }));
 
-            this.Delay(13000)
+            this.Delay(introSong.TimingPoints.GetPoint("FadeOut"))
                 .Then()
                 .FadeOut(3000, Easing.Out)
                 .Finally(_ =>
                 {
-                    this.Push(new MainMenu.MainMenu());
+                    this.Push(new MainMenu.MainMenu(isBandits));
                 });
         }
 

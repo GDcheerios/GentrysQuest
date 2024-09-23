@@ -1,10 +1,9 @@
 using GentrysQuest.Game.Audio;
+using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online.API;
 using osu.Framework.Allocation;
-using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -18,14 +17,16 @@ namespace GentrysQuest.Game.Screens.MainMenu
     {
         private Box background;
         private TitleText title;
-        private DrawableTrack menuTheme;
         private MainMenuButton playButton;
         private MainMenuButton quitButton;
         private PlayerSelectBox playerSelect;
         private Selection selection;
+        private readonly bool keepBGM;
+
+        public MainMenu(bool keepIntroSong = false) => keepBGM = keepIntroSong;
 
         [BackgroundDependencyLoader]
-        private void load(ITrackStore trackStore)
+        private void load()
         {
             playerSelect = new PlayerSelectBox(this)
             {
@@ -36,7 +37,6 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 Scale = new Vector2(0.6f, 0.9f),
                 Y = -1.05f
             };
-            menuTheme = new DrawableTrack(trackStore.Get("Gentrys_Quest_Ambient_1.mp3"));
             InternalChildren = new Drawable[]
             {
                 background = new Box
@@ -143,7 +143,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            AudioManager.ChangeMusic(menuTheme);
+            if (!keepBGM) AudioManager.Instance.ChangeMusic(new GentrysQuestAmbient());
         }
     }
 }

@@ -156,10 +156,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
 
             // sounds
-            Entity.OnSpawn += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };
-            Entity.OnDamage += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Damage")))); };
-            Entity.OnLevelUp += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Levelup")))); };
-            Entity.OnDeath += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Death")))); };
+            Entity.OnSpawn += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };
+            Entity.OnDamage += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Damage")))); };
+            Entity.OnLevelUp += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Levelup")))); };
+            Entity.OnDeath += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Death")))); };
         }
 
         private void regen()
