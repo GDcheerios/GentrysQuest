@@ -57,7 +57,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 GameData.EquipCharacter(character);
                 GameData.Add(character);
                 BraydensOsuPen braydensOsuPen = new BraydensOsuPen();
-                braydensOsuPen.Experience.Level.Current.Value = 100;
+                levelLoop(100, braydensOsuPen);
                 character.SetWeapon(braydensOsuPen);
 
                 OsuTablet osuTablet = new OsuTablet();
@@ -72,22 +72,27 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 MadokaChibiPlush osuChibiPlush4 = new MadokaChibiPlush();
                 osuChibiPlush4.Initialize(5);
 
-                for (int i = 0; i < 19; i++) osuTablet.LevelUp();
-                for (int i = 0; i < 19; i++) osuChibiPlush1.LevelUp();
-                for (int i = 0; i < 19; i++) osuChibiPlush2.LevelUp();
-                for (int i = 0; i < 19; i++) osuChibiPlush3.LevelUp();
-                for (int i = 0; i < 19; i++) osuChibiPlush4.LevelUp();
+                levelLoop(19, osuTablet);
+                levelLoop(19, osuChibiPlush1);
+                levelLoop(19, osuChibiPlush2);
+                levelLoop(19, osuChibiPlush3);
+                levelLoop(19, osuChibiPlush4);
 
                 character.Artifacts.Equip(osuTablet, 0);
                 character.Artifacts.Equip(osuChibiPlush1, 1);
-                character.Artifacts.Equip(osuChibiPlush1, 2);
-                character.Artifacts.Equip(osuChibiPlush1, 3);
-                character.Artifacts.Equip(osuChibiPlush1, 4);
+                character.Artifacts.Equip(osuChibiPlush2, 2);
+                character.Artifacts.Equip(osuChibiPlush3, 3);
+                character.Artifacts.Equip(osuChibiPlush4, 4);
 
                 GentrysQuestGame.ScreenStack.Push(new WeeklyEventGameplay(eventID));
             });
 
             #endregion
+        }
+
+        private void levelLoop(int amount, EntityBase entity)
+        {
+            for (int i = 0; i < amount; i++) entity.LevelUp();
         }
 
         public void EndLeaderboard() => leaderboard.LeaderboardPanels.Clear();
