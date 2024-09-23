@@ -1,5 +1,4 @@
-﻿using GentrysQuest.Game.Overlays.Notifications;
-using GentrysQuest.Game.Screens.LoadingScreen;
+﻿using GentrysQuest.Game.Screens.LoadingScreen;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Cursor;
@@ -17,7 +16,6 @@ namespace GentrysQuest.Game
             // Add your top-level game components here.
             // A screen stack and sample screen has been provided for convenience, but you can replace it if you don't want to use screens.
             Child = ScreenStack;
-            Add(NotificationContainer.Instance);
             Add(new CursorContainer());
         }
 

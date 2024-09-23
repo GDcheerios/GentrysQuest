@@ -1,9 +1,12 @@
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osuTK;
+using AudioManager = GentrysQuest.Game.Audio.AudioManager;
 
 namespace GentrysQuest.Game
 {
@@ -13,6 +16,7 @@ namespace GentrysQuest.Game
         // It allows for caching global dependencies that should be accessible to tests, or changing
         // the screen scaling for all components including the test browser and framework overlays.
         protected override Container<Drawable> Content { get; }
+        private AudioOverlay audioOverlay;
 
         protected GentrysQuestGameBase()
         {
@@ -28,6 +32,10 @@ namespace GentrysQuest.Game
         private void load()
         {
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
+            base.Content.Add(NotificationContainer.Instance);
+            base.Content.Add(AudioManager.Instance);
+            base.Content.Add(audioOverlay = new AudioOverlay { Depth = -4 });
+            AudioManager.Instance.OnPlayMusic += delegate { audioOverlay.DisplaySong(AudioManager.Instance.CurrentSong); };
         }
     }
 }

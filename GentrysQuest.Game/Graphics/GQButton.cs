@@ -29,7 +29,7 @@ namespace GentrysQuest.Game.Graphics
         {
             string sound = "Default_Hover";
             if (hasSound("Hover")) sound = "Hover";
-            AudioManager.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
+            AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
             return base.OnHover(e);
         }
 
@@ -37,7 +37,7 @@ namespace GentrysQuest.Game.Graphics
         {
             string sound = "Default_Click";
             if (hasSound("Click")) sound = "Click";
-            AudioManager.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
+            AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
             action?.Invoke();
             return base.OnClick(e);
         }
