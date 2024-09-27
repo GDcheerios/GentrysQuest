@@ -58,7 +58,7 @@ namespace GentrysQuest.Game.Content.Weapons
             AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0.1f, HitboxSize = boxSize });
             AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0, HitboxSize = boxSize });
             AttackPattern.Add(new AttackPatternEvent(new Second(0.1))
-                { Direction = 180, Position = new Vector2(0, -100), MovementSpeed = 0.1f, ResetHitBox = true, OnHitEffect = hiltAttack });
+                { Direction = 180, Position = new Vector2(0, -100), MovementSpeed = 0.1f, ResetHitBox = true, OnHitEffects = [hiltAttack] });
 
             #endregion
 

@@ -76,7 +76,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// What happens when the entity gets hit
         /// </summary>
-        public OnHitEffect OnHitEffect = null;
+        public List<OnHitEffect> OnHitEffects = null;
 
         /// <summary>
         /// The projectiles

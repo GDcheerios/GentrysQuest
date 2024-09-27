@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Utils;
@@ -27,7 +28,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public float Distance;
         public Vector2 PositionHolder;
-        private OnHitEffect onHitEffect;
+        public List<OnHitEffect> OnHitEffects = new();
         private bool doesDamage;
 
         /// <summary>
@@ -190,7 +191,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 if (pattern.ResetHitBox) DamageQueue.Clear();
                 Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
                 Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
-                onHitEffect = pattern.OnHitEffect;
+                OnHitEffects = pattern.OnHitEffects;
                 doesDamage = pattern.DoesDamage;
                 Weapon.KnockbackMultiplier = pattern.KnockbackMultiplier;
             }
@@ -223,7 +224,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             if (!Weapon.CanAttack)
             {
-                if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase());
+                if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase(), this);
             }
             else
             {

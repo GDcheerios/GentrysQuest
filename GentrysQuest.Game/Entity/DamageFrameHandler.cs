@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Entity.Drawables;
+using GentrysQuest.Game.Entity.Weapon;
 
 namespace GentrysQuest.Game.Entity
 {
     public class DamageFrameHandler
     {
-        public DamageFrameHandler(List<HitBox> intersections, DamageQueue queue, Entity sender)
+        public DamageFrameHandler(List<HitBox> intersections, DamageQueue queue, Entity sender, DrawableWeapon weapon)
         {
             foreach (var box in intersections.Where(box =>
                          box.GetType() == typeof(CollisonHitBox)
@@ -21,7 +22,7 @@ namespace GentrysQuest.Game.Entity
 
             foreach (var hitBox in intersections)
             {
-                _ = new HitHandler(sender, hitBox.GetParent());
+                _ = new HitHandler(sender, hitBox.GetParent(), getStatusEffects(weapon.OnHitEffects));
                 queue.Add(hitBox);
             }
         }
@@ -49,10 +50,16 @@ namespace GentrysQuest.Game.Entity
                     return;
                 }
 
-                _ = new HitHandler(sender, hitBox.GetParent());
+                _ = new HitHandler(sender, hitBox.GetParent(), getStatusEffects(projectile.OnHitEffects));
                 projectile.Hits++;
                 queue.Add(hitBox);
             }
+        }
+
+        private List<StatusEffect> getStatusEffects(List<OnHitEffect> onHitEffects)
+        {
+            if (onHitEffects != null) return (from hitEffect in onHitEffects where hitEffect.Applies() select hitEffect.Effect).ToList();
+            return new List<StatusEffect>();
         }
     }
 }
