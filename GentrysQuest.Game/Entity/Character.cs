@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Database;
+using GentrysQuest.Game.IO;
 
 namespace GentrysQuest.Game.Entity;
 
@@ -10,6 +11,24 @@ public class Character : Entity
     {
         Artifacts = new ArtifactManager(this);
         Artifacts.OnChangeArtifact += UpdateStats;
+    }
+
+    public void LoadJson(JsonCharacter jsonEntity)
+    {
+        LoadJsonBase(jsonEntity);
+
+        if (jsonEntity.CurrentWeapon != null)
+        {
+            Weapon.Weapon weapon = GameData.Content.GetWeapon(jsonEntity.CurrentWeapon.Name);
+            weapon.LoadJson(jsonEntity.CurrentWeapon);
+            SetWeapon(weapon);
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            JsonArtifact artifact = jsonEntity.Artifacts[i];
+            if (jsonEntity.Artifacts[i] != null) Artifacts.Equip(GameData.LoadArtifactJson(artifact), i);
+        }
     }
 
     public override void Damage(int amount)
@@ -102,6 +121,23 @@ public class Character : Entity
         if (Stats.CritRate.Total() > 100) Stats.CritDamage.Add(100 - Stats.CritRate.Total());
 
         base.UpdateStats();
+    }
+
+    public JsonCharacter ToJson()
+    {
+        JsonCharacter jsonEntity = new JsonCharacter
+        {
+            Name = Name,
+            Level = Experience.CurrentLevel(),
+            StarRating = StarRating.Value,
+            ID = ID,
+            CurrentXp = Experience.CurrentXp(),
+            CurrentWeapon = Weapon?.ToJson()
+        };
+        JsonArtifact[] artifacts = new JsonArtifact[5];
+        for (int i = 0; i < 5; i++) artifacts[i] = Artifacts.Get()[i].ToJson();
+        jsonEntity.Artifacts = artifacts;
+        return jsonEntity;
     }
 
     public Enemy CreateEnemy(WeaponChoices weaponChoices)

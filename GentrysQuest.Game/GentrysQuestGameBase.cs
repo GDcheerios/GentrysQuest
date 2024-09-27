@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Resources;
@@ -26,6 +27,7 @@ namespace GentrysQuest.Game
                 // You may want to change TargetDrawSize to your "default" resolution, which will decide how things scale and position when using absolute coordinates.
                 TargetDrawSize = new Vector2(1000, 1000)
             });
+            DatabaseManager.CheckDatabase();
         }
 
         [BackgroundDependencyLoader]

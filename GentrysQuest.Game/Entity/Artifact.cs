@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Entity
@@ -59,8 +60,30 @@ namespace GentrysQuest.Game.Entity
             CalculateXpRequirement();
         }
 
-        public override void LoadJson(string json)
+        public JsonArtifact ToJson()
         {
+            JsonArtifact jsonEntity = new JsonArtifact
+            {
+                Name = Name,
+                Level = Experience.CurrentLevel(),
+                StarRating = StarRating.Value,
+                ID = ID,
+                CurrentXp = Experience.CurrentXp(),
+                MainBuff = MainAttribute.ToJson(),
+                FamilyName = family.Name
+            };
+            List<JsonBuff> buffs = new List<JsonBuff>();
+            foreach (Buff buff in Attributes) buffs.Add(buff.ToJson());
+            jsonEntity.Buffs = buffs;
+
+            return jsonEntity;
+        }
+
+        public void LoadJson(JsonArtifact jsonArtifact)
+        {
+            LoadJsonBase(jsonArtifact);
+            MainAttribute = new Buff(jsonArtifact.MainBuff);
+            foreach (JsonBuff jsonBuff in jsonArtifact.Buffs) Attributes.Add(new Buff(jsonBuff));
         }
 
         public override void CalculateXpRequirement()

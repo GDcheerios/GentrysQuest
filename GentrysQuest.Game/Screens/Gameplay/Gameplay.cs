@@ -286,8 +286,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
             if (playerEntity is null)
             {
-                AddInternal(playerEntity = new DrawablePlayableEntity(GameData.EquipedCharacter));
-                if (GameData.EquipedCharacter.Weapon != null) GameData.EquipedCharacter.SetWeapon(GameData.EquipedCharacter.Weapon);
+                AddInternal(playerEntity = new DrawablePlayableEntity(GameData.EquippedCharacter));
+                if (GameData.EquippedCharacter.Weapon != null) GameData.EquippedCharacter.SetWeapon(GameData.EquippedCharacter.Weapon);
                 SetDifficulty();
                 playerEntity.OnMove += delegate(Vector2 direction, double speed)
                 {
@@ -331,10 +331,10 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 AudioManager.Instance.ChangeMusic(new Overwhelm());
             }, 100);
 
-            gameplayHud.SetEntity(GameData.EquipedCharacter);
+            gameplayHud.SetEntity(GameData.EquippedCharacter);
             playerEntity.SetupClickContainer();
             gameplayTime = Clock.CurrentTime;
-            GameData.EquipedCharacter.Spawn();
+            GameData.EquippedCharacter.Spawn();
             GameData.StartStatTracker();
             GameData.CurrentStats.ScoreStatistic.OnScoreChange += change =>
             {
@@ -369,7 +369,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
         {
             if (GameData.CurrentUser.Value != null && leaderboardId != null)
             {
-                var scoreTask = new SubmitScoreRequest(GameData.CurrentUser.Value.ID, (int)leaderboardId, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
+                var scoreTask = new SubmitScoreRequest((int)GameData.CurrentUser.Value.ID!, (int)leaderboardId, (long)GameData.CurrentStats.ScoreStatistic.Value).PerformAsync();
             }
 
             Pause();

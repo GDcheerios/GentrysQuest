@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Users;
 using osu.Framework.Bindables;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Database
 {
@@ -16,9 +18,14 @@ namespace GentrysQuest.Game.Database
         public static ContentManager Content = new ContentManager();
 
         /// <summary>
+        /// How many times the game has been started by this user
+        /// </summary>
+        public static int StartupAmount = 0;
+
+        /// <summary>
         /// The equipped character
         /// </summary>
-        public static Character EquipedCharacter { get; private set; }
+        public static Character EquippedCharacter { get; private set; }
 
         /// <summary>
         /// Doubloons
@@ -70,13 +77,49 @@ namespace GentrysQuest.Game.Database
 
         public static void Reset()
         {
-            EquipedCharacter = null;
+            EquippedCharacter = null;
             Money = new Money();
             Statistics = new Statistics();
             CurrentStats = new StatTracker();
             Characters = new List<Character>();
             Artifacts = new List<Artifact>();
             Weapons = new List<Weapon>();
+        }
+
+        public static void LoadJsonData(JsonGameData jsonGameData)
+        {
+            // Load main data
+            CurrentUser.Value = jsonGameData.User;
+            Money.Hand(jsonGameData.Money);
+
+            // Load entity data
+            foreach (JsonCharacter jsonCharacter in jsonGameData.Characters) Characters.Add(LoadCharacterJson(jsonCharacter));
+            foreach (JsonArtifact jsonArtifact in jsonGameData.Artifacts) Artifacts.Add(LoadArtifactJson(jsonArtifact));
+            foreach (JsonWeapon jsonWeapon in jsonGameData.Weapons) Weapons.Add(LoadWeaponJson(jsonWeapon));
+        }
+
+        public static Character LoadCharacterJson(JsonCharacter jsonCharacter)
+        {
+            Logger.Log($"Loading character {jsonCharacter.Name}");
+            Character character = Content.GetCharacter(jsonCharacter.Name);
+            character.LoadJson(jsonCharacter);
+            return character;
+        }
+
+        public static Artifact LoadArtifactJson(JsonArtifact jsonArtifact)
+        {
+            Logger.Log($"Loading artifact {jsonArtifact.Name}");
+            Artifact artifact = Content.GetFamily(jsonArtifact.FamilyName).GetArtifact(jsonArtifact.Name);
+            artifact.LoadJson(jsonArtifact);
+            return artifact;
+        }
+
+        public static Weapon LoadWeaponJson(JsonWeapon jsonWeapon)
+        {
+            Logger.Log($"Loading weapon {jsonWeapon.Name}");
+            Weapon weapon = Content.GetWeapon(jsonWeapon.Name);
+            weapon.LoadJson(jsonWeapon);
+            return weapon;
         }
 
         public static void StartStatTracker() => CurrentStats = new StatTracker();
@@ -115,7 +158,33 @@ namespace GentrysQuest.Game.Database
         public static void EquipCharacter(Character character)
         {
             NotificationContainer.Instance.AddNotification(new Notification($"Equipped {character.Name}", NotificationType.Informative));
-            EquipedCharacter = character;
+            EquippedCharacter = character;
+        }
+
+        public static User GetUser() => CurrentUser.Value;
+
+        public static JsonGameData ToJsonGameData()
+        {
+            JsonGameData jsonGameData = new JsonGameData
+            {
+                User = GetUser(),
+                Money = Money.Amount.Value,
+                Statistics = Statistics,
+            };
+
+            List<JsonCharacter> characters = new List<JsonCharacter>();
+            List<JsonArtifact> artifacts = new List<JsonArtifact>();
+            List<JsonWeapon> weapons = new List<JsonWeapon>();
+
+            foreach (Character character in Characters) characters.Add(character.ToJson());
+            foreach (Artifact artifact in Artifacts) artifacts.Add(artifact.ToJson());
+            foreach (Weapon weapon in Weapons) weapons.Add(weapon.ToJson());
+
+            jsonGameData.Characters = characters;
+            jsonGameData.Artifacts = artifacts;
+            jsonGameData.Weapons = weapons;
+
+            return jsonGameData;
         }
     }
 }

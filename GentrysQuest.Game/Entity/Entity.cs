@@ -261,9 +261,5 @@ namespace GentrysQuest.Game.Entity
         {
             return normalValue + (point * pointBenefit);
         }
-
-        public override void LoadJson(string json)
-        {
-        }
     }
 }

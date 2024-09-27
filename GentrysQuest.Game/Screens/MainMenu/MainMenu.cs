@@ -1,6 +1,8 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online.API;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -94,6 +96,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
 
         public void PressBack()
         {
+            if (GameData.CurrentUser.Value != null && GameData.CurrentUser.Value.ID == null) GuestFileManager.SaveUser();
             selection.Disappear();
             title.FadeIn(200);
             resetTitle();
