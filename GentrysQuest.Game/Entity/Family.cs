@@ -18,6 +18,14 @@ namespace GentrysQuest.Game.Entity
             return (Artifact)Activator.CreateInstance(artifact);
         }
 
+        // TODO: Improve family workings => (Brayden Messerschmidt)
+        public Artifact GetArtifact(string name)
+        {
+            List<Artifact> artifacts = new();
+            foreach (Type artifact in Artifacts) artifacts.Add((Artifact)Activator.CreateInstance(artifact));
+            return artifacts.Find(artifact => artifact.Name == name);
+        }
+
         public List<Type> GetArtifacts() => Artifacts;
     }
 }

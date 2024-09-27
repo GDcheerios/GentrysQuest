@@ -11,6 +11,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
     public partial class MainMenuButton : GQButton
     {
         private Box background;
+        private SpriteText text;
 
         public MainMenuButton(string text)
         {
@@ -31,7 +32,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
                         )
                     }
                 },
-                new SpriteText
+                this.text = new SpriteText
                 {
                     Text = text,
                     Anchor = Anchor.Centre,
@@ -41,6 +42,8 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 }
             };
         }
+
+        public void SetText(string text) => this.text.Text = text;
 
         protected override bool OnHover(HoverEvent e)
         {

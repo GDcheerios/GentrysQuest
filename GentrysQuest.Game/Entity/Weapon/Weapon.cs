@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
 
@@ -92,6 +93,26 @@ namespace GentrysQuest.Game.Entity.Weapon
                 Buff.Improve();
                 Holder?.UpdateStats();
             };
+        }
+
+        public JsonWeapon ToJson()
+        {
+            JsonWeapon jsonEntity = new JsonWeapon
+            {
+                Name = Name,
+                Level = Experience.CurrentLevel(),
+                StarRating = StarRating.Value,
+                ID = ID,
+                CurrentXp = Experience.CurrentXp(),
+                Buff = Buff.ToJson()
+            };
+            return jsonEntity;
+        }
+
+        public void LoadJson(JsonWeapon jsonEntity)
+        {
+            LoadJsonBase(jsonEntity);
+            Buff = new Buff(jsonEntity.Buff);
         }
 
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);

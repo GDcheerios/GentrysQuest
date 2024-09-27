@@ -1,4 +1,5 @@
 ﻿using System;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Bindables;
 
@@ -41,6 +42,26 @@ namespace GentrysQuest.Game.Entity
             Value.Value = amount;
             StatType = statType;
             IsPercent = isPercent;
+        }
+
+        public Buff(JsonBuff jsonBuff) => LoadJson(jsonBuff);
+
+        public JsonBuff ToJson()
+        {
+            return new JsonBuff
+            {
+                BuffID = StatType,
+                IsPercent = IsPercent,
+                Level = Level
+            };
+        }
+
+        public void LoadJson(JsonBuff jsonBuff)
+        {
+            StatType = jsonBuff.BuffID;
+            IsPercent = jsonBuff.IsPercent;
+            Level = jsonBuff.Level;
+            updateStats();
         }
 
         private void updateStats()
