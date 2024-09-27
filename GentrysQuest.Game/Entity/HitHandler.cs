@@ -12,6 +12,7 @@
 //  * unmodified. I have not given other fellow student(s) access
 //  * to my program.
 
+using System.Collections.Generic;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Utils;
@@ -31,9 +32,10 @@ public class HitHandler
     private Entity sender;
     private StatTracker stats;
 
-    public HitHandler(Entity sender, DrawableEntity receiver)
+    public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null)
     {
         Details = new DamageDetails();
+        if (statusEffects != null) Details.statusEffects = statusEffects;
         Details.Sender = this.sender = sender;
         this.receiver = receiver;
         Details.Receiver = receiverBase = receiver.GetBase();
@@ -81,6 +83,7 @@ public class HitHandler
 
     private void invokeHitEvent()
     {
+        foreach (var effect in Details.statusEffects) receiverBase.AddEffect(effect);
         receiverBase.OnHit(Details);
         sender.Weapon!.HitEntity(Details);
     }

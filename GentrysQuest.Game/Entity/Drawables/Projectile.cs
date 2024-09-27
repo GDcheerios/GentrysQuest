@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Utils;
@@ -48,7 +49,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// How it affects
         /// </summary>
-        public OnHitEffect OnHitEffect;
+        public List<OnHitEffect> OnHitEffects = null;
 
         /// <summary>
         /// The amount of hits that the projectile has hit
@@ -98,7 +99,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             HitBox = parameters.HitBox;
             PassthroughAmount = parameters.PassthroughAmount;
             Damage = parameters.Damage;
-            OnHitEffect = parameters.OnHitEffect;
+            OnHitEffects = parameters.OnHitEffects;
             TakesDefense = parameters.TakesDefense;
             TakesNormalDamage = parameters.TakesNormalDamage;
             TakesHolderDamage = parameters.TakesHolderDamage;
