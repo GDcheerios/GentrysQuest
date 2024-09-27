@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Overlays.Inventory;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -53,12 +54,12 @@ namespace GentrysQuest.Game.Screens.MainMenu
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre
                                 },
-                                // travelButton = new MainMenuButton("Travel")
-                                // {
-                                //     Size = new Vector2(200, 100),
-                                //     Anchor = Anchor.Centre,
-                                //     Origin = Anchor.Centre
-                                // },
+                                travelButton = new MainMenuButton("Travel")
+                                {
+                                    Size = new Vector2(200, 100),
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre
+                                },
                                 inventoryButton = new MainMenuButton("Inventory")
                                 {
                                     Size = new Vector2(200, 100),
@@ -112,6 +113,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
             state.Value = SelectionState.WeeklyEvent;
             state.TriggerChange();
             weeklyEventOverlay.Show();
+            checkUser();
             this.FadeIn();
             navBar.X = -2;
             navBar.MoveToX(0, 250, Easing.OutQuint);
@@ -123,6 +125,19 @@ namespace GentrysQuest.Game.Screens.MainMenu
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(2, 250, Easing.OutQuint);
+        }
+
+        private void checkUser()
+        {
+            if (GameData.UserAvailable() && GameData.IsGuest())
+            {
+                state.Value = SelectionState.Inventory;
+                weeklyEvent.Scale = new Vector2(0);
+            }
+            else
+            {
+                weeklyEvent.Scale = new Vector2(1);
+            }
         }
     }
 }

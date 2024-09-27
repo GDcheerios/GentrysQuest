@@ -86,6 +86,10 @@ namespace GentrysQuest.Game.Database
             Weapons = new List<Weapon>();
         }
 
+        public static bool UserAvailable() => CurrentUser.Value != null;
+
+        public static bool IsGuest() => CurrentUser.Value.ID == null;
+
         public static void LoadJsonData(JsonGameData jsonGameData)
         {
             // Load main data

@@ -22,4 +22,7 @@
       <Link>game.ico</Link>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Locations\" />
+  </ItemGroup>
 </Project>

@@ -96,7 +96,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
 
         public void PressBack()
         {
-            if (GameData.CurrentUser.Value != null && GameData.CurrentUser.Value.ID == null) GuestFileManager.SaveUser();
+            if (GameData.UserAvailable() && GameData.IsGuest()) GuestFileManager.SaveUser();
             selection.Disappear();
             title.FadeIn(200);
             resetTitle();
