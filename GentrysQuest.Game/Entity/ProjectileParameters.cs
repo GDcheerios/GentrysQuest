@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Utils;
@@ -44,7 +45,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// How it affects
         /// </summary>
-        public OnHitEffect OnHitEffect = null;
+        public List<OnHitEffect> OnHitEffects = null;
 
         /// <summary>
         /// If the damage takes defense into account

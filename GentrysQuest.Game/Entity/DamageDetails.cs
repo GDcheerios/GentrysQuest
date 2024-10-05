@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace GentrysQuest.Game.Entity
 {
     public class DamageDetails
@@ -21,6 +23,11 @@ namespace GentrysQuest.Game.Entity
         /// The receiver of the attack
         /// </summary>
         public Entity Receiver = null;
+
+        /// <summary>
+        /// Current effects applied to this hit
+        /// </summary>
+        public List<StatusEffect> statusEffects = new List<StatusEffect>();
 
         public int GetHitAmount() => Sender.EnemyHitCounter[Receiver];
     }
