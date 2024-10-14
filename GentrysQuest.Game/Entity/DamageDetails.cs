@@ -27,7 +27,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// Current effects applied to this hit
         /// </summary>
-        public List<StatusEffect> statusEffects = new List<StatusEffect>();
+        public List<StatusEffect> StatusEffects = new List<StatusEffect>();
 
         public int GetHitAmount() => Sender.EnemyHitCounter[Receiver];
     }

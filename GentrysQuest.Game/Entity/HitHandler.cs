@@ -35,7 +35,7 @@ public class HitHandler
     public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null)
     {
         Details = new DamageDetails();
-        if (statusEffects != null) Details.statusEffects = statusEffects;
+        if (statusEffects != null) Details.StatusEffects = statusEffects;
         Details.Sender = this.sender = sender;
         this.receiver = receiver;
         Details.Receiver = receiverBase = receiver.GetBase();
@@ -83,7 +83,7 @@ public class HitHandler
 
     private void invokeHitEvent()
     {
-        foreach (var effect in Details.statusEffects) receiverBase.AddEffect(effect);
+        foreach (var effect in Details.StatusEffects) receiverBase.AddEffect(effect);
         receiverBase.OnHit(Details);
         sender.Weapon!.HitEntity(Details);
     }
