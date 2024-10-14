@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
-using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;

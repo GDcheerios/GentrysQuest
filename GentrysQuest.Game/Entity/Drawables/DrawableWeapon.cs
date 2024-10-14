@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -19,6 +20,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public Sprite Sprite { get; set; }
         public HitBox HitBox { get; set; }
         public AffiliationType Affiliation { get; set; }
+        public List<Particle> Particles { get; set; }
 
         /// <summary>
         /// Used to obtain the base weapon object
@@ -133,6 +135,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             LastUseTime = Clock.CurrentTime + delay;
             Scheduler.AddDelayed(() => RestWeapon(true), delay);
         }
+
+        public void AddParticle(Particle particle) => Particles.Add(particle);
 
         private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
 

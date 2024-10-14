@@ -10,6 +10,7 @@ using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Location.Drawables;
 using GentrysQuest.Game.Online.API.Requests;
 using GentrysQuest.Game.Overlays.Inventory;
@@ -425,11 +426,18 @@ namespace GentrysQuest.Game.Screens.Gameplay
             this.FadeInFromZero(500, Easing.OutQuint);
         }
 
+        private void transferParticles(DrawableEntity entity)
+        {
+            foreach (Particle particle in entity.Particles) AddInternal(particle);
+        }
+
         protected override void Update()
         {
             base.Update();
             spawnEnemyClock();
             scoreText.Text = "" + Score;
+
+            transferParticles(playerEntity);
 
             foreach (Projectile projectile in playerEntity.QueuedProjectiles.ToList())
             {
@@ -448,6 +456,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
             foreach (DrawableEntity enemy in enemies)
             {
+                transferParticles(enemy);
+
                 foreach (Projectile projectile in enemy.QueuedProjectiles.ToList())
                 {
                     projectile.ShootFrom(enemy);

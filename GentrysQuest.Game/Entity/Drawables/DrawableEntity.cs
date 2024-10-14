@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
@@ -43,6 +44,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableWeapon Weapon;
 
         public AffiliationType Affiliation { get; set; }
+        public List<Particle> Particles { get; set; } = new();
         public List<Projectile> QueuedProjectiles { get; set; } = new();
 
         public HitBox HitBox { get; set; }
@@ -299,6 +301,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         /// <returns></returns>
         public double GetSpeed() => (SPEED_MAIN * Entity.Stats.Speed.Current.Value * Entity.SpeedModifier) + Entity.PositionJump;
+
+        public void AddParticle(Particle particle) => Particles.Add(particle);
 
         protected override void Update()
         {

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Entity.Drawables
@@ -19,5 +21,10 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Is it an opp?
         /// </summary>
         AffiliationType Affiliation { get; set; }
+
+        /// <summary>
+        /// Particles
+        /// </summary>
+        List<Particle> Particles { get; set; }
     }
 }
