@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -98,45 +99,41 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Drawable weapon logic for attacking.
         /// </summary>
         /// <param name="direction">Attack direction</param>
-        public void Attack(float direction)
+        public void HandleAttackInfo(float direction, HoldEvent holdEvent)
         {
             DamageQueue.Clear();
-            Weapon.CanAttack = false;
             HitBox.Enable();
-            Weapon.AttackAmount += 1;
-            AttackPatternCaseHolder caseHolder = Weapon.AttackPattern.GetCase(Weapon.AttackAmount); // set the caseHolder
-            Weapon.Holder.Attack(); // Call the holder base method to handle events.
+            Weapon.OnAttack(holdEvent);
 
-            if (caseHolder == null)
+            if (Weapon.IsAttacking)
             {
-                Weapon.AttackAmount = 1;
-                caseHolder = Weapon.AttackPattern.GetCase(Weapon.AttackAmount);
+                if (Weapon.ChargingEvent != null) handlePattern(Weapon.ChargingEvent, direction, getPatternSpeed(Weapon.ChargingEvent));
             }
-
-            var patterns = caseHolder.GetEvents();
-            double delay = 0;
-
-            foreach (AttackPatternEvent pattern in patterns)
-            {
-                double speed = getPatternSpeed(pattern);
-                Scheduler.AddDelayed(() =>
-                {
-                    handlePattern(pattern, direction, speed);
-                    restingPattern = pattern;
-                }, delay);
-                delay += speed;
-            }
-
-            // Skill logic
-            GetBase().SkillRef.LastUseTime = Clock.CurrentTime;
-            GetBase().SkillRef.SetCooldown(delay);
-            GetBase().SkillRef.Act();
-
-            LastUseTime = Clock.CurrentTime + delay;
-            Scheduler.AddDelayed(() => RestWeapon(true), delay);
+            else handlePatternCase(Weapon.CurrentCase, direction);
         }
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
+
+        private void handlePatternCase(AttackPatternCaseHolder caseHolder, float direction)
+        {
+            var list = caseHolder.GetEvents();
+            double delay = 0;
+
+            for (var index = 0; index < list.Count; index++)
+            {
+                double speed = getPatternSpeed(list[index]);
+                var patternEvent = list[index];
+                Scheduler.AddDelayed(() =>
+                    {
+                        handlePattern(patternEvent, direction, speed);
+                    }, delay
+                );
+
+                delay += speed;
+            }
+
+            Scheduler.AddDelayed(() => RestWeapon(true), delay);
+        }
 
         private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
 
@@ -220,10 +217,9 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             if (new ElapsedTime(Clock.CurrentTime, LastUseTime) > COMBO_RESET_INTERVAL)
             {
-                Weapon.AttackAmount = 0;
-                restingPattern = Weapon.AttackPattern.GetFirstCaseEvent();
+                Weapon.AttackCaseCounter = 0;
                 transitionCooldown = true;
-                handlePattern(restingPattern, User.DirectionLooking + 90, 100, true);
+                RestWeapon();
             }
 
             if (!Weapon.CanAttack)

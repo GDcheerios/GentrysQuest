@@ -5,8 +5,8 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
-using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Graphics;
@@ -58,12 +58,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         private double knockbackDuration;
         private double knockbackTimeRemaining;
 
-        /// <summary>
-        /// The entity list to check when attacking
-        /// </summary>
-        [CanBeNull]
-        protected List<DrawableEntity> EntitiesHitCheckList;
-
         // stat modifiers
         /// <summary>
         /// The base speed variable for all entities
@@ -73,6 +67,11 @@ namespace GentrysQuest.Game.Entity.Drawables
         private const int DODGE_TIME = 250;
         private const int DODGE_INTERVAL = 1000;
         private const int BASE_DODGE_SPEED = 3;
+
+        /// <summary>
+        /// The center of this DrawableEntity
+        /// </summary>
+        private static readonly Vector2 CENTER = new Vector2(50);
 
         /// <summary>
         /// When doing some math you might need this
@@ -205,16 +204,15 @@ namespace GentrysQuest.Game.Entity.Drawables
         }
 
         /// <summary>
-        /// Attacks towards a direction
+        /// Passes attack info down to children
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public virtual void Attack(Vector2 position)
+        public virtual void PassAttackInfo(Vector2 position, HoldEvent holdEvent)
         {
             if (!Entity.CanAttack) return;
 
-            Vector2 center = new Vector2(50);
-            double angle = MathBase.GetAngle(Position + center, position);
-            if (Weapon.GetBase().CanAttack) Weapon.Attack((float)angle + 90);
+            double angle = MathBase.GetAngle(Position + CENTER, position);
+            if (Weapon.GetBase().CanAttack) Weapon.HandleAttackInfo((float)angle + 90, holdEvent);
         }
 
         /// <summary>
@@ -284,14 +282,6 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
         }
 
-        /// <summary>
-        /// Set the EntityHitList
-        /// should be used by some test class or by Gameplay class
-        /// </summary>
-        /// <param name="entities">The list of entities</param>
-        public void SetEntities(List<DrawableEntity> entities) => EntitiesHitCheckList = entities;
-
-        /// <summary>
         /// In some cases you'll want to get the entity reference for this drawable class
         /// <returns>The entity reference for this drawable</returns>
         public Entity GetBase() => Entity;
@@ -306,13 +296,14 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         protected override void Update()
         {
-            // Main update
+            // Main update logic
             base.Update();
-            Entity.positionRef = Position;
+            Entity.PositionRef = Position;
 
-            // Movement
+            // Movement logic
             Direction = Vector2.Zero;
 
+            //  Knockback logic
             if (knockbackTimeRemaining > 0)
             {
                 float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
@@ -349,9 +340,14 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
 
             // Regen should always be at the bottom
+            // Skip if entity is dead or full health
             if (Entity.IsDead || Entity.IsFullHealth) return;
 
+            // Regen timer
             double elapsedRegenTime = Clock.CurrentTime - lastRegenTime;
+
+            // enemies should have no regen
+            // therefore we skip if stat is 0
             if (Entity.Stats.RegenSpeed.Current.Value == 0) return;
 
             if (elapsedRegenTime * Entity.Stats.RegenSpeed.Current.Value >= 1000) regen();

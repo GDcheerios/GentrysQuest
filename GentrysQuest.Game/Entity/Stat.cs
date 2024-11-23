@@ -79,14 +79,8 @@ namespace GentrysQuest.Game.Entity
         public double GetPercentFromAdditional(float percent) => MathBase.GetPercent(Additional.Value, percent);
         public double GetPercentFromTotal(float percent) => MathBase.GetPercent(Total(), percent);
 
-        public virtual double Total()
-        {
-            return Math.Round(Default.Value + Additional.Value, 2);
-        }
+        public virtual double Total() => Math.Round(Default.Value + Additional.Value, 2);
 
-        public override string ToString()
-        {
-            return $"{Name}: {Default.Value} + {Additional.Value} ({Total()})";
-        }
+        public override string ToString() => $"{Name}: {Default.Value} + {Additional.Value} ({Total()})";
     }
 }

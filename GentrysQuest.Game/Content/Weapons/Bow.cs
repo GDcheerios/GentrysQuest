@@ -12,18 +12,20 @@ namespace GentrysQuest.Game.Content.Weapons
         public override string Description { get; protected set; } = "Just a bow.";
         public override bool IsGeneralDamageMode { get; protected set; } = false;
 
+        private AttackPatternCaseHolder shootAnimation = new AttackPatternCaseHolder();
+        private int currentDamage = 20;
+        private int projectileSpeed = 15;
+
         public Bow()
         {
             Damage.SetDefaultValue(20);
-
-            AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent
+            shootAnimation.AddEvent(new AttackPatternEvent
             {
                 Size = new Vector2(0.5f),
                 Distance = 50,
                 HitboxSize = new Vector2(0),
             });
-            AttackPattern.Add(new AttackPatternEvent
+            shootAnimation.AddEvent(new AttackPatternEvent
             {
                 Size = new Vector2(0.5f),
                 Distance = 40,
@@ -40,7 +42,7 @@ namespace GentrysQuest.Game.Content.Weapons
                     }
                 ]
             });
-            AttackPattern.Add(new AttackPatternEvent(800)
+            shootAnimation.AddEvent(new AttackPatternEvent(800)
             {
                 Size = new Vector2(0.5f),
                 Distance = 50,

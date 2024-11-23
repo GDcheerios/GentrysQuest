@@ -23,6 +23,8 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public override int Distance { get; set; } = 200;
 
+        private readonly AttackPattern attackPattern = new AttackPattern();
+
         public BrodysBroadsword()
         {
             Damage.SetDefaultValue(24);
@@ -42,22 +44,22 @@ namespace GentrysQuest.Game.Content.Weapons
                 Effect = new Stun()
             };
 
-            AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Direction = 110, Distance = distance, DamagePercent = 15 });
-            AttackPattern.Add(new AttackPatternEvent(time) { Direction = -75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 15 });
+            attackPattern.AddCase(1);
+            attackPattern.Add(new AttackPatternEvent { Direction = 110, Distance = distance, DamagePercent = 15 });
+            attackPattern.Add(new AttackPatternEvent(time) { Direction = -75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 15 });
 
-            AttackPattern.AddCase(2);
-            AttackPattern.Add(new AttackPatternEvent { Direction = -75, Distance = distance, DamagePercent = 30 });
-            AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = -110, Distance = distance, Transition = Easing.OutCubic, DamagePercent = 30 });
-            AttackPattern.Add(new AttackPatternEvent(time) { Direction = 75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 30 });
+            attackPattern.AddCase(2);
+            attackPattern.Add(new AttackPatternEvent { Direction = -75, Distance = distance, DamagePercent = 30 });
+            attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = -110, Distance = distance, Transition = Easing.OutCubic, DamagePercent = 30 });
+            attackPattern.Add(new AttackPatternEvent(time) { Direction = 75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 30 });
 
             Vector2 boxSize = new Vector2(0);
 
-            AttackPattern.AddCase(3);
-            AttackPattern.Add(new AttackPatternEvent { Direction = 75, MovementSpeed = 0.2f, HitboxSize = boxSize });
-            AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0.1f, HitboxSize = boxSize });
-            AttackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0, HitboxSize = boxSize });
-            AttackPattern.Add(new AttackPatternEvent(new Second(0.1))
+            attackPattern.AddCase(3);
+            attackPattern.Add(new AttackPatternEvent { Direction = 75, MovementSpeed = 0.2f, HitboxSize = boxSize });
+            attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0.1f, HitboxSize = boxSize });
+            attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0, HitboxSize = boxSize });
+            attackPattern.Add(new AttackPatternEvent(new Second(0.1))
                 { Direction = 180, Position = new Vector2(0, -100), MovementSpeed = 0.1f, ResetHitBox = true, OnHitEffects = [hiltAttack] });
 
             #endregion

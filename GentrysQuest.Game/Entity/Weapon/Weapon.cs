@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
+using JetBrains.Annotations;
 using osu.Framework.Graphics;
+using osuTK;
 
 namespace GentrysQuest.Game.Entity.Weapon
 {
@@ -18,6 +21,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public int AttackAmount { get; set; }
 
         /// <summary>
+        /// This is the counter for attack patterns
+        /// </summary>
+        public int AttackCaseCounter { get; set; }
+
+        /// <summary>
         /// Describes how far away an enemy who is using the weapon needs to be to start attack an opponent
         /// </summary>
         public abstract int Distance { get; set; }
@@ -28,10 +36,19 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public Stat Damage = new("Damage", StatType.Attack, 0); // Base damage
 
+        public AttackPatternCaseHolder CurrentCase { get; protected set; }
+
         /// <summary>
         /// If the weapon can attack
         /// </summary>
         public bool CanAttack;
+
+        /// <summary>
+        /// If the weapon is attacking
+        /// </summary>
+        public bool IsAttacking;
+
+        public bool IsCharging { get; private set; }
 
         /// <summary>
         /// Access the skill information for the weapon.
@@ -45,11 +62,19 @@ namespace GentrysQuest.Game.Entity.Weapon
         public virtual bool IsGeneralDamageMode { get; protected set; } = true;
 
         /// <summary>
-        /// The attack pattern.
-        /// Defines how the weapon works.
-        /// Must be defined in the constructor
+        /// Custom resting event if needed
         /// </summary>
-        public AttackPattern AttackPattern = new();
+        public virtual AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent
+        {
+            DoesDamage = false,
+            Size = Vector2.Zero
+        };
+
+        /// <summary>
+        /// If needing some animation while charging a weapon
+        /// </summary>
+        [CanBeNull]
+        public AttackPatternEvent ChargingEvent { get; protected set; }
 
         /// <summary>
         /// Who is holding the weapon
@@ -67,7 +92,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         public float KnockbackMultiplier;
 
         /// <summary>
-        /// The valid buffs that this weapon can have
+        /// This determines what buffs this weapon could obtain when initialized
         /// </summary>
         public virtual List<StatType> ValidBuffs { get; set; } = new();
 
@@ -116,6 +141,28 @@ namespace GentrysQuest.Game.Entity.Weapon
         }
 
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);
+
+        /// <summary>
+        /// Code to be run when attacking
+        /// </summary>
+        public virtual void OnAttack(HoldEvent holdEvent)
+        {
+            AttackAmount++;
+            AttackCaseCounter++;
+            if (holdEvent.IsPressed && CanAttack) IsAttacking = true;
+            CanAttack = false;
+        }
+
+        /// <summary>
+        /// Ends the attack.
+        /// Can be used to add custom logic.
+        /// </summary>
+        public virtual void EndAttack()
+        {
+            IsAttacking = false;
+            CanAttack = false;
+            Holder.Attack();
+        }
 
         public void HitEntity(DamageDetails details)
         {

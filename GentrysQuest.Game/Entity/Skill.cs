@@ -1,6 +1,7 @@
 using System;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -26,17 +27,16 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// The time since last start
         /// </summary>
-        public double LastUseTime;
+        public double LastUseTime { get; protected set; }
 
         /// <summary>
         /// How much longer until the skill is ready to use again
         /// </summary>
         /// <returns></returns>
-        public int PercentToDone;
+        public int PercentToDone { get; protected set; }
 
         /// <summary>
-        /// Who has this skill?
-        /// I know haver isn't a word...
+        /// The parent to this skill
         /// </summary>
         public DrawableEntity User { get; set; }
 
@@ -55,17 +55,24 @@ namespace GentrysQuest.Game.Entity
         /// </summary>
         public virtual void Act()
         {
-            if (UsesAvailable > 0 || PercentToDone >= 100)
+            // base logic
+            if (CanUse())
             {
+                LastUseTime = GameClock.CurrentTime;
                 UsesAvailable--;
                 PercentToDone = 0;
+                OnAct?.Invoke();
             }
+
+            // override this method to implement logic.
         }
 
         /// <summary>
         /// The texture mapping for this skill
         /// </summary>
         public TextureMapping TextureMapping { get; protected set; } = new();
+
+        public bool CanUse() => PercentToDone == 100 || UsesAvailable > 0;
 
         public void SetPercent(double currentTime)
         {
