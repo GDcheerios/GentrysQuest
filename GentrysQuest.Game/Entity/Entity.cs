@@ -18,7 +18,7 @@ namespace GentrysQuest.Game.Entity
         public bool CanMove = true;
         public bool Invincible = false;
         public int CurrentTenacity = 0;
-        public Vector2 positionRef;
+        public Vector2 PositionRef;
 
         // Stats
         public Stats Stats = new();
@@ -111,12 +111,12 @@ namespace GentrysQuest.Game.Entity
 
         public int AfterDefense(int amount) => (int)(amount * (100 / (Stats.Defense.Current.Value * DefenseModifier)));
 
-        public virtual void Damage(int amount)
+        public virtual void Damage(int amount = 1)
         {
             if (Invincible) return;
 
-            if (amount <= 0) amount = 1;
-            if (IsDodging) amount = 0;
+            if (IsDodging) return;
+
             IsFullHealth = false;
             Stats.Health.UpdateCurrentValue(-amount * DamageModifier);
             if (Stats.Health.Current.Value <= 0 && !IsDead) Die();
@@ -126,10 +126,8 @@ namespace GentrysQuest.Game.Entity
 
         public void DamageWithDefense(int amount) => Damage(AfterDefense(amount));
 
-        public virtual void Crit(int amount)
+        public virtual void Crit(int amount = 1)
         {
-            if (amount <= 0) amount = 1;
-            if (IsDodging) amount = 0;
             Damage(amount);
             OnCrit?.Invoke(amount);
         }

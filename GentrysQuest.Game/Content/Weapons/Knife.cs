@@ -12,6 +12,8 @@ namespace GentrysQuest.Game.Content.Weapons
         public override string Name { get; set; } = "Knife";
         public override string Description { get; protected set; } = "Just a knife...";
 
+        private readonly AttackPattern attackPattern = new AttackPattern();
+
         public Knife()
         {
             Damage.SetDefaultValue(16);
@@ -26,12 +28,12 @@ namespace GentrysQuest.Game.Content.Weapons
 
             var time = (int)MathBase.SecondToMs(0.4); // seconds
 
-            AttackPattern.AddCase(1);
+            attackPattern.AddCase(1);
 
-            AttackPattern.Add(new AttackPatternEvent { Distance = 0, HitboxSize = new Vector2(0, 0), Size = new Vector2(0.6f) });
-            AttackPattern.Add(new AttackPatternEvent(time) { Distance = 15, HitboxSize = new Vector2(0f, 0), Size = new Vector2(0.6f), DoesDamage = false });
-            AttackPattern.Add(new AttackPatternEvent(time) { Distance = 65, HitboxSize = new Vector2(0.1f, 1), Size = new Vector2(0.6f) });
-            AttackPattern.Add(new AttackPatternEvent(time) { Distance = 0, HitboxSize = new Vector2(0.1f, 0), Size = new Vector2(0.6f) });
+            attackPattern.Add(new AttackPatternEvent { Distance = 0, HitboxSize = new Vector2(0, 0), Size = new Vector2(0.6f) });
+            attackPattern.Add(new AttackPatternEvent(time) { Distance = 15, HitboxSize = new Vector2(0f, 0), Size = new Vector2(0.6f), DoesDamage = false });
+            attackPattern.Add(new AttackPatternEvent(time) { Distance = 65, HitboxSize = new Vector2(0.1f, 1), Size = new Vector2(0.6f) });
+            attackPattern.Add(new AttackPatternEvent(time) { Distance = 0, HitboxSize = new Vector2(0.1f, 0), Size = new Vector2(0.6f) });
 
             #endregion
 

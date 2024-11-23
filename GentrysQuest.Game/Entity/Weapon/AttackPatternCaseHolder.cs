@@ -7,7 +7,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         public int AttackNumberCase { get; private set; }
         private List<AttackPatternEvent> caseEvents;
 
-        public AttackPatternCaseHolder(int attackNumberCase)
+        public AttackPatternCaseHolder(int attackNumberCase = 0)
         {
             AttackNumberCase = attackNumberCase;
             caseEvents = new List<AttackPatternEvent>();

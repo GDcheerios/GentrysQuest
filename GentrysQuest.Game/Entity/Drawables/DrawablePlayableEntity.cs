@@ -1,5 +1,5 @@
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.Notifications;
-using GentrysQuest.Game.Screens.Gameplay;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Input.Events;
 using osuTK;
@@ -16,7 +16,7 @@ public partial class DrawablePlayableEntity : DrawableEntity
     /// A container that manages mouse clicks
     /// Since it's a playable entity you should be able to click
     /// </summary>
-    private GameplayClickContainer clickContainer;
+    private ClickContainer clickContainer;
 
     // Movement information
     private bool up;
@@ -33,7 +33,7 @@ public partial class DrawablePlayableEntity : DrawableEntity
         if (entity.Ultimate != null) entity.Ultimate.User = this;
     }
 
-    public void SetupClickContainer() => AddInternal(clickContainer = new GameplayClickContainer(this)); // Add clickable container to the player scene
+    public void SetupClickContainer() => AddInternal(clickContainer = new ClickContainer(this)); // Add clickable container to the player scene
 
     public void RemoveClickContainer()
     {
@@ -67,21 +67,11 @@ public partial class DrawablePlayableEntity : DrawableEntity
                 break;
 
             case Key.Space:
-                if (Entity.Utility?.PercentToDone == 100 || Entity.Utility?.UsesAvailable > 0)
-                {
-                    Entity.Utility?.Act();
-                    if (Entity.Utility != null) Entity.Utility.LastUseTime = Clock.CurrentTime;
-                }
-
+                Entity.Utility?.Act();
                 break;
 
             case Key.R:
-                if (Entity.Ultimate?.PercentToDone == 100 || Entity.Ultimate?.UsesAvailable > 0)
-                {
-                    Entity.Ultimate?.Act();
-                    if (Entity.Ultimate != null) Entity.Ultimate.LastUseTime = Clock.CurrentTime;
-                }
-
+                Entity.Ultimate?.Act();
                 break;
         }
 

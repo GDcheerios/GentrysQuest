@@ -11,6 +11,8 @@ namespace GentrysQuest.Game.Content.Weapons
         public override int Distance { get; set; } = 200;
         public override string Description { get; protected set; } = "Just a hammer";
 
+        private readonly AttackPattern attackPattern = new AttackPattern();
+
         public Hammer()
         {
             Damage.SetDefaultValue(100);
@@ -20,17 +22,17 @@ namespace GentrysQuest.Game.Content.Weapons
 
             Vector2 size = new Vector2(0.8f, 1.2f);
 
-            AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Direction = 115, Distance = 100, Size = size });
-            AttackPattern.Add(new AttackPatternEvent(100) { Direction = 100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
-            AttackPattern.Add(new AttackPatternEvent(850) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
-            AttackPattern.Add(new AttackPatternEvent(50) { Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3 });
+            attackPattern.AddCase(1);
+            attackPattern.Add(new AttackPatternEvent { Direction = 115, Distance = 100, Size = size });
+            attackPattern.Add(new AttackPatternEvent(100) { Direction = 100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
+            attackPattern.Add(new AttackPatternEvent(850) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
+            attackPattern.Add(new AttackPatternEvent(50) { Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3 });
 
-            AttackPattern.AddCase(2);
-            AttackPattern.Add(new AttackPatternEvent { Direction = -115, Distance = 100, Size = size });
-            AttackPattern.Add(new AttackPatternEvent(100) { Direction = -100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
-            AttackPattern.Add(new AttackPatternEvent(850) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
-            AttackPattern.Add(new AttackPatternEvent(50) { Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3 });
+            attackPattern.AddCase(2);
+            attackPattern.Add(new AttackPatternEvent { Direction = -115, Distance = 100, Size = size });
+            attackPattern.Add(new AttackPatternEvent(100) { Direction = -100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
+            attackPattern.Add(new AttackPatternEvent(850) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
+            attackPattern.Add(new AttackPatternEvent(50) { Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3 });
         }
     }
 }

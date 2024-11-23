@@ -163,7 +163,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 }
             };
             newEnemy.FollowEntity(playerEntity);
-            playerEntity.SetEntities(enemies);
         }
 
         /// <summary>
@@ -259,7 +258,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
             enemy.EnemyController.Destroy();
             enemies.Remove(enemy);
             RemoveInternal(enemy, false);
-            playerEntity.SetEntities(enemies);
         }
 
         private void removeAllEnemies()

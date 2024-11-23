@@ -24,5 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Locations\" />
+    <Folder Include="Entity\HitBox\" />
   </ItemGroup>
 </Project>
