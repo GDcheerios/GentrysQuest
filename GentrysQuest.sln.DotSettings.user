@@ -14,6 +14,9 @@
   &lt;Assembly Path="C:\Users\GDcheerios\.nuget\packages\ppy.osu.framework\2024.131.0\lib\net6.0\osu.Framework.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\dotnet\sdk\8.0.203\MSBuild.dll</s:String>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/CustomGlobalProperties/=AndroidSdkDirectory/@EntryIndexedValue">C:\Users\Brayden\AppData\Local\Android\Sdk</s:String>
+	
+	
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/CustomGlobalProperties/=JavaSdkDirectory/@EntryIndexedValue">C:\Program Files\Java\jdk-17</s:String>
 	
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EPredefinedNamingRulesToUserRulesUpgrade/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

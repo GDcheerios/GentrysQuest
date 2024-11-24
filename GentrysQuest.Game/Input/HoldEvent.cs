@@ -19,5 +19,18 @@ namespace GentrysQuest.Game.Input
         /// <param name="timeToHold">How long to check</param>
         /// <returns>If the user has been holding long enough</returns>
         public bool MeetsHoldCondition(double timeToHold = 0) => timeToHold >= Duration;
+
+        /// <summary>
+        /// use on enemies
+        /// </summary>
+        /// <returns></returns>
+        public static HoldEvent CreateDummy()
+        {
+            return new HoldEvent
+            {
+                IsPressed = false,
+                Duration = 0
+            };
+        }
     }
 }
