@@ -152,7 +152,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (aiState)
             {
                 case AiState.Pursuing:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) PassAttackInfo(followEntity.Position, new HoldEvent());
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) PassAttackInfo(followEntity.Position, HoldEvent.CreateDummy());
 
                     if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
                     {
