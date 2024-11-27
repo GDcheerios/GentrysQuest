@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -34,10 +33,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public List<OnHitEffect> OnHitEffects = new();
         private bool doesDamage;
 
-        /// <summary>
-        /// Where the weapon should rest after an attack.
-        /// </summary>
-        private AttackPatternEvent restingPattern;
+        private bool didChargeAttack;
 
         /// <summary>
         /// Last time of usage so we can reset back to first attack pattern.
@@ -55,10 +51,17 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         private bool transitionCooldown;
 
+        private bool ready_for_rest;
+
         /// <summary>
         /// The delay to make animations smooth
         /// </summary>
         private const int FADE_DELAY = 50;
+
+        /// <summary>
+        /// to handle charging attacks by tracking the time.
+        /// </summary>
+        private bool trackingAttackTime;
 
         public DrawableWeapon(DrawableEntity entity, AffiliationType affiliation)
         {
@@ -83,7 +86,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                     },
                     HitBox
                 };
-                Weapon.CanAttack = true;
+                ready_for_rest = true;
             }
         }
 
@@ -95,21 +98,32 @@ namespace GentrysQuest.Game.Entity.Drawables
             GetBase().SkillRef.TextureMapping.Add("Icon", GetBase().TextureMapping.Get("Icon"));
         }
 
+        private bool weaponExists() => Weapon != null;
+
         /// <summary>
         /// Drawable weapon logic for attacking.
         /// </summary>
         /// <param name="direction">Attack direction</param>
-        public void HandleAttackInfo(float direction, HoldEvent holdEvent)
+        public void StartAttack(float direction)
         {
             DamageQueue.Clear();
-            HitBox.Enable();
-            Weapon.OnAttack(holdEvent);
+            Weapon.StartAttack(direction);
+            LastUseTime = GameClock.CurrentTime;
+            ready_for_rest = false;
+            trackingAttackTime = true;
+        }
 
-            if (Weapon.IsAttacking)
+        public void EndAttack()
+        {
+            if (!didChargeAttack)
             {
-                if (Weapon.ChargingEvent != null) handlePattern(Weapon.ChargingEvent, direction, getPatternSpeed(Weapon.ChargingEvent));
+                Weapon.AttackCaseCounter++;
+                handlePatternCase(Weapon.GetCurrentCase(), Weapon.Direction);
             }
-            else handlePatternCase(Weapon.CurrentCase, direction);
+
+            trackingAttackTime = false;
+            didChargeAttack = false;
+            Weapon.EndAttack();
         }
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
@@ -119,20 +133,20 @@ namespace GentrysQuest.Game.Entity.Drawables
             var list = caseHolder.GetEvents();
             double delay = 0;
 
-            for (var index = 0; index < list.Count; index++)
+            foreach (var t in list)
             {
-                double speed = getPatternSpeed(list[index]);
-                var patternEvent = list[index];
+                double speed = getPatternSpeed(t);
+                var patternEvent = t;
                 Scheduler.AddDelayed(() =>
                     {
                         handlePattern(patternEvent, direction, speed);
                     }, delay
                 );
 
-                delay += speed;
+                delay += speed + FADE_DELAY;
             }
 
-            Scheduler.AddDelayed(() => RestWeapon(true), delay);
+            Scheduler.AddDelayed(() => { ready_for_rest = true; }, delay + FADE_DELAY);
         }
 
         private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
@@ -143,23 +157,23 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <param name="delay">if there's an added delay to the weapon rest</param>
         public void RestWeapon(bool delay = false)
         {
-            // re-enable attacking and hitbox
-            Weapon.CanAttack = true;
-            HitBox.Disable();
-
-            if (restingPattern != null)
+            if (Weapon.RestingEvent != null)
             {
-                handlePattern(restingPattern, User.DirectionLooking + 90, delay ? getPatternSpeed(restingPattern) : 0, true);
-
-                if (delay)
-                {
-                    transitionCooldown = true;
-                    Scheduler.AddDelayed(() =>
-                    {
-                        transitionCooldown = false;
-                    }, getPatternSpeed(restingPattern));
-                }
+                handlePattern(Weapon.RestingEvent, User.DirectionLooking + 90, delay ? getPatternSpeed(Weapon.RestingEvent) : 0, true);
             }
+            else
+            {
+                AttackPatternEvent restingPattern = new AttackPatternEvent(100) { Size = Vector2.Zero };
+                handlePattern(restingPattern, direction: User.DirectionLooking, delay ? getPatternSpeed(restingPattern) : 0, true);
+            }
+
+            if (!delay) return;
+
+            transitionCooldown = true;
+            Scheduler.AddDelayed(() =>
+            {
+                transitionCooldown = false;
+            }, getPatternSpeed(Weapon.RestingEvent));
         }
 
         /// <summary>
@@ -176,6 +190,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);
             HitBox.ScaleTo(pattern.HitboxSize, duration: speed, pattern.Transition);
             this.TransformTo(nameof(Distance), pattern.Distance, speed, pattern.Transition);
+            if (pattern.InteruptAttack) Scheduler.AddDelayed(Weapon.EndAttack, speed);
 
             if (pattern.ForcedMovement)
             {
@@ -187,15 +202,26 @@ namespace GentrysQuest.Game.Entity.Drawables
                 );
             }
 
-            if (!resting) // non-resting logic
+            switch (resting)
             {
-                if (pattern.ResetHitBox) DamageQueue.Clear();
-                Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
-                Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
-                OnHitEffects = pattern.OnHitEffects;
-                doesDamage = pattern.DoesDamage;
-                Weapon.KnockbackMultiplier = pattern.KnockbackMultiplier;
+                case true:
+                    Weapon.CanAttack = true;
+                    HitBox.Disable();
+                    break;
+
+                case false:
+                {
+                    if (pattern.ResetHitBox) DamageQueue.Clear();
+                    Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
+                    Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
+                    OnHitEffects = pattern.OnHitEffects;
+                    doesDamage = pattern.DoesDamage;
+                    Weapon.KnockbackMultiplier = pattern.KnockbackMultiplier;
+                    break;
+                }
             }
+
+            if (doesDamage) HitBox.Disable();
 
             if (!HitBox.Enabled) return; // don't need to continue if there's no hitbox
 
@@ -212,26 +238,27 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Update()
         {
             base.Update();
+
+            if (trackingAttackTime)
+            {
+                Weapon.HoldDuration = GameClock.CurrentTime - LastUseTime;
+                AttackPatternCaseHolder currentCase = Weapon.ChargeAttackIntervalEvents.TryGetReadyCharge((int)Weapon.HoldDuration);
+
+                if (currentCase != null)
+                {
+                    didChargeAttack = true;
+                    handlePatternCase(currentCase, Weapon.Direction);
+                }
+            }
+
+            if (ready_for_rest) RestWeapon();
+
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
             GetBase().SkillRef.SetPercent(Clock.CurrentTime);
 
-            if (new ElapsedTime(Clock.CurrentTime, LastUseTime) > COMBO_RESET_INTERVAL)
-            {
-                Weapon.AttackCaseCounter = 0;
-                transitionCooldown = true;
-                RestWeapon();
-            }
+            if (Weapon.CanAttack) return;
 
-            if (!Weapon.CanAttack)
-            {
-                if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase(), this);
-            }
-            else
-            {
-                Weapon.UpdateStats();
-                Weapon.Holder.SpeedModifier = 1;
-                if (!transitionCooldown) RestWeapon();
-            }
+            if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase(), this);
         }
     }
 }

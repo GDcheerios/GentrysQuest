@@ -5,7 +5,6 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
-using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
@@ -207,13 +206,15 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Passes attack info down to children
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public virtual void PassAttackInfo(Vector2 position, HoldEvent holdEvent)
+        public virtual void StartAttack(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 
             double angle = MathBase.GetAngle(Position + CENTER, position);
-            if (Weapon.GetBase().CanAttack) Weapon.HandleAttackInfo((float)angle + 90, holdEvent);
+            if (Weapon.GetBase().CanAttack) Weapon.StartAttack((float)angle + 90);
         }
+
+        public virtual void EndAttack() => Weapon.EndAttack();
 
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage

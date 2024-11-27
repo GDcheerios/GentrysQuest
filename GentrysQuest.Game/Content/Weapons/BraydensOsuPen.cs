@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
-using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
 using osuTK;
@@ -26,6 +25,11 @@ namespace GentrysQuest.Game.Content.Weapons
         private AttackPattern mainAttack = new AttackPattern();
         private AttackPatternCaseHolder spinningAttack = new AttackPatternCaseHolder(0);
 
+        public override AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent(50)
+        {
+            Direction = -105
+        };
+
         public BraydensOsuPen()
         {
             Damage.SetDefaultValue(46);
@@ -43,7 +47,7 @@ namespace GentrysQuest.Game.Content.Weapons
             Vector2 hbSize = new Vector2(0.1f, 1);
             OnHitEffect lastComboEffect = new OnHitEffect(20) { Effect = new Bleed(new Second(6)) };
 
-            mainAttack.AddCase(1);
+            mainAttack.AddCase();
             mainAttack.Add(new AttackPatternEvent
             {
                 Direction = -90,
@@ -58,22 +62,26 @@ namespace GentrysQuest.Game.Content.Weapons
                 HitboxSize = hbSize
             });
 
-            mainAttack.AddCase(2);
+            mainAttack.AddCase();
             mainAttack.Add(new AttackPatternEvent
                 { Direction = 90, Distance = distance, HitboxSize = hbSize });
             mainAttack.Add(new AttackPatternEvent(time)
                 { Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize });
 
-            RestingEvent = mainAttack.GetFirstCaseEvent();
-
-            #endregion
-
-            #region cases
-
-            OnHitEntity += details =>
+            // spinningAttack.AddEvent(new AttackPatternEvent(50) { Size = Vector2.Zero });
+            spinningAttack.AddEvent(new AttackPatternEvent(0) { Direction = -90, Distance = distance, HitboxSize = hbSize });
+            spinningAttack.AddEvent(new AttackPatternEvent(1000)
             {
-                if (details.IsCrit) Holder.AddEffect(new Swiftness(new Second(0.5)));
-            };
+                Direction = 360,
+                Distance = distance,
+                HitboxSize = hbSize,
+                Transition = Easing.OutQuart,
+                OnHitEffects = [lastComboEffect],
+                ResetHitBox = true,
+                InteruptAttack = true
+            });
+
+            RestingEvent = mainAttack.GetFirstCaseEvent();
 
             #endregion
 
@@ -85,21 +93,17 @@ namespace GentrysQuest.Game.Content.Weapons
             #endregion
         }
 
-        public override void OnAttack(HoldEvent holdEvent)
+        public override void StartAttack(float direction)
         {
-            base.OnAttack(holdEvent);
+            base.StartAttack(direction);
+            ChargeAttackIntervalEvents.SetInterval(200, spinningAttack);
+            CurrentCase = GetCase(mainAttack);
+        }
 
-            if (holdEvent.MeetsHoldCondition(500))
-            {
-                CurrentCase = spinningAttack;
-                EndAttack();
-            }
-
-            if (!holdEvent.IsPressed)
-            {
-                CurrentCase = mainAttack.GetCase(AttackCaseCounter);
-                EndAttack();
-            }
+        public override void EndAttack()
+        {
+            base.EndAttack();
+            RestingEvent = GetCurrentCase().GetLastEvent();
         }
     }
 }
