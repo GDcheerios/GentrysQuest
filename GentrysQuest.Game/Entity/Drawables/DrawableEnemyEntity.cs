@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using GentrysQuest.Game.Content.Effects;
-using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -137,9 +136,9 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void updateTime() => lastPositionCheckTime = Clock.CurrentTime;
         private void updatePosition() => FocusedPosition = new Vector2(MathBase.RandomFloat(-1000, 1000), MathBase.RandomFloat(-1000, 1000));
 
-        public override void PassAttackInfo(Vector2 position, HoldEvent holdEvent)
+        public override void StartAttack(Vector2 position)
         {
-            base.PassAttackInfo(position, holdEvent);
+            base.StartAttack(position);
             GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
             GetBase().AddEffect(new Disarm(2000));
         }
@@ -152,7 +151,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (aiState)
             {
                 case AiState.Pursuing:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) PassAttackInfo(followEntity.Position, HoldEvent.CreateDummy());
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) StartAttack(followEntity.Position);
 
                     if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
                     {

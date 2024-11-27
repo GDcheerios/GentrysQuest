@@ -44,18 +44,18 @@ namespace GentrysQuest.Game.Content.Weapons
                 Effect = new Stun()
             };
 
-            attackPattern.AddCase(1);
+            attackPattern.AddCase();
             attackPattern.Add(new AttackPatternEvent { Direction = 110, Distance = distance, DamagePercent = 15 });
             attackPattern.Add(new AttackPatternEvent(time) { Direction = -75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 15 });
 
-            attackPattern.AddCase(2);
+            attackPattern.AddCase();
             attackPattern.Add(new AttackPatternEvent { Direction = -75, Distance = distance, DamagePercent = 30 });
             attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = -110, Distance = distance, Transition = Easing.OutCubic, DamagePercent = 30 });
             attackPattern.Add(new AttackPatternEvent(time) { Direction = 75, Distance = distance, Transition = Easing.InCubic, DamagePercent = 30 });
 
             Vector2 boxSize = new Vector2(0);
 
-            attackPattern.AddCase(3);
+            attackPattern.AddCase();
             attackPattern.Add(new AttackPatternEvent { Direction = 75, MovementSpeed = 0.2f, HitboxSize = boxSize });
             attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0.1f, HitboxSize = boxSize });
             attackPattern.Add(new AttackPatternEvent(new Second(0.2)) { Direction = 180, MovementSpeed = 0, HitboxSize = boxSize });

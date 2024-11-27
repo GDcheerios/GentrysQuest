@@ -103,6 +103,12 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public int ForcedMovementDuration = 0;
 
+        /// <summary>
+        /// This determines if it will end the attack
+        /// Used for charging attacks primarily.
+        /// </summary>
+        public bool InteruptAttack = false;
+
         public override string ToString()
         {
             return $"{TimeMs}\n"

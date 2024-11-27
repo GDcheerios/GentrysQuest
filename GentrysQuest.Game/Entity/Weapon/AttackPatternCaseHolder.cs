@@ -16,5 +16,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         public void AddEvent(AttackPatternEvent pattern) => caseEvents.Add(pattern);
 
         public List<AttackPatternEvent> GetEvents() => caseEvents;
+
+        public AttackPatternEvent GetLastEvent() => caseEvents[^1];
     }
 }

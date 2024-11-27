@@ -37,7 +37,7 @@ namespace GentrysQuest.Game.Input
         /// </summary>
         private const int HOLD_TIME = 300;
 
-        private static readonly Vector2 PLAYER_OFFSET = new Vector2(50);
+        private static readonly Vector2 PLAYER_OFFSET = new(50);
 
         [BackgroundDependencyLoader]
         private void load()
@@ -54,8 +54,7 @@ namespace GentrysQuest.Game.Input
             switch (e.Button)
             {
                 case MouseButton.Left:
-                    holdStart = Clock.CurrentTime;
-                    isPressed = true;
+                    player.StartAttack(mousePos);
                     break;
 
                 case MouseButton.Right:
@@ -71,8 +70,7 @@ namespace GentrysQuest.Game.Input
             switch (e.Button)
             {
                 case MouseButton.Left:
-                    holdStart = 0;
-                    isPressed = false;
+                    player.EndAttack();
                     break;
             }
 
@@ -88,16 +86,6 @@ namespace GentrysQuest.Game.Input
         protected override void Update()
         {
             base.Update();
-
-            double holdTime = new ElapsedTime(Clock.CurrentTime, holdStart);
-            HoldEvent holdEvent = new HoldEvent
-            {
-                Duration = holdTime,
-                IsPressed = isPressed,
-            };
-
-            player.PassAttackInfo(mousePos, holdEvent);
-
             player.DirectionLooking = (int)MathBase.GetAngle(player.Position + PLAYER_OFFSET, mousePos);
         }
     }

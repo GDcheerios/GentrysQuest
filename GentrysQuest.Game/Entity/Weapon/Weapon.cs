@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using GentrysQuest.Game.Input;
 using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
-using JetBrains.Annotations;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -31,11 +29,19 @@ namespace GentrysQuest.Game.Entity.Weapon
         public abstract int Distance { get; set; }
 
         /// <summary>
+        /// reference to direction looking
+        /// </summary>
+        public float Direction;
+
+        /// <summary>
         /// A stat representing the damage.
         /// Makes more sense to have set in constructor
         /// </summary>
         public Stat Damage = new("Damage", StatType.Attack, 0); // Base damage
 
+        /// <summary>
+        /// Current case to be displayed on the screen
+        /// </summary>
         public AttackPatternCaseHolder CurrentCase { get; protected set; }
 
         /// <summary>
@@ -44,11 +50,15 @@ namespace GentrysQuest.Game.Entity.Weapon
         public bool CanAttack;
 
         /// <summary>
-        /// If the weapon is attacking
+        /// how long the user has been holding for.
         /// </summary>
-        public bool IsAttacking;
+        public double HoldDuration;
 
-        public bool IsCharging { get; private set; }
+        /// <summary>
+        /// Charge attack intervals.
+        /// defines different intervals of what the weapon's attack pattern will switch to.
+        /// </summary>
+        public ChargeIntervalEventList ChargeAttackIntervalEvents = new();
 
         /// <summary>
         /// Access the skill information for the weapon.
@@ -70,11 +80,14 @@ namespace GentrysQuest.Game.Entity.Weapon
             Size = Vector2.Zero
         };
 
-        /// <summary>
-        /// If needing some animation while charging a weapon
-        /// </summary>
-        [CanBeNull]
-        public AttackPatternEvent ChargingEvent { get; protected set; }
+        public AttackPatternCaseHolder GetCurrentCase()
+        {
+            AttackPatternCaseHolder baseCase = new AttackPatternCaseHolder();
+            baseCase.AddEvent(new AttackPatternEvent());
+            return CurrentCase ?? baseCase;
+        }
+
+        protected AttackPatternCaseHolder GetCase(AttackPattern pattern) => pattern.GetCase(AttackCaseCounter) ?? pattern.GetCase(AttackCaseCounter = 0);
 
         /// <summary>
         /// Who is holding the weapon
@@ -143,13 +156,17 @@ namespace GentrysQuest.Game.Entity.Weapon
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);
 
         /// <summary>
+        /// Completely removes charge intervals.
+        /// </summary>
+        private void clearChargeIntervals() => ChargeAttackIntervalEvents = null;
+
+        /// <summary>
         /// Code to be run when attacking
         /// </summary>
-        public virtual void OnAttack(HoldEvent holdEvent)
+        public virtual void StartAttack(float direction)
         {
+            Direction = direction;
             AttackAmount++;
-            AttackCaseCounter++;
-            if (holdEvent.IsPressed && CanAttack) IsAttacking = true;
             CanAttack = false;
         }
 
@@ -159,9 +176,9 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public virtual void EndAttack()
         {
-            IsAttacking = false;
-            CanAttack = false;
-            Holder.Attack();
+            ChargeAttackIntervalEvents.Clear();
+            Holder.Attack(); // "OnAttack event"
+            // Shouldn't switch `CanAttack` because this can result in animations being cut off
         }
 
         public void HitEntity(DamageDetails details)

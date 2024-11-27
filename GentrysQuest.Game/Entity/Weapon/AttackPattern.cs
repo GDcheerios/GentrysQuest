@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GentrysQuest.Game.Entity.Weapon
 {
@@ -7,9 +8,9 @@ namespace GentrysQuest.Game.Entity.Weapon
         private readonly List<AttackPatternCaseHolder> caseEventList = new();
         private AttackPatternCaseHolder selectedCaseHolder;
 
-        public void AddCase(int caseNumber)
+        public void AddCase()
         {
-            AttackPatternCaseHolder thePattern = new AttackPatternCaseHolder(caseNumber);
+            AttackPatternCaseHolder thePattern = new AttackPatternCaseHolder(caseEventList.Count);
             selectedCaseHolder = thePattern;
             caseEventList.Add(thePattern);
         }
@@ -19,15 +20,7 @@ namespace GentrysQuest.Game.Entity.Weapon
 
         public AttackPatternEvent GetFirstCaseEvent() => caseEventList[0].GetEvents()[0];
 
-        public AttackPatternCaseHolder GetCase(int caseNumber)
-        {
-            foreach (AttackPatternCaseHolder caseHolder in caseEventList)
-            {
-                if (caseHolder.AttackNumberCase == caseNumber) return caseHolder;
-            }
-
-            return null;
-        }
+        public AttackPatternCaseHolder GetCase(int caseNumber) => caseEventList.FirstOrDefault(caseHolder => caseHolder.AttackNumberCase == caseNumber);
 
         public int GetListAmount() => caseEventList.Count;
     }
