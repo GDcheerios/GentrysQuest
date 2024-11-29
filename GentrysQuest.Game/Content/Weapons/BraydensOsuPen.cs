@@ -23,7 +23,7 @@ namespace GentrysQuest.Game.Content.Weapons
         public override List<StatType> ValidBuffs { get; set; } = [StatType.CritDamage];
 
         private AttackPattern mainAttack = new AttackPattern();
-        private AttackPatternCaseHolder spinningAttack = new AttackPatternCaseHolder(0);
+        private AttackPattern spinningAttack = new AttackPattern();
 
         public override AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent(50)
         {
@@ -68,9 +68,9 @@ namespace GentrysQuest.Game.Content.Weapons
             mainAttack.Add(new AttackPatternEvent(time)
                 { Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize });
 
-            // spinningAttack.AddEvent(new AttackPatternEvent(50) { Size = Vector2.Zero });
-            spinningAttack.AddEvent(new AttackPatternEvent(0) { Direction = -90, Distance = distance, HitboxSize = hbSize });
-            spinningAttack.AddEvent(new AttackPatternEvent(1000)
+            spinningAttack.AddCase();
+            spinningAttack.Add(new AttackPatternEvent { Direction = -90, Distance = distance, HitboxSize = hbSize });
+            spinningAttack.Add(new AttackPatternEvent(1000)
             {
                 Direction = 360,
                 Distance = distance,
@@ -93,10 +93,16 @@ namespace GentrysQuest.Game.Content.Weapons
             #endregion
         }
 
-        public override void StartAttack(float direction)
+        public override void OnUpdate()
         {
-            base.StartAttack(direction);
-            ChargeAttackIntervalEvents.SetInterval(200, spinningAttack);
+            base.OnUpdate();
+
+            if (HoldDuration >= 250)
+            {
+                CurrentCase = GetCase(spinningAttack);
+                EndAttack();
+            }
+
             CurrentCase = GetCase(mainAttack);
         }
 
