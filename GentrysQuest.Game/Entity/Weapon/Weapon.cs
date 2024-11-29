@@ -55,12 +55,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public double HoldDuration;
 
         /// <summary>
-        /// Charge attack intervals.
-        /// defines different intervals of what the weapon's attack pattern will switch to.
-        /// </summary>
-        public ChargeIntervalEventList ChargeAttackIntervalEvents = new();
-
-        /// <summary>
         /// Access the skill information for the weapon.
         /// This is how we display cooldown information on the HUD.
         /// </summary>
@@ -156,11 +150,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);
 
         /// <summary>
-        /// Completely removes charge intervals.
-        /// </summary>
-        private void clearChargeIntervals() => ChargeAttackIntervalEvents = null;
-
-        /// <summary>
         /// Code to be run when attacking
         /// </summary>
         public virtual void StartAttack(float direction)
@@ -176,10 +165,20 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public virtual void EndAttack()
         {
-            ChargeAttackIntervalEvents.Clear();
             Holder.Attack(); // "OnAttack event"
             // Shouldn't switch `CanAttack` because this can result in animations being cut off
         }
+
+        /// <summary>
+        /// This is ran every frame after StartAttack is ran.
+        /// </summary>
+        public virtual void OnUpdate()
+        {
+            // do things like manage hold duration
+        }
+
+        public void PlayPattern(AttackPattern pattern) => CurrentCase = GetCase(pattern);
+        public void PlayPattern(AttackPatternCaseHolder pattern) => CurrentCase = pattern;
 
         public void HitEntity(DamageDetails details)
         {

@@ -51,17 +51,15 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         private bool transitionCooldown;
 
-        private bool ready_for_rest;
+        /// <summary>
+        /// if the weapon is ready for resting pattern
+        /// </summary>
+        private bool readyForRest;
 
         /// <summary>
         /// The delay to make animations smooth
         /// </summary>
         private const int FADE_DELAY = 50;
-
-        /// <summary>
-        /// to handle charging attacks by tracking the time.
-        /// </summary>
-        private bool trackingAttackTime;
 
         public DrawableWeapon(DrawableEntity entity, AffiliationType affiliation)
         {
@@ -86,7 +84,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                     },
                     HitBox
                 };
-                ready_for_rest = true;
+                readyForRest = true;
             }
         }
 
@@ -109,22 +107,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             DamageQueue.Clear();
             Weapon.StartAttack(direction);
             LastUseTime = GameClock.CurrentTime;
-            ready_for_rest = false;
-            trackingAttackTime = true;
+            readyForRest = false;
         }
 
-        public void EndAttack()
-        {
-            if (!didChargeAttack)
-            {
-                Weapon.AttackCaseCounter++;
-                handlePatternCase(Weapon.GetCurrentCase(), Weapon.Direction);
-            }
-
-            trackingAttackTime = false;
-            didChargeAttack = false;
-            Weapon.EndAttack();
-        }
+        public void EndAttack() => Weapon.EndAttack();
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
 
@@ -146,7 +132,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 delay += speed + FADE_DELAY;
             }
 
-            Scheduler.AddDelayed(() => { ready_for_rest = true; }, delay + FADE_DELAY);
+            Scheduler.AddDelayed(() => { readyForRest = true; }, delay + FADE_DELAY);
         }
 
         private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
@@ -238,20 +224,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Update()
         {
             base.Update();
-
-            if (trackingAttackTime)
-            {
-                Weapon.HoldDuration = GameClock.CurrentTime - LastUseTime;
-                AttackPatternCaseHolder currentCase = Weapon.ChargeAttackIntervalEvents.TryGetReadyCharge((int)Weapon.HoldDuration);
-
-                if (currentCase != null)
-                {
-                    didChargeAttack = true;
-                    handlePatternCase(currentCase, Weapon.Direction);
-                }
-            }
-
-            if (ready_for_rest) RestWeapon();
+            if (!Weapon.CanAttack) Weapon.OnUpdate();
+            if (readyForRest) RestWeapon();
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
             GetBase().SkillRef.SetPercent(Clock.CurrentTime);
