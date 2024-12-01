@@ -108,6 +108,11 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public override void EndAttack()
         {
+            if (HoldDuration < 250)
+            {
+                PlayPattern(GetCurrentCase());
+            }
+
             base.EndAttack();
             RestingEvent = GetCurrentCase().GetLastEvent();
         }
