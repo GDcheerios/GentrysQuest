@@ -224,7 +224,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Update()
         {
             base.Update();
-            if (!Weapon.CanAttack) Weapon.OnUpdate();
+            if (Weapon.IsAttacking) Weapon.OnUpdate();
             if (readyForRest) RestWeapon();
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;

@@ -45,6 +45,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         public AttackPatternCaseHolder CurrentCase { get; protected set; }
 
         /// <summary>
+        /// If the pattern has just been changed
+        /// </summary>
+        public bool NewPattern { get; set; }
+
+        /// <summary>
         /// If the weapon can attack
         /// </summary>
         public bool CanAttack;
@@ -109,6 +114,8 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public Anchor Origin = Anchor.Centre;
 
+        public bool IsAttacking { get; private set; }
+
         public virtual float DropChance { get; set; } = 0.1f;
 
         public delegate void HitEvent(DamageDetails details);
@@ -156,6 +163,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             Direction = direction;
             AttackAmount++;
+            IsAttacking = true;
             CanAttack = false;
         }
 
@@ -166,6 +174,8 @@ namespace GentrysQuest.Game.Entity.Weapon
         public virtual void EndAttack()
         {
             Holder.Attack(); // "OnAttack event"
+            IsAttacking = false;
+            HoldDuration = 0;
             // Shouldn't switch `CanAttack` because this can result in animations being cut off
         }
 
@@ -177,8 +187,17 @@ namespace GentrysQuest.Game.Entity.Weapon
             // do things like manage hold duration
         }
 
-        public void PlayPattern(AttackPattern pattern) => CurrentCase = GetCase(pattern);
-        public void PlayPattern(AttackPatternCaseHolder pattern) => CurrentCase = pattern;
+        public void PlayPattern(AttackPattern pattern)
+        {
+            CurrentCase = GetCase(pattern);
+            NewPattern = true;
+        }
+
+        public void PlayPattern(AttackPatternCaseHolder pattern)
+        {
+            CurrentCase = pattern;
+            NewPattern = true;
+        }
 
         public void HitEntity(DamageDetails details)
         {
