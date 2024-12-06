@@ -77,8 +77,7 @@ namespace GentrysQuest.Game.Content.Weapons
                 HitboxSize = hbSize,
                 Transition = Easing.OutQuart,
                 OnHitEffects = [lastComboEffect],
-                ResetHitBox = true,
-                InteruptAttack = true
+                ResetHitBox = true
             });
 
             RestingEvent = mainAttack.GetFirstCaseEvent();
@@ -93,28 +92,17 @@ namespace GentrysQuest.Game.Content.Weapons
             #endregion
         }
 
-        public override void OnUpdate()
+        public override void OnRelease()
         {
-            base.OnUpdate();
-
-            if (HoldDuration >= 250)
-            {
-                CurrentCase = GetCase(spinningAttack);
-                EndAttack();
-            }
-
-            CurrentCase = GetCase(mainAttack);
+            base.OnRelease();
+            EndAttack();
         }
 
         public override void EndAttack()
         {
-            if (HoldDuration < 250)
-            {
-                PlayPattern(GetCurrentCase());
-            }
-
             base.EndAttack();
-            RestingEvent = GetCurrentCase().GetLastEvent();
+            if (HoldDuration())
+            didSpin = false;
         }
     }
 }

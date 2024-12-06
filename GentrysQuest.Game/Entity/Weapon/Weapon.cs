@@ -21,7 +21,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// This is the counter for attack patterns
         /// </summary>
-        public int AttackCaseCounter { get; set; }
+        public int AttackCaseCounter { get; private set; }
 
         /// <summary>
         /// Describes how far away an enemy who is using the weapon needs to be to start attack an opponent
@@ -42,7 +42,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// Current case to be displayed on the screen
         /// </summary>
-        public AttackPatternCaseHolder CurrentCase { get; protected set; }
+        private AttackPatternCaseHolder CurrentCase { get; set; }
 
         /// <summary>
         /// If the pattern has just been changed
@@ -57,7 +57,9 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// how long the user has been holding for.
         /// </summary>
-        public double HoldDuration;
+        protected double HoldDuration() => holdStartTime != 0 ? new ElapsedTime(GameClock.CurrentTime, holdStartTime) : 0;
+
+        private double holdStartTime;
 
         /// <summary>
         /// Access the skill information for the weapon.
@@ -159,12 +161,31 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// Code to be run when attacking
         /// </summary>
-        public virtual void StartAttack(float direction)
+        public virtual void StartAttack()
         {
-            Direction = direction;
             AttackAmount++;
             IsAttacking = true;
-            CanAttack = false;
+        }
+
+        /// <summary>
+        /// On click logic.
+        /// What will happen when clicked.
+        /// </summary>
+        public virtual void OnClick(float direction)
+        {
+            // logic
+            holdStartTime = GameClock.CurrentTime;
+            Direction = direction;
+        }
+
+        /// <summary>
+        /// On release logic.
+        /// What will happen when released.
+        /// </summary>
+        public virtual void OnRelease()
+        {
+            // logic
+            holdStartTime = 0;
         }
 
         /// <summary>
@@ -175,7 +196,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             Holder.Attack(); // "OnAttack event"
             IsAttacking = false;
-            HoldDuration = 0;
             // Shouldn't switch `CanAttack` because this can result in animations being cut off
         }
 
@@ -187,16 +207,31 @@ namespace GentrysQuest.Game.Entity.Weapon
             // do things like manage hold duration
         }
 
-        public void PlayPattern(AttackPattern pattern)
+        private bool canPlayPattern()
         {
-            CurrentCase = GetCase(pattern);
+            if (!CanAttack) return false;
+
+            CanAttack = false;
             NewPattern = true;
+            return true;
         }
 
-        public void PlayPattern(AttackPatternCaseHolder pattern)
+        /// <summary>
+        /// Play a pattern. Which describes how you attack.
+        /// </summary>
+        /// <param name="pattern">An attack pattern</param>
+        protected void PlayPattern(AttackPattern pattern)
         {
-            CurrentCase = pattern;
-            NewPattern = true;
+            if (!canPlayPattern()) CurrentCase = GetCase(pattern);
+        }
+
+        /// <summary>
+        /// Play a pattern. Which describes how you attack.
+        /// </summary>
+        /// <param name="pattern">A case pattern with multiple keyframes</param>
+        protected void PlayPattern(AttackPatternCaseHolder pattern)
+        {
+            if (canPlayPattern()) CurrentCase = pattern;
         }
 
         public void HitEntity(DamageDetails details)

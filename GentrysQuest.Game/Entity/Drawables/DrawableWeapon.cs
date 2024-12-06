@@ -46,12 +46,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         private const int COMBO_RESET_INTERVAL = 1000;
 
         /// <summary>
-        /// This is to ensure that when resting the weapon
-        /// right after an attack it won't look clunky.
-        /// </summary>
-        private bool transitionCooldown;
-
-        /// <summary>
         /// if the weapon is ready for resting pattern
         /// </summary>
         private bool readyForRest;
@@ -102,15 +96,17 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Drawable weapon logic for attacking.
         /// </summary>
         /// <param name="direction">Attack direction</param>
-        public void StartAttack(float direction)
+        public void OnClick(float direction)
         {
             DamageQueue.Clear();
-            Weapon.StartAttack(direction);
-            LastUseTime = GameClock.CurrentTime;
+            Weapon.OnClick(direction);
             readyForRest = false;
         }
 
-        public void EndAttack() => Weapon.EndAttack();
+        public void OnRelease()
+        {
+            if (Weapon.IsAttacking) Weapon.EndAttack();
+        }
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
 
@@ -118,6 +114,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             var list = caseHolder.GetEvents();
             double delay = 0;
+            Weapon.NewPattern = false;
 
             foreach (var t in list)
             {
@@ -129,10 +126,12 @@ namespace GentrysQuest.Game.Entity.Drawables
                     }, delay
                 );
 
-                delay += speed + FADE_DELAY;
+                delay += speed;
             }
 
-            Scheduler.AddDelayed(() => { readyForRest = true; }, delay + FADE_DELAY);
+            GetBase().SkillRef.SetCooldown(delay);
+            GetBase().SkillRef.Act();
+            Scheduler.AddDelayed((() => readyForRest = true), delay + FADE_DELAY);
         }
 
         private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
@@ -140,26 +139,17 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// Rests the weapon.
         /// </summary>
-        /// <param name="delay">if there's an added delay to the weapon rest</param>
-        public void RestWeapon(bool delay = false)
+        public void RestWeapon()
         {
             if (Weapon.RestingEvent != null)
             {
-                handlePattern(Weapon.RestingEvent, User.DirectionLooking + 90, delay ? getPatternSpeed(Weapon.RestingEvent) : 0, true);
+                handlePattern(Weapon.RestingEvent, User.DirectionLooking + 90, getPatternSpeed(Weapon.RestingEvent), true);
             }
             else
             {
                 AttackPatternEvent restingPattern = new AttackPatternEvent(100) { Size = Vector2.Zero };
-                handlePattern(restingPattern, direction: User.DirectionLooking, delay ? getPatternSpeed(restingPattern) : 0, true);
+                handlePattern(restingPattern, direction: User.DirectionLooking, getPatternSpeed(restingPattern), true);
             }
-
-            if (!delay) return;
-
-            transitionCooldown = true;
-            Scheduler.AddDelayed(() =>
-            {
-                transitionCooldown = false;
-            }, getPatternSpeed(Weapon.RestingEvent));
         }
 
         /// <summary>
@@ -171,12 +161,10 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <param name="resting">if this is a resting pattern</param>
         private void handlePattern(AttackPatternEvent pattern, float direction, double speed, bool resting = false)
         {
-            this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
             this.TransformTo(nameof(PositionHolder), pattern.Position, speed, pattern.Transition);
             this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);
             HitBox.ScaleTo(pattern.HitboxSize, duration: speed, pattern.Transition);
             this.TransformTo(nameof(Distance), pattern.Distance, speed, pattern.Transition);
-            if (pattern.InteruptAttack) Scheduler.AddDelayed(Weapon.EndAttack, speed);
 
             if (pattern.ForcedMovement)
             {
@@ -193,10 +181,13 @@ namespace GentrysQuest.Game.Entity.Drawables
                 case true:
                     Weapon.CanAttack = true;
                     HitBox.Disable();
+                    float rotation = MathBase.CalculateShortestRotation(Rotation, pattern.Direction + direction);
+                    this.RotateTo(rotation, 0, pattern.Transition);
                     break;
 
                 case false:
                 {
+                    this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
                     if (pattern.ResetHitBox) DamageQueue.Clear();
                     Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
                     Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
@@ -226,9 +217,11 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.Update();
             if (Weapon.IsAttacking) Weapon.OnUpdate();
             if (readyForRest) RestWeapon();
+            if (Weapon.NewPattern) handlePatternCase(Weapon.GetCurrentCase(), User.DirectionLooking + 90);
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
-            GetBase().SkillRef.SetPercent(Clock.CurrentTime);
+
+            GetBase().SkillRef.update();
 
             if (Weapon.CanAttack) return;
 
