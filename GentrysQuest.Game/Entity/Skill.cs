@@ -74,9 +74,9 @@ namespace GentrysQuest.Game.Entity
 
         public bool CanUse() => PercentToDone == 100 || UsesAvailable > 0;
 
-        public void SetPercent(double currentTime)
+        public void update()
         {
-            var elapsedTime = currentTime - LastUseTime;
+            var elapsedTime = GameClock.CurrentTime - LastUseTime;
 
             if (PercentToDone < 100 && UsesAvailable < MaxStack) { PercentToDone = (int)((elapsedTime / (float)Cooldown) * 100); }
             else
@@ -85,7 +85,7 @@ namespace GentrysQuest.Game.Entity
                 {
                     UsesAvailable++;
                     PercentToDone = 0;
-                    LastUseTime = currentTime;
+                    LastUseTime = GameClock.CurrentTime;
                 }
                 else PercentToDone = 100;
             }

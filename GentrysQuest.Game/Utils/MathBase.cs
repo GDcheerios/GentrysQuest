@@ -121,5 +121,22 @@ namespace GentrysQuest.Game.Utils
             if (IsChanceSuccessful(0.03f)) currentStarRating++;
             return currentStarRating;
         }
+
+        public static float CalculateShortestRotation(float currentRotation, float targetRotation)
+        {
+            // Normalize angles to [0, 360)
+            currentRotation = (currentRotation % 360 + 360) % 360;
+            targetRotation = (targetRotation % 360 + 360) % 360;
+
+            // Determine shortest rotation direction and angle
+            float rotationDifference = targetRotation - currentRotation;
+
+            if (rotationDifference > 180)
+                rotationDifference -= 360;
+            else if (rotationDifference < -180)
+                rotationDifference += 360;
+
+            return currentRotation + rotationDifference;
+        }
     }
 }

@@ -206,15 +206,15 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Passes attack info down to children
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public virtual void StartAttack(Vector2 position)
+        public virtual void OnClick(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 
             double angle = MathBase.GetAngle(Position + CENTER, position);
-            if (Weapon.GetBase().CanAttack) Weapon.StartAttack((float)angle + 90);
+            Weapon.OnClick((float)angle + 90);
         }
 
-        public virtual void EndAttack() => Weapon.EndAttack();
+        public virtual void OnRelease() => Weapon.OnRelease();
 
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage
@@ -327,9 +327,9 @@ namespace GentrysQuest.Game.Entity.Drawables
             Entity.Affect(Clock.CurrentTime);
 
             // Skills logic
-            Entity.Secondary?.SetPercent(Clock.CurrentTime);
-            Entity.Utility?.SetPercent(Clock.CurrentTime);
-            Entity.Ultimate?.SetPercent(Clock.CurrentTime);
+            Entity.Secondary?.update();
+            Entity.Utility?.update();
+            Entity.Ultimate?.update();
 
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
