@@ -22,8 +22,15 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public override List<StatType> ValidBuffs { get; set; } = [StatType.CritDamage];
 
-        private AttackPattern mainAttack = new AttackPattern();
-        private AttackPattern spinningAttack = new AttackPattern();
+        private readonly AttackPattern mainAttack = new AttackPattern();
+        private readonly AttackPattern spinningAttack = new AttackPattern();
+
+        private bool didSpin;
+
+        /// <summary>
+        /// How long until this weapon considers the attack as spin attack
+        /// </summary>
+        private const double spin_time = 250;
 
         public override AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent(50)
         {
@@ -95,14 +102,20 @@ namespace GentrysQuest.Game.Content.Weapons
         public override void OnRelease()
         {
             base.OnRelease();
-            EndAttack();
+        }
+
+        public override void OnUpdate()
+        {
+            if (HoldDuration() > spin_time)
+            {
+                EndAttack();
+                didSpin = true;
+            }
         }
 
         public override void EndAttack()
         {
             base.EndAttack();
-            if (HoldDuration())
-            didSpin = false;
         }
     }
 }
