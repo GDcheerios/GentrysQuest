@@ -8,10 +8,32 @@ namespace GentrysQuest.Game.Entity.Weapon
 {
     public abstract class Weapon : Item
     {
+        #region Metadata
+
         /// <summary>
         /// The weapon type
         /// </summary>
         public abstract string Type { get; }
+
+        /// <summary>
+        /// Describes how far away an enemy who is using the weapon needs to be to start attack an opponent
+        /// </summary>
+        public abstract int Distance { get; }
+
+        /// <summary>
+        /// If the weapon itself can deal damage or just projectiles
+        /// </summary>
+        public virtual bool IsGeneralDamageMode => true;
+
+        /// <summary>
+        /// A stat representing the damage.
+        /// Makes more sense to have set in constructor
+        /// </summary>
+        public Stat Damage = new("Damage", StatType.Attack, 0); // Base damage
+
+        #endregion
+
+        #region States
 
         /// <summary>
         /// Counter for weapon attack
@@ -24,41 +46,25 @@ namespace GentrysQuest.Game.Entity.Weapon
         public int AttackCaseCounter { get; private set; }
 
         /// <summary>
-        /// Describes how far away an enemy who is using the weapon needs to be to start attack an opponent
-        /// </summary>
-        public abstract int Distance { get; set; }
-
-        /// <summary>
         /// reference to direction looking
         /// </summary>
         public float Direction;
-
-        /// <summary>
-        /// A stat representing the damage.
-        /// Makes more sense to have set in constructor
-        /// </summary>
-        public Stat Damage = new("Damage", StatType.Attack, 0); // Base damage
-
-        /// <summary>
-        /// Current case to be displayed on the screen
-        /// </summary>
-        private AttackPatternCaseHolder CurrentCase { get; set; }
-
-        /// <summary>
-        /// If the pattern has just been changed
-        /// </summary>
-        public bool NewPattern { get; set; }
 
         /// <summary>
         /// If the weapon can attack
         /// </summary>
         public bool CanAttack;
 
+        #endregion
+
         /// <summary>
-        /// how long the user has been holding for.
+        /// How long the user has been holding for.
         /// </summary>
         protected double HoldDuration() => holdStartTime != 0 ? new ElapsedTime(GameClock.CurrentTime, holdStartTime) : 0;
 
+        /// <summary>
+        /// When the hold
+        /// </summary>
         private double holdStartTime;
 
         /// <summary>
@@ -68,11 +74,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public WeaponSkill SkillRef { get; protected set; }
 
         /// <summary>
-        /// If the weapon itself can deal damage or just other things
-        /// </summary>
-        public virtual bool IsGeneralDamageMode { get; protected set; } = true;
-
-        /// <summary>
         /// Custom resting event if needed
         /// </summary>
         public virtual AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent
@@ -80,15 +81,6 @@ namespace GentrysQuest.Game.Entity.Weapon
             DoesDamage = false,
             Size = Vector2.Zero
         };
-
-        public AttackPatternCaseHolder GetCurrentCase()
-        {
-            AttackPatternCaseHolder baseCase = new AttackPatternCaseHolder();
-            baseCase.AddEvent(new AttackPatternEvent());
-            return CurrentCase ?? baseCase;
-        }
-
-        protected AttackPatternCaseHolder GetCase(AttackPattern pattern) => pattern.GetCase(AttackCaseCounter) ?? pattern.GetCase(AttackCaseCounter = 0);
 
         /// <summary>
         /// Who is holding the weapon
@@ -205,33 +197,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public virtual void OnUpdate()
         {
             // do things like manage hold duration
-        }
-
-        private bool canPlayPattern()
-        {
-            if (!CanAttack) return false;
-
-            CanAttack = false;
-            NewPattern = true;
-            return true;
-        }
-
-        /// <summary>
-        /// Play a pattern. Which describes how you attack.
-        /// </summary>
-        /// <param name="pattern">An attack pattern</param>
-        protected void PlayPattern(AttackPattern pattern)
-        {
-            if (!canPlayPattern()) CurrentCase = GetCase(pattern);
-        }
-
-        /// <summary>
-        /// Play a pattern. Which describes how you attack.
-        /// </summary>
-        /// <param name="pattern">A case pattern with multiple keyframes</param>
-        protected void PlayPattern(AttackPatternCaseHolder pattern)
-        {
-            if (canPlayPattern()) CurrentCase = pattern;
         }
 
         public void HitEntity(DamageDetails details)

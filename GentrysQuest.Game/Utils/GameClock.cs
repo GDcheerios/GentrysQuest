@@ -25,5 +25,12 @@ namespace GentrysQuest.Game.Utils
             base.LoadComplete();
             instance = this;
         }
+
+        /// <summary>
+        /// Queue a method for activation.
+        /// </summary>
+        /// <param name="method">the method</param>
+        /// <param name="delay">how long until activation</param>
+        public void QueueMethod(Action method, double delay = 0) => Scheduler.AddDelayed(method, delay);
     }
 }
