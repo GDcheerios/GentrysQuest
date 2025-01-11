@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using osu.Framework.Graphics;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity.Weapon
 {
-    public class AttackPatternEvent(int timeMs = 0)
+    public class AttackKeyframe(int timeMs = 0)
     {
         /// <summary>
         /// How long until the pattern condition is met.
@@ -103,15 +105,38 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public int ForcedMovementDuration = 0;
 
+        /// <summary>
+        /// Custom method implementation
+        /// </summary>
+        [CanBeNull]
+        public Delegate Event = null;
+
+        /// <summary>
+        /// Run the event
+        /// </summary>
+        public void RunEvent() => Event?.DynamicInvoke();
+
         public override string ToString()
         {
-            return $"{TimeMs}\n"
-                   + $"{Direction}\n"
-                   + $"{Position}\n"
-                   + $"{Size}\n"
-                   + $"{HitboxSize}\n"
-                   + $"{Distance}\n"
-                   + $"{DamagePercent}";
+            return $"TimeMs: {TimeMs}, " +
+                   $"Direction: {Direction}, " +
+                   $"Position: {Position}, " +
+                   $"Size: {Size}, " +
+                   $"HitboxSize: {HitboxSize}, " +
+                   $"Distance: {Distance}, " +
+                   $"DamagePercent: {DamagePercent}, " +
+                   $"KnockbackMultiplier: {KnockbackMultiplier}, " +
+                   $"MovementSpeed: {MovementSpeed}, " +
+                   $"Transition: {Transition}, " +
+                   $"ResetHitBox: {ResetHitBox}, " +
+                   $"DoesDamage: {DoesDamage}, " +
+                   $"OnHitEffects: {(OnHitEffects == null ? "null" : string.Join(", ", OnHitEffects))}, " +
+                   $"Projectiles: {(Projectiles == null ? "null" : string.Join(", ", Projectiles))}, " +
+                   $"ForcedMovement: {ForcedMovement}, " +
+                   $"ForcedMovementDirection: {ForcedMovementDirection}, " +
+                   $"ForcedMovementStrength: {ForcedMovementStrength}, " +
+                   $"ForcedMovementDuration: {ForcedMovementDuration}, " +
+                   $"Event: {(Event == null ? "null" : Event.Method.Name)}";
         }
     }
 }

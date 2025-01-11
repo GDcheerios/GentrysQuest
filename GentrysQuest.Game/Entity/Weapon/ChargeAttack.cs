@@ -5,7 +5,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// How the weapon will function when charging
         /// </summary>
-        public AttackPattern ChargePattern = new();
+        public AttackAnimationRegistry ChargeAnimationRegistry = new();
 
         /// <summary>
         /// How long it will take to charge

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
@@ -51,11 +52,14 @@ namespace GentrysQuest.Game.Entity.Weapon
         public float Direction;
 
         /// <summary>
-        /// If the weapon can attack
+        /// If the weapon can attack.
+        /// This is true when not attacking.
         /// </summary>
         public bool CanAttack;
 
         #endregion
+
+        public DrawableWeapon DrawableInstance;
 
         /// <summary>
         /// How long the user has been holding for.
@@ -76,7 +80,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// <summary>
         /// Custom resting event if needed
         /// </summary>
-        public virtual AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent
+        public virtual AttackKeyframe RestingEvent { get; protected set; } = new AttackKeyframe
         {
             DoesDamage = false,
             Size = Vector2.Zero
@@ -187,8 +191,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public virtual void EndAttack()
         {
             Holder.Attack(); // "OnAttack event"
-            IsAttacking = false;
-            // Shouldn't switch `CanAttack` because this can result in animations being cut off
         }
 
         /// <summary>
@@ -196,7 +198,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public virtual void OnUpdate()
         {
-            // do things like manage hold duration
+            // implement logic for every frame
         }
 
         public void HitEntity(DamageDetails details)

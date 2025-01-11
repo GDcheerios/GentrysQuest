@@ -206,7 +206,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Passes attack info down to children
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public virtual void OnClick(Vector2 position)
+        public virtual void DoAttack(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 

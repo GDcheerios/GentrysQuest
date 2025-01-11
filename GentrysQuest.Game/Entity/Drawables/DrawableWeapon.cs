@@ -33,18 +33,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         public List<OnHitEffect> OnHitEffects = new();
         private bool doesDamage;
 
-        private bool didChargeAttack;
-
-        /// <summary>
-        /// Last time of usage so we can reset back to first attack pattern.
-        /// </summary>
-        public double LastUseTime { get; set; }
-
-        /// <summary>
-        /// How long it should take until we reset the attack pattern.
-        /// </summary>
-        private const int COMBO_RESET_INTERVAL = 1000;
-
         /// <summary>
         /// if the weapon is ready for resting pattern
         /// </summary>
@@ -55,10 +43,16 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         private const int FADE_DELAY = 50;
 
+        /// <summary>
+        /// if an animation is currently playing
+        /// </summary>
+        public bool AnimationPlaying = false;
+
         public DrawableWeapon(DrawableEntity entity, AffiliationType affiliation)
         {
             User = entity;
             Weapon = entity.GetBase().Weapon;
+            Weapon!.DrawableInstance = this;
             Affiliation = affiliation;
             HitBox = new HitBox(this);
             Size = new Vector2(1f);
@@ -98,23 +92,28 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <param name="direction">Attack direction</param>
         public void OnClick(float direction)
         {
+            if (!Weapon.CanAttack) return;
+
             DamageQueue.Clear();
             Weapon.OnClick(direction);
             readyForRest = false;
+            Weapon.CanAttack = false;
         }
 
-        public void OnRelease()
-        {
-            if (Weapon.IsAttacking) Weapon.EndAttack();
-        }
+        public void OnRelease() => Weapon.OnRelease();
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
 
-        private void handlePatternCase(AttackPatternCaseHolder caseHolder, float direction)
+        private float getDirection() => User.DirectionLooking + 90;
+
+        public void PlayAnimation(AttackAnimation caseHolder)
         {
+            if (AnimationPlaying) return;
+
+            AnimationPlaying = true;
+            float direction = getDirection();
             var list = caseHolder.GetEvents();
             double delay = 0;
-            Weapon.NewPattern = false;
 
             foreach (var t in list)
             {
@@ -122,7 +121,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 var patternEvent = t;
                 Scheduler.AddDelayed(() =>
                     {
-                        handlePattern(patternEvent, direction, speed);
+                        playKeyframe(patternEvent, direction, speed);
                     }, delay
                 );
 
@@ -131,10 +130,14 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             GetBase().SkillRef.SetCooldown(delay);
             GetBase().SkillRef.Act();
-            Scheduler.AddDelayed((() => readyForRest = true), delay + FADE_DELAY);
+            Scheduler.AddDelayed((() =>
+            {
+                readyForRest = true;
+                AnimationPlaying = false;
+            }), delay + FADE_DELAY);
         }
 
-        private double getPatternSpeed(AttackPatternEvent pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
+        private double getPatternSpeed(AttackKeyframe pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
 
         /// <summary>
         /// Rests the weapon.
@@ -143,12 +146,12 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             if (Weapon.RestingEvent != null)
             {
-                handlePattern(Weapon.RestingEvent, User.DirectionLooking + 90, getPatternSpeed(Weapon.RestingEvent), true);
+                playKeyframe(Weapon.RestingEvent, User.DirectionLooking + 90, getPatternSpeed(Weapon.RestingEvent), true);
             }
             else
             {
-                AttackPatternEvent restingPattern = new AttackPatternEvent(100) { Size = Vector2.Zero };
-                handlePattern(restingPattern, direction: User.DirectionLooking, getPatternSpeed(restingPattern), true);
+                AttackKeyframe restingPattern = new AttackKeyframe(100) { Size = Vector2.Zero };
+                playKeyframe(restingPattern, direction: User.DirectionLooking, getPatternSpeed(restingPattern), true);
             }
         }
 
@@ -159,8 +162,9 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <param name="direction">Direction to handle to</param>
         /// <param name="speed">speed modifier to the pattern</param>
         /// <param name="resting">if this is a resting pattern</param>
-        private void handlePattern(AttackPatternEvent pattern, float direction, double speed, bool resting = false)
+        private void playKeyframe(AttackKeyframe pattern, float direction, double speed, bool resting = false)
         {
+            if (pattern.Event != null) pattern.RunEvent();
             this.TransformTo(nameof(PositionHolder), pattern.Position, speed, pattern.Transition);
             this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);
             HitBox.ScaleTo(pattern.HitboxSize, duration: speed, pattern.Transition);
@@ -181,12 +185,12 @@ namespace GentrysQuest.Game.Entity.Drawables
                 case true:
                     Weapon.CanAttack = true;
                     HitBox.Disable();
-                    float rotation = MathBase.CalculateShortestRotation(Rotation, pattern.Direction + direction);
-                    this.RotateTo(rotation, 0, pattern.Transition);
+                    this.RotateTo(pattern.Direction + direction, speed, pattern.Transition);
                     break;
 
                 case false:
                 {
+                    // Logger.Log(pattern.ToString());
                     this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
                     if (pattern.ResetHitBox) DamageQueue.Clear();
                     Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
@@ -215,9 +219,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Update()
         {
             base.Update();
-            if (Weapon.IsAttacking) Weapon.OnUpdate();
+            if (!Weapon.CanAttack) Weapon.OnUpdate();
             if (readyForRest) RestWeapon();
-            if (Weapon.NewPattern) handlePatternCase(Weapon.GetCurrentCase(), User.DirectionLooking + 90);
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
 
