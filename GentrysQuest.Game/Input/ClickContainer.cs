@@ -54,7 +54,7 @@ namespace GentrysQuest.Game.Input
             switch (e.Button)
             {
                 case MouseButton.Left:
-                    player.OnClick(mousePos);
+                    player.DoAttack(mousePos);
                     break;
 
                 case MouseButton.Right:

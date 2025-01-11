@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Content.Weapons
     public class BraydensOsuPen : Weapon
     {
         public override string Type { get; } = "Pen";
-        public override int Distance { get; set; } = 200;
+        public override int Distance { get; } = 200;
         public override string Name { get; set; } = "Brayden's Osu Pen";
 
         public override string Description { get; protected set; } = "The man himself, Brayden's osu pen!\n"
@@ -22,8 +22,7 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public override List<StatType> ValidBuffs { get; set; } = [StatType.CritDamage];
 
-        private readonly AttackPattern mainAttack = new AttackPattern();
-        private readonly AttackPattern spinningAttack = new AttackPattern();
+        private readonly AttackAnimationRegistry attackRegistry = new AttackAnimationRegistry();
 
         private bool didSpin;
 
@@ -32,10 +31,15 @@ namespace GentrysQuest.Game.Content.Weapons
         /// </summary>
         private const double spin_time = 250;
 
-        public override AttackPatternEvent RestingEvent { get; protected set; } = new AttackPatternEvent(50)
+        public override AttackKeyframe RestingEvent { get; protected set; } = new AttackKeyframe(50)
         {
             Direction = -105
         };
+
+        private string nextAnimation = "first";
+        private AttackKeyframe lastFromFirst;
+        private AttackKeyframe lastFromSecond;
+        private AttackKeyframe lastFromSpin;
 
         public BraydensOsuPen()
         {
@@ -54,40 +58,59 @@ namespace GentrysQuest.Game.Content.Weapons
             Vector2 hbSize = new Vector2(0.1f, 1);
             OnHitEffect lastComboEffect = new OnHitEffect(20) { Effect = new Bleed(new Second(6)) };
 
-            mainAttack.AddCase();
-            mainAttack.Add(new AttackPatternEvent
+            attackRegistry.RegisterAnimation("first");
+            attackRegistry.AddKeyframe(new AttackKeyframe
             {
                 Direction = -90,
                 Distance = distance,
                 HitboxSize = hbSize,
             });
-            mainAttack.Add(new AttackPatternEvent(time)
+
+            lastFromFirst = new AttackKeyframe(time)
             {
                 Direction = 90,
                 Distance = distance,
                 Transition = Easing.OutCirc,
-                HitboxSize = hbSize
-            });
+                HitboxSize = hbSize,
+                Event = () =>
+                {
+                    nextAnimation = "second";
+                    RestingEvent = lastFromFirst;
+                }
+            };
 
-            mainAttack.AddCase();
-            mainAttack.Add(new AttackPatternEvent
+            attackRegistry.AddKeyframe(lastFromFirst);
+
+            attackRegistry.RegisterAnimation("second");
+            attackRegistry.AddKeyframe(new AttackKeyframe
                 { Direction = 90, Distance = distance, HitboxSize = hbSize });
-            mainAttack.Add(new AttackPatternEvent(time)
-                { Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize });
 
-            spinningAttack.AddCase();
-            spinningAttack.Add(new AttackPatternEvent { Direction = -90, Distance = distance, HitboxSize = hbSize });
-            spinningAttack.Add(new AttackPatternEvent(1000)
+            lastFromSecond = new AttackKeyframe(time)
+            {
+                Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize, Event = () =>
+                {
+                    nextAnimation = "first";
+                    RestingEvent = lastFromSecond;
+                }
+            };
+            attackRegistry.AddKeyframe(lastFromSecond);
+
+            attackRegistry.RegisterAnimation("spin");
+            attackRegistry.AddKeyframe(new AttackKeyframe { Direction = -90, Distance = distance, HitboxSize = hbSize });
+            attackRegistry.AddKeyframe(new AttackKeyframe(1000)
             {
                 Direction = 360,
                 Distance = distance,
                 HitboxSize = hbSize,
                 Transition = Easing.OutQuart,
                 OnHitEffects = [lastComboEffect],
-                ResetHitBox = true
+                ResetHitBox = true,
+                Event = () =>
+                {
+                    nextAnimation = "first";
+                    RestingEvent = lastFromFirst;
+                }
             });
-
-            RestingEvent = mainAttack.GetFirstCaseEvent();
 
             #endregion
 
@@ -102,20 +125,24 @@ namespace GentrysQuest.Game.Content.Weapons
         public override void OnRelease()
         {
             base.OnRelease();
+
+            if (didSpin)
+            {
+                didSpin = false;
+                return;
+            }
+
+            DrawableInstance.PlayAnimation(attackRegistry.GetAnimation(nextAnimation));
         }
 
         public override void OnUpdate()
         {
             if (HoldDuration() > spin_time)
             {
+                DrawableInstance.PlayAnimation(attackRegistry.GetAnimation("spin"));
                 EndAttack();
                 didSpin = true;
             }
-        }
-
-        public override void EndAttack()
-        {
-            base.EndAttack();
         }
     }
 }

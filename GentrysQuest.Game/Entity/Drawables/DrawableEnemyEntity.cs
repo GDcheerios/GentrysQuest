@@ -136,9 +136,9 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void updateTime() => lastPositionCheckTime = Clock.CurrentTime;
         private void updatePosition() => FocusedPosition = new Vector2(MathBase.RandomFloat(-1000, 1000), MathBase.RandomFloat(-1000, 1000));
 
-        public override void StartAttack(Vector2 position)
+        public override void DoAttack(Vector2 position)
         {
-            base.StartAttack(position);
+            base.DoAttack(position);
             GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
             GetBase().AddEffect(new Disarm(2000));
         }
@@ -151,7 +151,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (aiState)
             {
                 case AiState.Pursuing:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) StartAttack(followEntity.Position);
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) DoAttack(followEntity.Position);
 
                     if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
                     {
