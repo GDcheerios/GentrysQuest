@@ -1,4 +1,6 @@
+using System.Linq;
 using GentrysQuest.Game.Content.Weapons;
+using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Utils;
@@ -13,11 +15,16 @@ namespace GentrysQuest.Game.Tests.Visual.Weapons
     public partial class TestWeaponScene : GentrysQuestTestScene
     {
         private DrawableEntity entity;
-        private Weapon weapon = new Sword();
+        private Weapon weapon = new Bow();
+        private DrawableEnemyEntity enemy;
         private int holdTime;
 
         public TestWeaponScene()
         {
+            enemy = new DrawableEnemyEntity(new Game.Entity.Entity()) { Position = new Vector2(500, 0) };
+            enemy.GetBase().DamageModifier = 0;
+            enemy.GetBase().Stats.Health.SetAdditional(999999);
+            enemy.GetBase().Stats.Tenacity.SetAdditional(999999);
             entity = new DrawableEntity(new Game.Entity.Entity());
             entity.GetBase().SetWeapon(weapon);
             Add(new Box
@@ -26,6 +33,7 @@ namespace GentrysQuest.Game.Tests.Visual.Weapons
                 Colour = Colour4.Gray
             });
             Add(entity);
+            Add(enemy);
         }
 
         [Test]
@@ -61,6 +69,27 @@ namespace GentrysQuest.Game.Tests.Visual.Weapons
         {
             entity.OnRelease();
             Logger.Log("Released");
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (!IsLoaded || entity.QueuedProjectiles.Count <= 0) return;
+
+            foreach (Projectile projectile in entity.QueuedProjectiles.ToList())
+            {
+                projectile.Position = new Vector2(20, 20);
+                projectile.Alpha = 1;
+                projectile.ShootFrom(entity);
+                Scheduler.AddDelayed(() =>
+                {
+                    Remove(projectile, false);
+                    HitBoxScene.Remove(projectile.HitBox);
+                }, projectile.Lifetime);
+                entity.QueuedProjectiles.Remove(projectile);
+                Add(projectile);
+            }
         }
     }
 }

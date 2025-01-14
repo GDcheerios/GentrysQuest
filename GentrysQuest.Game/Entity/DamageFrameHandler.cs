@@ -50,7 +50,7 @@ namespace GentrysQuest.Game.Entity
                     return;
                 }
 
-                _ = new HitHandler(sender, hitBox.GetParent(), getStatusEffects(projectile.OnHitEffects));
+                _ = new HitHandler(sender, hitBox.GetParent(), getStatusEffects(projectile.OnHitEffects), projectile.Damage);
                 projectile.Hits++;
                 queue.Add(hitBox);
             }
@@ -58,8 +58,7 @@ namespace GentrysQuest.Game.Entity
 
         private List<StatusEffect> getStatusEffects(List<OnHitEffect> onHitEffects)
         {
-            if (onHitEffects != null) return (from hitEffect in onHitEffects where hitEffect.Applies() select hitEffect.Effect).ToList();
-            return new List<StatusEffect>();
+            return onHitEffects != null ? (from hitEffect in onHitEffects where hitEffect.Applies() select hitEffect.Effect).ToList() : [];
         }
     }
 }

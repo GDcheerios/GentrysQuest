@@ -214,7 +214,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             Weapon.OnClick((float)angle + 90);
         }
 
-        public virtual void OnRelease() => Weapon.OnRelease();
+        public virtual void OnRelease()
+        {
+            Weapon.OnRelease();
+        }
 
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage

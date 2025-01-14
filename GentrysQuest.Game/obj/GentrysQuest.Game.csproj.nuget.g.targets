@@ -3,6 +3,6 @@
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)polysharp\1.10.0\buildTransitive\PolySharp.targets" Condition="Exists('$(NuGetPackageRoot)polysharp\1.10.0\buildTransitive\PolySharp.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.extensions.logging.abstractions\8.0.0\buildTransitive\net6.0\Microsoft.Extensions.Logging.Abstractions.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.logging.abstractions\8.0.0\buildTransitive\net6.0\Microsoft.Extensions.Logging.Abstractions.targets')" />
-    <Import Project="$(NuGetPackageRoot)ppy.osu.framework.ios\2024.1224.0\build\ppy.osu.Framework.iOS.targets" Condition="Exists('$(NuGetPackageRoot)ppy.osu.framework.ios\2024.1224.0\build\ppy.osu.Framework.iOS.targets')" />
+    <Import Project="$(NuGetPackageRoot)ppy.osu.framework.ios\2025.114.1\build\ppy.osu.Framework.iOS.targets" Condition="Exists('$(NuGetPackageRoot)ppy.osu.framework.ios\2025.114.1\build\ppy.osu.Framework.iOS.targets')" />
   </ImportGroup>
 </Project>

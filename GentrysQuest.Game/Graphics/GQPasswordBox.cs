@@ -4,7 +4,7 @@ using osuTK.Graphics;
 
 namespace GentrysQuest.Game.Graphics
 {
-    public partial class GQPasswordBox : BasicPasswordTextBox
+    public partial class GQPasswordBox : BasicTextBox
     {
         protected override float LeftRightPadding => 10;
         protected override float CaretWidth => 5;

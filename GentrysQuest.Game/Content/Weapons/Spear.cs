@@ -30,5 +30,11 @@ namespace GentrysQuest.Game.Content.Weapons
             attackAnimationRegistry.AddKeyframe(new AttackKeyframe(100) { Distance = 100, Position = new Vector2(0, 0), HitboxSize = hitbox, Size = size });
             attackAnimationRegistry.AddKeyframe(new AttackKeyframe(80) { Distance = 0, Position = new Vector2(50, 0), HitboxSize = hitbox, Size = size, DoesDamage = false });
         }
+
+        public override void OnClick(float direction)
+        {
+            base.OnClick(direction);
+            DrawableInstance.PlayAnimation(attackAnimationRegistry.GetAnimation("poke"));
+        }
     }
 }

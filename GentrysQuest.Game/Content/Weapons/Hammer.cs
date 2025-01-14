@@ -14,6 +14,8 @@ namespace GentrysQuest.Game.Content.Weapons
         private readonly AttackAnimationRegistry attackAnimationRegistry = new AttackAnimationRegistry();
 
         private string nextAnimation = "first";
+        private AttackKeyframe firstResting;
+        private AttackKeyframe secondResting;
 
         public Hammer()
         {
@@ -25,16 +27,48 @@ namespace GentrysQuest.Game.Content.Weapons
             Vector2 size = new Vector2(0.8f, 1.2f);
 
             attackAnimationRegistry.RegisterAnimation("first");
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe { Direction = 115, Distance = 100, Size = size });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(100) { Direction = 100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(850) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(50) { Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3, Event = () => nextAnimation = "second"});
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe { Direction = 115, Distance = 100, Size = size, KnockbackMultiplier = 3 });
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(1000)
+            {
+                Direction = -115, Distance = 100, Event = () =>
+                {
+                    nextAnimation = "second";
+                    RestingEvent = firstResting;
+                },
+                KnockbackMultiplier = 3,
+                Transition = Easing.In
+            });
+            firstResting = new AttackKeyframe(200)
+            {
+                Direction = -115, Distance = 100
+            };
+
+            attackAnimationRegistry.AddKeyframe(firstResting);
 
             attackAnimationRegistry.RegisterAnimation("second");
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe { Direction = -115, Distance = 100, Size = size });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(100) { Direction = -100, Distance = 100, Size = size, DoesDamage = false, KnockbackMultiplier = 3 });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(850) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 3 });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(50) { Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 3, Event = () => nextAnimation = "first"});
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe
+            {
+                Direction = -115, Distance = 100, Size = size, KnockbackMultiplier = 3
+            });
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(1000)
+            {
+                Direction = 115, Distance = 100, Event = () =>
+                {
+                    nextAnimation = "first";
+                    RestingEvent = secondResting;
+                },
+                KnockbackMultiplier = 3,
+                Transition = Easing.In
+            });
+            secondResting = new AttackKeyframe(200) { Direction = 115, Distance = 100 };
+
+            attackAnimationRegistry.AddKeyframe(secondResting);
+        }
+
+        public override void OnClick(float direction)
+        {
+            base.OnClick(direction);
+            DrawableInstance.PlayAnimation(attackAnimationRegistry.GetAnimation(nextAnimation));
         }
     }
 }

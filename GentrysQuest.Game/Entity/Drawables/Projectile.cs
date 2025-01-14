@@ -110,7 +110,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Sets the affiliation and which then sets up the hitbox.
         /// </summary>
         /// <param name="shooter">the shooter</param>
-        /// <param name="time">the current time</param>
         public void ShootFrom(DrawableEntity shooter)
         {
             this.shooter = shooter;
