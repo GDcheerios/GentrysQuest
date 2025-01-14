@@ -7,6 +7,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
+using osu.Framework.Logging;
 using osuTK;
 using AudioManager = GentrysQuest.Game.Audio.AudioManager;
 
@@ -35,6 +36,7 @@ namespace GentrysQuest.Game
         [BackgroundDependencyLoader]
         private void load()
         {
+            Logger.Log("Loading GentrysQuest");
             gameClock = new GameClock();
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
             Add(NotificationContainer.Instance);

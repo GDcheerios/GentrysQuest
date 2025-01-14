@@ -1,5 +1,6 @@
 using System;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Utils
 {
@@ -23,6 +24,7 @@ namespace GentrysQuest.Game.Utils
         protected override void LoadComplete()
         {
             base.LoadComplete();
+            Logger.Log($"GameClock loaded at {CurrentTime}", LoggingTarget.Runtime, LogLevel.Verbose);
             instance = this;
         }
 

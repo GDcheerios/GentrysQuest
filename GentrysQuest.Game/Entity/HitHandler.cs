@@ -32,7 +32,7 @@ public class HitHandler
     private Entity sender;
     private StatTracker stats;
 
-    public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null)
+    public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null, int projectileDamage = 0)
     {
         Details = new DamageDetails();
         if (statusEffects != null) Details.StatusEffects = statusEffects;
@@ -42,7 +42,7 @@ public class HitHandler
         stats = GameData.CurrentStats;
 
         // logic
-        calcDamage();
+        calcDamage(projectileDamage);
         applyDamage();
         applyHitCount();
         applyKnockback();
@@ -52,9 +52,10 @@ public class HitHandler
 
     private bool getCritChance() => sender.Stats.CritRate.Current.Value > MathBase.RandomInt(0, 100);
 
-    private void calcDamage()
+    private void calcDamage(int projectileDamage)
     {
         int damage = (int)(sender.Stats.Attack.GetCurrent() + sender.Weapon!.Damage.GetCurrent());
+        damage += projectileDamage;
         Details.IsCrit = getCritChance();
         if (Details.IsCrit) damage += (int)MathBase.GetPercent(damage, sender.Stats.CritDamage.GetCurrent());
         Details.Damage = damage;

@@ -43,5 +43,11 @@ namespace GentrysQuest.Game.Content.Weapons
 
             #endregion
         }
+
+        public override void OnClick(float direction)
+        {
+            base.OnClick(direction);
+            DrawableInstance.PlayAnimation(attackAnimationRegistry.GetAnimation("stab"));
+        }
     }
 }

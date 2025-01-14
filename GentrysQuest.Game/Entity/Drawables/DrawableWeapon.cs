@@ -103,7 +103,6 @@ namespace GentrysQuest.Game.Entity.Drawables
             if (AnimationPlaying) return;
 
             DamageQueue.Clear();
-            HitBox.Enable();
             readyForRest = false;
 
             AnimationPlaying = true;
@@ -151,6 +150,12 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
         }
 
+        public void StopAnimation()
+        {
+            AnimationPlaying = false;
+            readyForRest = true;
+        }
+
         /// <summary>
         /// Handles pattern transition.
         /// </summary>
@@ -160,6 +165,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <param name="resting">if this is a resting pattern</param>
         private void playKeyframe(AttackKeyframe pattern, float direction, double speed, bool resting = false)
         {
+            HitBox.Enable();
             if (pattern.Event != null) pattern.RunEvent();
             this.TransformTo(nameof(PositionHolder), pattern.Position, speed, pattern.Transition);
             this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);

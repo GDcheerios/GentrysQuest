@@ -16,7 +16,7 @@ namespace GentrysQuest.Game.Content.Enemies
 
             AudioMapping.Add("Spawn", "enemies_angry_chinese_man_spawn.m4a");
 
-            WeaponChoices.AddChoice(new BrodysBroadsword(), 100);
+            WeaponChoices.AddChoice(new Spear(), 100);
         }
     }
 }
