@@ -90,15 +90,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Drawable weapon logic for attacking.
         /// </summary>
         /// <param name="direction">Attack direction</param>
-        public void OnClick(float direction)
-        {
-            if (!Weapon.CanAttack) return;
-
-            DamageQueue.Clear();
-            Weapon.OnClick(direction);
-            readyForRest = false;
-            Weapon.CanAttack = false;
-        }
+        public void OnClick(float direction) => Weapon.OnClick(direction);
 
         public void OnRelease() => Weapon.OnRelease();
 
@@ -109,6 +101,10 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void PlayAnimation(AttackAnimation caseHolder)
         {
             if (AnimationPlaying) return;
+
+            DamageQueue.Clear();
+            HitBox.Enable();
+            readyForRest = false;
 
             AnimationPlaying = true;
             float direction = getDirection();
@@ -183,14 +179,12 @@ namespace GentrysQuest.Game.Entity.Drawables
             switch (resting)
             {
                 case true:
-                    Weapon.CanAttack = true;
                     HitBox.Disable();
                     this.RotateTo(pattern.Direction + direction, speed, pattern.Transition);
                     break;
 
                 case false:
                 {
-                    // Logger.Log(pattern.ToString());
                     this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
                     if (pattern.ResetHitBox) DamageQueue.Clear();
                     Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
@@ -202,7 +196,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 }
             }
 
-            if (doesDamage) HitBox.Disable();
+            if (!doesDamage) HitBox.Disable();
 
             if (!HitBox.Enabled) return; // don't need to continue if there's no hitbox
 
@@ -219,14 +213,14 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Update()
         {
             base.Update();
-            if (!Weapon.CanAttack) Weapon.OnUpdate();
+            Weapon.OnUpdate();
             if (readyForRest) RestWeapon();
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
 
             GetBase().SkillRef.update();
 
-            if (Weapon.CanAttack) return;
+            if (!AnimationPlaying) return;
 
             if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase(), this);
         }

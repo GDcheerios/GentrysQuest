@@ -141,6 +141,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.DoAttack(position);
             GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
             GetBase().AddEffect(new Disarm(2000));
+            base.OnRelease();
         }
 
         protected override void Update()
