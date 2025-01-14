@@ -15,8 +15,8 @@ namespace GentrysQuest.Game.Content.Weapons
 
         private string nextAnimation = "first";
 
-        private AttackKeyframe firstRestingKeyFrame;
-        private AttackKeyframe secondRestingKeyFrame;
+        private readonly AttackKeyframe firstRestingKeyFrame;
+        private readonly AttackKeyframe secondRestingKeyFrame;
 
         public Sword()
         {
@@ -29,8 +29,8 @@ namespace GentrysQuest.Game.Content.Weapons
 
             attackAnimationRegistry.RegisterAnimation("first");
             attackAnimationRegistry.AddKeyframe(new AttackKeyframe { Direction = 115, Distance = 100, Size = size });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(650) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
-            firstRestingKeyFrame = new AttackKeyframe(100)
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(200) { Direction = -90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
+            firstRestingKeyFrame = new AttackKeyframe(200)
             {
                 Direction = -115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 1.5f, Event = () =>
                 {
@@ -42,8 +42,8 @@ namespace GentrysQuest.Game.Content.Weapons
 
             attackAnimationRegistry.RegisterAnimation("second");
             attackAnimationRegistry.AddKeyframe(new AttackKeyframe { Direction = -115, Distance = 100, Size = size });
-            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(650) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
-            secondRestingKeyFrame = new AttackKeyframe(100)
+            attackAnimationRegistry.AddKeyframe(new AttackKeyframe(200) { Direction = 90, Distance = 100, Size = size, Transition = Easing.In, KnockbackMultiplier = 1.5f });
+            secondRestingKeyFrame = new AttackKeyframe(200)
             {
                 Direction = 115, Distance = 100, Size = size, Transition = Easing.Out, KnockbackMultiplier = 1.5f, Event = () =>
                 {
@@ -54,10 +54,21 @@ namespace GentrysQuest.Game.Content.Weapons
             attackAnimationRegistry.AddKeyframe(secondRestingKeyFrame);
         }
 
+        private void swing()
+        {
+            if (!DrawableInstance.AnimationPlaying && IsClicking) DrawableInstance.PlayAnimation(attackAnimationRegistry.GetAnimation(nextAnimation));
+        }
+
+        public override void OnClick(float direction)
+        {
+            base.OnClick(direction);
+            swing();
+        }
+
         public override void OnUpdate()
         {
             base.OnUpdate();
-            DrawableInstance.PlayAnimation(attackAnimationRegistry.GetAnimation(nextAnimation));
+            swing();
         }
     }
 }

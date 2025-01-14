@@ -57,6 +57,11 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// </summary>
         public bool CanAttack;
 
+        /// <summary>
+        /// If clicking.
+        /// </summary>
+        public bool IsClicking;
+
         #endregion
 
         public DrawableWeapon DrawableInstance;
@@ -155,15 +160,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);
 
         /// <summary>
-        /// Code to be run when attacking
-        /// </summary>
-        public virtual void StartAttack()
-        {
-            AttackAmount++;
-            IsAttacking = true;
-        }
-
-        /// <summary>
         /// On click logic.
         /// What will happen when clicked.
         /// </summary>
@@ -172,6 +168,7 @@ namespace GentrysQuest.Game.Entity.Weapon
             // logic
             holdStartTime = GameClock.CurrentTime;
             Direction = direction;
+            IsClicking = true;
         }
 
         /// <summary>
@@ -182,23 +179,21 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             // logic
             holdStartTime = 0;
+            IsClicking = false;
         }
 
         /// <summary>
         /// Ends the attack.
         /// Can be used to add custom logic.
         /// </summary>
-        public virtual void EndAttack()
-        {
-            Holder.Attack(); // "OnAttack event"
-        }
+        public virtual void EndAttack() => Holder.Attack(); // "OnAttack event"
 
         /// <summary>
-        /// This is ran every frame after StartAttack is ran.
+        /// This is ran every frame while the animation is playing.
         /// </summary>
         public virtual void OnUpdate()
         {
-            // implement logic for every frame
+            // implement frame logic
         }
 
         public void HitEntity(DamageDetails details)

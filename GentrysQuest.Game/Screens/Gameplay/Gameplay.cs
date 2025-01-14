@@ -432,7 +432,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
         protected override void Update()
         {
             base.Update();
-            // spawnEnemyClock();
+            spawnEnemyClock();
             scoreText.Text = "" + Score;
 
             transferParticles(playerEntity);

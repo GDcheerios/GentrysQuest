@@ -9,7 +9,7 @@ namespace GentrysQuest.Game.Entity
     /// </summary>
     public static class HitBoxScene
     {
-        private static List<HitBox> hitBoxes = new();
+        private static readonly List<HitBox> hitBoxes = new();
 
         public static void Add(HitBox hitBox) => hitBoxes.Add(hitBox);
 
