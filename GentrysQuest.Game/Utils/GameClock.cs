@@ -11,8 +11,15 @@ namespace GentrysQuest.Game.Utils
         public static double CurrentTime => getInstance()?.Clock?.CurrentTime ?? 0;
         public static double FrameTime => getInstance()?.Clock?.ElapsedFrameTime ?? 0;
 
+        public GameClock()
+        {
+            Logger.Log("Creating GameClock");
+        }
+
         private static GameClock getInstance()
         {
+            Logger.Log("fetching GameClock");
+
             if (instance == null)
             {
                 throw new InvalidOperationException("GameClock has not been initialized in the drawable hierarchy.");
