@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
@@ -16,6 +17,7 @@ namespace GentrysQuest.Game
         // It allows for caching global dependencies that should be accessible to tests, or changing
         // the screen scaling for all components including the test browser and framework overlays.
         protected override Container<Drawable> Content { get; }
+        private GameClock gameClock;
 
         protected GentrysQuestGameBase()
         {
@@ -31,9 +33,16 @@ namespace GentrysQuest.Game
         [BackgroundDependencyLoader]
         private void load()
         {
-            Logger.Log("Loading GentrysQuest");
+            Logger.Log("Loading GentrysQuest base resources");
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
-            Add(new GameClock());
+            _ = new GameClock(Clock);
+            Add(AudioManager.Instance);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            Logger.Log("Loading GentrysQuest base resources complete");
         }
     }
 }

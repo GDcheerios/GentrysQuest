@@ -1,39 +1,17 @@
 using System;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Logging;
+using osu.Framework.Timing;
 
 namespace GentrysQuest.Game.Utils
 {
     public partial class GameClock : CompositeDrawable
     {
-        private static GameClock instance;
+        private static IFrameBasedClock clock;
 
-        public static double CurrentTime => getInstance()?.Clock?.CurrentTime ?? 0;
-        public static double FrameTime => getInstance()?.Clock?.ElapsedFrameTime ?? 0;
+        public static double CurrentTime => clock?.CurrentTime ?? 0;
+        public static double FrameTime => clock?.ElapsedFrameTime ?? 0;
 
-        public GameClock()
-        {
-            Logger.Log("Creating GameClock");
-        }
-
-        private static GameClock getInstance()
-        {
-            Logger.Log("fetching GameClock");
-
-            if (instance == null)
-            {
-                throw new InvalidOperationException("GameClock has not been initialized in the drawable hierarchy.");
-            }
-
-            return instance;
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
-            Logger.Log($"GameClock loaded at {CurrentTime}", LoggingTarget.Runtime, LogLevel.Verbose);
-            instance = this;
-        }
+        public GameClock(IFrameBasedClock clock) => GameClock.clock = clock;
 
         /// <summary>
         /// Queue a method for activation.

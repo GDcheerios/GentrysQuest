@@ -21,7 +21,6 @@ namespace GentrysQuest.Game
             Child = ScreenStack;
             Add(new CursorContainer());
             Add(NotificationContainer.Instance);
-            Add(AudioManager.Instance);
             AudioOverlay audioOverlay;
             Add(audioOverlay = new AudioOverlay { Depth = -4 });
             AudioManager.Instance.OnPlayMusic += delegate { audioOverlay.DisplaySong(AudioManager.Instance.CurrentSong); };
