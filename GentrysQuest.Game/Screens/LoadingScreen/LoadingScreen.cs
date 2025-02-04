@@ -7,8 +7,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
-using Velopack;
-using Velopack.Sources;
 
 namespace GentrysQuest.Game.Screens.LoadingScreen
 {
@@ -16,26 +14,25 @@ namespace GentrysQuest.Game.Screens.LoadingScreen
     {
         private LoadingIndicator indicator;
         private SpriteText status;
-        private UpdateManager updateManager;
+        private Intro introScreen;
         private byte progress = 0;
 
-        public LoadingScreen()
+        public LoadingScreen(Intro introScreen)
         {
-            InternalChildren = new Drawable[]
-            {
+            this.introScreen = introScreen;
+            InternalChildren =
+            [
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = Colour4.Black
                 }
-            };
+            ];
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            updateManager = new UpdateManager(new GithubSource("https://github.com/GDcheeriosYT/GentrysQuest", null, false));
-
             AddInternal(indicator = new LoadingIndicator
             {
                 Anchor = Anchor.Centre,
@@ -49,32 +46,6 @@ namespace GentrysQuest.Game.Screens.LoadingScreen
                 Margin = new MarginPadding { Bottom = 50 },
                 Font = FontUsage.Default.With(size: 72)
             });
-        }
-
-        private async Task checkForUpdates()
-        {
-            status.Text = "Checking for updates...";
-            await Task.Delay(100);
-
-            try
-            {
-                var newVersion = await updateManager.CheckForUpdatesAsync();
-
-                if (newVersion == null)
-                {
-                    status.Text = "No updates available.";
-                    return; // no update available
-                }
-
-                status.Text = $"Downloading update";
-                await updateManager.DownloadUpdatesAsync(newVersion);
-                updateManager.ApplyUpdatesAndRestart(newVersion);
-            }
-            catch
-            {
-            }
-
-            await Task.Delay(500);
         }
 
         private async Task loadGameData()
@@ -94,7 +65,6 @@ namespace GentrysQuest.Game.Screens.LoadingScreen
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            await checkForUpdates();
             await setupAPIAccess();
             await loadGameData();
 
@@ -112,8 +82,7 @@ namespace GentrysQuest.Game.Screens.LoadingScreen
                 status.Origin = Anchor.Centre;
             }, 1500);
             Scheduler.AddDelayed(() => status.FadeOut(250), 2700);
-
-            Scheduler.AddDelayed(() => { this.Push(new Intro.Intro()); }, 3000);
+            Scheduler.AddDelayed(() => { this.Push(introScreen); }, 3000);
         }
     }
 }

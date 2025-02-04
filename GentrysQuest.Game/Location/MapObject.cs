@@ -4,18 +4,13 @@ using osuTK;
 
 namespace GentrysQuest.Game.Location;
 
-public partial class MapObject(bool hasCollider, Vector2 size, Vector2 position, Colour4 colour, int toughness)
-    : IMapObject
+public partial class MapObject() : IMapObject
 {
-    public bool HasCollider { get; } = hasCollider;
-    public Vector2 Size { get; } = size;
-    public Vector2 Position { get; } = position;
-    public Colour4 Colour { get; } = colour;
-    public int Toughness { get; } = toughness;
-    public event EventHandler onTouch;
-
-    public void OnTouch()
-    {
-        onTouch?.Invoke(null, null);
-    }
+    public bool HasCollider { get; set; } = false;
+    public Vector2 Size { get; set; } = Vector2.Zero;
+    public EventHandler OnTouchEvent { get; set; } = null;
+    public Vector2 Position { get; set; } = Vector2.Zero;
+    public Colour4 Colour { get; set; } = Colour4.Black;
+    public int Health { get; set; } = 10000;
+    public int Hardness { get; set; } = 1;
 }

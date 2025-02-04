@@ -1,5 +1,7 @@
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
+using osu.Framework.Allocation;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Testing;
 
 namespace GentrysQuest.Game.Tests.Visual
@@ -19,6 +21,12 @@ namespace GentrysQuest.Game.Tests.Visual
             }
 
             public void RunTestBlocking(TestScene test) => runner.RunTestBlocking(test);
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Add(new CursorContainer());
         }
 
         public GentrysQuestTestScene()

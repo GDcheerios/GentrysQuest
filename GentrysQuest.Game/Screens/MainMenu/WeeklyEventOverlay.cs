@@ -5,7 +5,6 @@ using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Overlays.Results;
-using GentrysQuest.Game.Screens.Gameplay;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -83,8 +82,6 @@ namespace GentrysQuest.Game.Screens.MainMenu
                 character.Artifacts.Equip(osuChibiPlush2, 2);
                 character.Artifacts.Equip(osuChibiPlush3, 3);
                 character.Artifacts.Equip(osuChibiPlush4, 4);
-
-                GentrysQuestGame.ScreenStack.Push(new WeeklyEventGameplay(eventID));
             });
 
             #endregion

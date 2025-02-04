@@ -1,5 +1,3 @@
-using GentrysQuest.Game.Database;
-using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
@@ -14,15 +12,13 @@ namespace GentrysQuest.Game.Content.Maps
             Name = "Test Map";
             DifficultyScales = true;
 
-            foreach (Family family in GameData.Content.Families) Families.Add(family);
-            foreach (Enemy enemy in GameData.Content.Enemies) Enemies.Add(enemy);
+            for (int i = 0; i < 100; i++) Objects.Add(new MapObject { Size = getRandVec(0.01f, 0.1f), Position = getRandVec(0, 1) });
 
-            for (int i = 0; i < 100; i++) mapObjects.Add(new MapObject(true, getRandVec(0.01f, 0.05f), getRandVec(0, 1f), Colour4.Black, 100));
-
-            mapObjects.Add(new MapObject(true, new Vector2(1, 0.01f), new Vector2(0, 0), Colour4.Black, 10000));
-            mapObjects.Add(new MapObject(true, new Vector2(1, 0.01f), new Vector2(0, 1), Colour4.Black, 10000));
-            mapObjects.Add(new MapObject(true, new Vector2(0.01f, 1), new Vector2(0, 0), Colour4.Black, 10000));
-            mapObjects.Add(new MapObject(true, new Vector2(0.01f, 1), new Vector2(1, 0), Colour4.Black, 10000));
+            // walls
+            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(1, 0.01f), Position = new Vector2(0, 0), Colour = Colour4.Black });
+            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(1, 0.01f), Position = new Vector2(0, 1), Colour = Colour4.Black });
+            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(0.01f, 1), Position = new Vector2(0, 0), Colour = Colour4.Black });
+            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(0.01f, 1), Position = new Vector2(1, 0), Colour = Colour4.Black });
         }
 
         private Vector2 getRandVec(float min, float max)

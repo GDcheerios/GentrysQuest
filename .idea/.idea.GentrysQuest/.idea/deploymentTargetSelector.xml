@@ -2,7 +2,7 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="GentrysQuest.Android">
+      <SelectionState runConfigName="GetrysQuest.Android">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

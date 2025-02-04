@@ -1,20 +1,12 @@
-#nullable enable
 using Android.Content.PM;
+using GentrysQuest.Game;
 using osu.Framework.Android;
 
-namespace GentrysQuest.Android;
-
-[Activity(ConfigurationChanges = DEFAULT_CONFIG_CHANGES, Exported = true, LaunchMode = DEFAULT_LAUNCH_MODE, MainLauncher = true)]
-public class MainActivity : AndroidGameActivity
+namespace GentrysQuest.Android
 {
-    public ScreenOrientation DefaultOrientation = ScreenOrientation.Landscape;
-
-    private GentrysQuestAndroidGame game = null;
-
-    protected override osu.Framework.Game CreateGame() => game = new GentrysQuestAndroidGame(this);
-
-    protected override void OnCreate(Bundle? savedInstanceState)
+    [Activity(MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    public class MainActivity : AndroidGameActivity
     {
-        base.OnCreate(savedInstanceState);
+        protected override osu.Framework.Game CreateGame() => new GentrysQuestGame(false);
     }
 }

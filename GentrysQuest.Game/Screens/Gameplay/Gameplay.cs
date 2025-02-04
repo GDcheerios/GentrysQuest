@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
-using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Database;
@@ -11,7 +9,6 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Location.Drawables;
 using GentrysQuest.Game.Online.API.Requests;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Overlays.Notifications;
@@ -38,7 +35,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
         private readonly List<DrawableEntity> enemies = new();
         private readonly List<Projectile> projectiles = new();
         private GameplayHud gameplayHud;
-        private DrawableMap map;
         private InventoryOverlay inventoryOverlay;
 
         private bool showingInventory = false;
@@ -97,7 +93,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     RelativeSizeAxes = Axes.Both
                 },
                 gameplayHud = new GameplayHud(),
-                map = new DrawableMap(),
                 inventoryOverlay = new InventoryOverlay(),
                 scoreFlowContainer = new TextFlowContainer
                 {
@@ -129,7 +124,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
         /// <param name="enemy">For if you want to use custom enemies</param>
         public void AddEnemy(int level, Enemy enemy = null)
         {
-            enemy ??= (Enemy)Activator.CreateInstance(map.MapReference.Enemies[MathBase.RandomChoice(map.MapReference.Enemies.Count)].GetType());
             enemy.Experience.Level.Current.Value = level;
             enemy.UpdateStats();
             DrawableEnemyEntity newEnemy = new DrawableEnemyEntity(enemy);
@@ -138,30 +132,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
             enemies.Add(newEnemy);
             enemy.SetWeapon();
             newEnemy.GetBase().OnDeath += delegate { Scheduler.AddDelayed(() => RemoveEnemy(newEnemy), 100); };
-            newEnemy.GetBase().OnDeath += delegate
-            {
-                bool notValidArtifact = true;
-                int spendAmount = (int)(Math.Pow(gameplayDifficulty + 1, 2) * 1000);
-
-                if (spendableScore >= spendAmount)
-                {
-                    spendableScore -= spendAmount;
-
-                    while (notValidArtifact)
-                    {
-                        string familyString = map.MapReference.Families[MathBase.RandomChoice(map.MapReference.Families.Count)].Name;
-                        int starRating = MathBase.GetStarRating(gameplayDifficulty);
-                        Artifact artifact = GameData.Content.GetFamily(familyString).GetArtifact();
-
-                        if (artifact.ValidStarRatings.Contains(starRating))
-                        {
-                            artifact.Initialize(starRating);
-                            GameData.Add(artifact);
-                            notValidArtifact = false;
-                        }
-                    }
-                }
-            };
             newEnemy.FollowEntity(playerEntity);
         }
 
@@ -178,15 +148,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 currentAmount++;
                 if (currentAmount > enemySpawnLimit) break;
             }
-        }
-
-        public void SetDifficulty(int difficulty) => gameplayDifficulty = difficulty;
-
-        public void SetDifficulty()
-        {
-            gameplayDifficulty = map.MapReference.Difficulty;
-            if (map.MapReference.DifficultyScales) gameplayDifficulty += playerEntity.GetBase().Difficulty;
-            enemyLimit = (gameplayDifficulty + 1) * 2;
         }
 
         public void Pause()
@@ -281,21 +242,11 @@ namespace GentrysQuest.Game.Screens.Gameplay
         /// </summary>
         public void SetUp()
         {
-            map.Load(new TestMap());
-
             if (playerEntity is null)
             {
                 AddInternal(playerEntity = new DrawablePlayableEntity(GameData.EquippedCharacter));
                 if (GameData.EquippedCharacter.Weapon != null) GameData.EquippedCharacter.SetWeapon(GameData.EquippedCharacter.Weapon);
-                SetDifficulty();
-                playerEntity.OnMove += delegate(Vector2 direction, double speed)
-                {
-                    manage_direction(direction, speed, map);
-                    foreach (DrawableEntity enemyEntity in enemies) manage_direction(direction, speed, enemyEntity);
-                    foreach (Projectile projectile in projectiles) manage_direction(direction, speed, projectile);
-                };
                 playerEntity.GetBase().OnDeath += End;
-                playerEntity.GetBase().OnLevelUp += SetDifficulty;
                 playerEntity.GetBase().OnLevelUp += delegate
                 {
                     if (playerEntity.GetBase().Experience.CurrentLevel() % 5 == 0)
@@ -396,7 +347,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
             };
             AddInternal(deathContainer);
             gameplayHud.Delay(3000).Then().FadeOut();
-            Scheduler.AddDelayed(() => map.Unload(), 3000);
             deathContainer.FadeIn(3000);
             Scheduler.AddDelayed(this.Exit, 3000);
         }

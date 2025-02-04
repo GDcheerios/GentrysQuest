@@ -15,6 +15,7 @@ namespace GentrysQuest.Game.Entity
                          || box.GetType() == typeof(VisibilityBox)
                          || box.GetParent().GetType() == typeof(Projectile)
                          || box.GetParent().GetType() == typeof(DrawableWeapon)
+                         || box.GetParent().GetType() == typeof(IntersectingHitBox)
                          || queue.Check(box)).ToList())
             {
                 intersections.Remove(box);
@@ -37,6 +38,7 @@ namespace GentrysQuest.Game.Entity
                          || box.GetType() == typeof(VisibilityBox)
                          || box.GetParent().GetType() == typeof(Projectile)
                          || box.GetParent().GetType() == typeof(DrawableWeapon)
+                         || box.GetParent().GetType() == typeof(IntersectingHitBox)
                          || queue.Check(box)).ToList())
             {
                 intersections.Remove(box);

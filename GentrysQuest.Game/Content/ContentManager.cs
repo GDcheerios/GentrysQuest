@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Content;
 
 public class ContentManager
 {
-    public readonly List<IMap> Maps = new();
+    public readonly List<Map> Maps = new();
     public readonly List<Family> Families = new();
     public readonly List<Enemy> Enemies = new();
     public readonly List<Character> Characters = new();
@@ -63,9 +63,9 @@ public class ContentManager
         #endregion
     }
 
-    public IMap GetMap(string mapName)
+    public Map GetMap(string mapName)
     {
-        foreach (IMap map in Maps)
+        foreach (Map map in Maps)
         {
             if (map.Name == mapName) return map;
         }

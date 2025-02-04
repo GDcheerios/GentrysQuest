@@ -56,7 +56,7 @@ namespace GentrysQuest.Game.Database
 
         /// <summary>
         /// Store current items for later.
-        /// useful for cases like weekly events when we have to use a new loadout.
+        /// useful for cases like weekly events when we have to use a new load out.
         /// </summary>
         public static void Store()
         {

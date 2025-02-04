@@ -20,7 +20,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
         private MainMenuButton playButton;
         private MainMenuButton backButton;
 
-        public PlayerSelectBox(MainMenu mainMenuScreen)
+        public PlayerSelectBox(MainMenuScreen mainMenuScreen)
         {
             guestButton = new TabButton("Guest")
             {

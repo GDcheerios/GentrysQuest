@@ -1,5 +1,4 @@
 using System;
-using osu.Framework.Graphics;
 using osuTK;
 
 namespace GentrysQuest.Game.Location
@@ -7,33 +6,23 @@ namespace GentrysQuest.Game.Location
     public interface IMapObject
     {
         /// <summary>
-        /// If entities can collide with this object
+        /// The size of the object
         /// </summary>
-        bool HasCollider { get; }
+        Vector2 Size { get; set; }
 
         /// <summary>
-        /// The Size of the object
+        /// Where the object is positioned
         /// </summary>
-        Vector2 Size { get; }
+        Vector2 Position { get; set; }
 
         /// <summary>
-        /// The position of the object
+        /// Event handler for when touched
         /// </summary>
-        Vector2 Position { get; }
+        EventHandler OnTouchEvent { get; set; }
 
         /// <summary>
-        /// The colour of the object
+        /// Ran when touched
         /// </summary>
-        Colour4 Colour { get; }
-
-        /// <summary>
-        /// How tought the object is
-        /// </summary>
-        int Toughness { get; }
-
-        /// <summary>
-        /// The method that happens when this object is touched
-        /// </summary>
-        event EventHandler onTouch;
+        void OnTouch() => OnTouchEvent?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -11,9 +11,8 @@
     <ProjectReference Include="..\GentrysQuest.Resources\GentrysQuest.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2025.114.1" />
-    <PackageReference Include="ppy.osu.Framework.iOS" Version="2025.114.1" />
-    <PackageReference Include="Velopack" Version="0.0.583" />
+    <PackageReference Include="ppy.osu.Framework" Version="2025.129.1" />
+    <PackageReference Include="ppy.osu.Framework.iOS" Version="2025.129.1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GentrysQuest.Desktop\game.ico">
@@ -24,6 +23,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Locations\" />
-    <Folder Include="Entity\HitBox\" />
   </ItemGroup>
 </Project>

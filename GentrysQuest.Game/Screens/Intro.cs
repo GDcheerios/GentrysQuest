@@ -3,7 +3,6 @@ using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Audio.Music;
 using GentrysQuest.Game.Content.Music;
-using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -17,15 +16,22 @@ using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
 
-namespace GentrysQuest.Game.Screens.Intro
+namespace GentrysQuest.Game.Screens
 {
     public partial class Intro : Screen
     {
         private Sprite logo;
         private TextFlowContainer framework;
         private ISong introSong;
-        bool isBandits = false;
-        private List<ITextPart> osuText = new List<ITextPart>();
+        private readonly List<ITextPart> osuText = new List<ITextPart>();
+        private readonly MainMenuScreen mainMenu;
+        private readonly bool isBandits;
+
+        public Intro(MainMenuScreen mainMenu, bool isBandits)
+        {
+            this.mainMenu = mainMenu;
+            this.isBandits = isBandits;
+        }
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -60,9 +66,8 @@ namespace GentrysQuest.Game.Screens.Intro
 
         private void setIntroSong()
         {
-            ISong[] songs = new ISong[] { new GentrysThemeOG(), new GentrysThemeSecond() };
-            introSong = songs[MathBase.RandomChoice(2)];
-            isBandits = introSong.Name == "Gentrys Quest Theme OG";
+            if (isBandits) introSong = new GentrysThemeOG();
+            else introSong = new GentrysThemeSecond();
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
@@ -101,7 +106,7 @@ namespace GentrysQuest.Game.Screens.Intro
                 .FadeOut(3000, Easing.Out)
                 .Finally(_ =>
                 {
-                    this.Push(new MainMenu.MainMenu(isBandits));
+                    this.Push(mainMenu);
                 });
         }
 

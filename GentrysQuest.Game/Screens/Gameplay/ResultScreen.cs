@@ -48,7 +48,6 @@ namespace GentrysQuest.Game.Screens.Gameplay
             {
                 GameData.WrapUpStats();
                 GameData.Reset();
-                this.Push(new MainMenu.MainMenu());
             });
 
             foreach (var statistic in GameData.CurrentStats.GetStats().Where(statistic => statistic.Name != "Score"))

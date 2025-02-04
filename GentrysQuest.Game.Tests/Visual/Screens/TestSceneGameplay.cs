@@ -21,7 +21,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         public TestSceneGameplay()
         {
             theGuy = new TestCharacter(1);
-            testWeapon = new Spear();
+            testWeapon = new Bow();
             GameData.EquipCharacter(theGuy);
             GameData.Money.InfiniteMoney = true;
             GameData.Add(theGuy);
@@ -35,7 +35,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
         {
             AddStep("Ready", () => { });
             AddStep("AddEnemy", () => gameplay.AddEnemy(theGuy.Experience.Level.Current.Value));
-            AddSliderStep("Difficulty", 0, 10, 0, i => gameplay.SetDifficulty(i));
+            // AddSliderStep("Difficulty", 0, 10, 0, i => gameplay.SetDifficulty(i));
             AddStep("Damage", (() => theGuy.Damage(10)));
             AddStep("Slow", () => theGuy.AddEffect(new Slowness()));
             AddStep("Burn", () => theGuy.AddEffect(new Burn()));

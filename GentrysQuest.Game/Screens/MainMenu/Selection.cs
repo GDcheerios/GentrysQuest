@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
     public partial class Selection : CompositeDrawable
     {
         private readonly FillFlowContainer navBar;
-        private Bindable<SelectionState> state = new Bindable<SelectionState>(SelectionState.WeeklyEvent);
+        private Bindable<SelectionState> state = new Bindable<SelectionState>(SelectionState.Inventory);
         private MainMenuButton backButton;
         private MainMenuButton weeklyEvent;
         private MainMenuButton travelButton;
@@ -19,7 +19,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
         private InventoryOverlay inventoryOverlay = new InventoryOverlay() { Y = -0.05f };
         private WeeklyEventOverlay weeklyEventOverlay = new WeeklyEventOverlay();
 
-        public Selection(MainMenu parent)
+        public Selection(MainMenuScreen parent)
         {
             RelativeSizeAxes = Axes.Both;
             InternalChildren = new Drawable[]
@@ -110,9 +110,7 @@ namespace GentrysQuest.Game.Screens.MainMenu
 
         public void Appear()
         {
-            state.Value = SelectionState.WeeklyEvent;
             state.TriggerChange();
-            weeklyEventOverlay.Show();
             checkUser();
             this.FadeIn();
             navBar.X = -2;

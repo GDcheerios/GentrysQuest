@@ -4,18 +4,21 @@ using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online.API;
+using GentrysQuest.Game.Screens.MainMenu;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 
-namespace GentrysQuest.Game.Screens.MainMenu
+namespace GentrysQuest.Game.Screens
 {
-    public partial class MainMenu : Screen
+    public partial class MainMenuScreen : Screen
     {
         private Box background;
         private TitleText title;
@@ -23,9 +26,9 @@ namespace GentrysQuest.Game.Screens.MainMenu
         private MainMenuButton quitButton;
         private PlayerSelectBox playerSelect;
         private Selection selection;
-        private readonly bool keepBGM;
+        private readonly bool keepBgm;
 
-        public MainMenu(bool keepIntroSong = false) => keepBGM = keepIntroSong;
+        public MainMenuScreen(bool keepIntroSong = false) => keepBgm = keepIntroSong;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -143,10 +146,26 @@ namespace GentrysQuest.Game.Screens.MainMenu
             title.ScaleTo(1, 200, Easing.Out);
         }
 
+        protected override bool OnKeyDown(KeyDownEvent e)
+        {
+            switch (e.Key)
+            {
+                case Key.Escape:
+                    PressBack();
+                    break;
+
+                case Key.P:
+                    PressPlay();
+                    break;
+            }
+
+            return base.OnKeyDown(e);
+        }
+
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            if (!keepBGM) AudioManager.Instance.ChangeMusic(new GentrysQuestAmbient());
+            if (!keepBgm) AudioManager.Instance.ChangeMusic(new GentrysQuestAmbient());
         }
     }
 }
