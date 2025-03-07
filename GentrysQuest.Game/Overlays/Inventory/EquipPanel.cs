@@ -15,7 +15,7 @@ using osuTK;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
-    public partial class EquipPanel : GQButton
+    public partial class EquipPanel : GqButton
     {
         private readonly Sprite icon;
         private readonly SpriteText name;

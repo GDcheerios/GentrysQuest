@@ -9,10 +9,8 @@ namespace GentrysQuest.Game.Content.Skills
         public override string Description { get; protected set; } = "Brayden's amazing secondary skill";
         public override double Cooldown { get; protected set; } = new Second(2.5);
 
-        public override void Act()
+        protected override void SkillDo()
         {
-            base.Act();
-
             User.GetBase().AddProjectile(new ProjectileParameters
             {
                 Speed = 20,

@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Entity
         /// This is the bonus stat calculation variable.
         /// Use this in entities UpdateStats method to determine its effect on the calculation.
         /// </summary>
-        public int point;
+        public int Point;
 
         public Bindable<double> Default { get; private set; } = new();
         public Bindable<double> Minimum { get; } = new();

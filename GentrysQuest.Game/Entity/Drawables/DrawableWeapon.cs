@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public float Distance;
         public Vector2 PositionHolder;
-        public List<OnHitEffect> OnHitEffects = new();
+        public List<OnHitEffect> OnHitEffects;
         private bool doesDamage;
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
 
-            GetBase().SkillRef.update();
+            GetBase().SkillRef.Update();
 
             if (!AnimationPlaying) return;
 

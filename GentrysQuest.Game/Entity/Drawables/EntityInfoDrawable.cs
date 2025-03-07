@@ -14,7 +14,7 @@ using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
-    public partial class EntityInfoDrawable : GQButton
+    public partial class EntityInfoDrawable : GqButton
     {
         protected EntityIconDrawable icon;
         protected SpriteText name;

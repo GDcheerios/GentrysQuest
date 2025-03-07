@@ -53,19 +53,21 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// How this skill works
         /// </summary>
-        public virtual void Act()
+        public void Act()
         {
-            // base logic
-            if (CanUse())
-            {
-                LastUseTime = GameClock.CurrentTime;
-                UsesAvailable--;
-                PercentToDone = 0;
-                OnAct?.Invoke();
-            }
+            if (!CanUse()) return;
 
-            // override this method to implement logic.
+            LastUseTime = GameClock.CurrentTime;
+            UsesAvailable--;
+            PercentToDone = 0;
+            OnAct?.Invoke();
+            SkillDo();
         }
+
+        /// <summary>
+        /// Defines what the skill does
+        /// </summary>
+        protected abstract void SkillDo();
 
         /// <summary>
         /// The texture mapping for this skill
@@ -74,7 +76,7 @@ namespace GentrysQuest.Game.Entity
 
         public bool CanUse() => PercentToDone == 100 || UsesAvailable > 0;
 
-        public void update()
+        public void Update()
         {
             var elapsedTime = GameClock.CurrentTime - LastUseTime;
 

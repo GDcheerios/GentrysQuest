@@ -8,13 +8,13 @@ using osu.Framework.Input.Events;
 
 namespace GentrysQuest.Game.Graphics
 {
-    public partial class GQButton : Button
+    public partial class GqButton : Button
     {
         public AudioMapping Sounds = new();
         private ISampleStore samples;
         private Action action;
 
-        public GQButton()
+        public GqButton()
         {
             Sounds.Add("Default_Hover", "sounds_menu_dHover.mp3");
             Sounds.Add("Default_Click", "sounds_menu_dClick.mp3");

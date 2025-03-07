@@ -1,16 +1,18 @@
-using GentrysQuest.Game.Online.API.Requests;
-using GentrysQuest.Game.Overlays.LoginOverlay;
+using GentrysQuest.Game.Graphics.UserInterface.Login;
+using GentrysQuest.Game.Online.API.Requests.Account;
 using NUnit.Framework;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
+using osuTK;
 
 namespace GentrysQuest.Game.Tests.Visual.Overlays
 {
     [TestFixture]
     public partial class LoginOverlayTestScene : GentrysQuestTestScene
     {
-        private LoginOverlay loginOverlay;
+        private LoginContainer loginContainer;
         private LoginRequest loginRequest;
 
         public LoginOverlayTestScene()
@@ -20,7 +22,13 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.White
             });
-            Add(loginOverlay = new LoginOverlay());
+            Add(new Container
+            {
+                Size = new Vector2(500, 500),
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Child = loginContainer = new LoginContainer()
+            });
         }
 
         [Test]

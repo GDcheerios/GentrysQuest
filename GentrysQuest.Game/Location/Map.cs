@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.Drawables;
+using osuTK;
 
 namespace GentrysQuest.Game.Location
 {
@@ -7,7 +9,9 @@ namespace GentrysQuest.Game.Location
     {
         public string Name { get; protected set; }
         public List<Family> Families { get; } = new();
-        public List<MapObject> Objects { get; } = new();
+        public List<IMapObject> Objects { get; } = new();
+        public List<DrawableEntity> Npcs { get; } = new();
+        public Vector2 Size { get; protected set; } = Vector2.Zero;
 
         public virtual void Load()
         {

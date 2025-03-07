@@ -13,9 +13,9 @@ namespace GentrysQuest.Game.Entity
                          box.GetType() == typeof(CollisonHitBox)
                          || box.GetType() == typeof(MovementHitBox)
                          || box.GetType() == typeof(VisibilityBox)
+                         || box.GetType() == typeof(IntersectingHitBox)
                          || box.GetParent().GetType() == typeof(Projectile)
                          || box.GetParent().GetType() == typeof(DrawableWeapon)
-                         || box.GetParent().GetType() == typeof(IntersectingHitBox)
                          || queue.Check(box)).ToList())
             {
                 intersections.Remove(box);
@@ -52,15 +52,15 @@ namespace GentrysQuest.Game.Entity
                     return;
                 }
 
-                _ = new HitHandler(sender, hitBox.GetParent(), getStatusEffects(projectile.OnHitEffects), projectile.Damage);
+                if (hitBox.GetParent() is not DrawableEntity receiver) continue;
+
+                _ = new HitHandler(sender, receiver, getStatusEffects(projectile.OnHitEffects), projectile.Damage);
                 projectile.Hits++;
                 queue.Add(hitBox);
             }
         }
 
-        private List<StatusEffect> getStatusEffects(List<OnHitEffect> onHitEffects)
-        {
-            return onHitEffects != null ? (from hitEffect in onHitEffects where hitEffect.Applies() select hitEffect.Effect).ToList() : [];
-        }
+        private List<StatusEffect> getStatusEffects(List<OnHitEffect> onHitEffects) =>
+            onHitEffects != null ? (from hitEffect in onHitEffects where hitEffect.Applies() select hitEffect.Effect).ToList() : [];
     }
 }

@@ -107,6 +107,22 @@ public partial class DrawableEntityBar : CompositeDrawable
         entity.OnEffect += delegate { updateEffects(entity); };
     }
 
+    public void OnlyShowName()
+    {
+        EntityLevel.Hide();
+        HealthProgressBar.Hide();
+        TenacityBar.Hide();
+        HealthText.Hide();
+    }
+
+    public void ShowAll()
+    {
+        EntityLevel.Show();
+        HealthProgressBar.Show();
+        TenacityBar.Show();
+        HealthText.Show();
+    }
+
     private void updateEffects(Entity entity)
     {
         StatusEffects.Clear();

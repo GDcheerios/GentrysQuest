@@ -1,5 +1,4 @@
 using System;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
@@ -390,11 +389,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 int amount = inventoryLevelUpBox.GetAmount();
 
-                if (GameData.Money.CanAfford(amount))
-                {
-                    entity.AddXp(amount * 10);
-                    GameData.Money.Spend(amount);
-                }
+                // if (GameData.Money.CanAfford(amount))
+                // {
+                    // entity.AddXp(amount * 10);
+                    // GameData.Money.Spend(amount);
+                // }
 
                 updateExperienceBar(entity);
             });
@@ -503,11 +502,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     weaponPanel.Hide();
                     levelUpButton.SetAction(delegate
                     {
-                        if (GameData.Money.CanAfford(inventoryLevelUpBox.GetAmount()))
-                        {
-                            entity.AddXp(inventoryLevelUpBox.GetAmount() * 10);
-                            GameData.Money.Spend(inventoryLevelUpBox.GetAmount());
-                        }
+                        // if (GameData.Money.CanAfford(inventoryLevelUpBox.GetAmount()))
+                        // {
+                            // entity.AddXp(inventoryLevelUpBox.GetAmount() * 10);
+                            // GameData.Money.Spend(inventoryLevelUpBox.GetAmount());
+                        // }
 
                         inventoryReference.ExchangeWeapons();
 

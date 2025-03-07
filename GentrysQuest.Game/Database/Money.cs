@@ -1,20 +1,27 @@
+using GentrysQuest.Game.Users;
 using osu.Framework.Bindables;
 
 namespace GentrysQuest.Game.Database
 {
-    public class Money(int amount = 0)
+    public class Money
     {
         public bool InfiniteMoney = false;
+        private IUser user;
 
-        public Bindable<int> Amount { get; private set; } = new(amount);
+        public Bindable<int> Amount;
+
+        public Money(IUser user)
+        {
+            this.user = user;
+            Amount = new Bindable<int>(user.Money);
+        }
 
         public bool CanAfford(int amount) => InfiniteMoney || Amount.Value >= amount;
 
         public void Spend(int amount)
         {
             if (!InfiniteMoney) Amount.Value -= amount;
-            GameData.CurrentStats.AddToStat(StatTypes.MoneySpent, amount);
-            GameData.CurrentStats.AddToStat(StatTypes.MoneySpentOnce, amount);
+            // user.Stats.AddToStat(StatTypes.MoneySpent, amount);
         }
 
         public void Hand(int amount) => Amount.Value += amount;

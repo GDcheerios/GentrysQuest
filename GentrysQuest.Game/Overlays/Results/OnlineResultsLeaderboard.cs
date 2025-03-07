@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GentrysQuest.Game.Database;
-using GentrysQuest.Game.Online.API.Requests;
+using GentrysQuest.Game.Online.API.Requests.Leaderboard;
 using GentrysQuest.Game.Scoring;
 
 namespace GentrysQuest.Game.Overlays.Results
@@ -33,7 +32,8 @@ namespace GentrysQuest.Game.Overlays.Results
         {
             foreach (LeaderboardPlacement placement in placements)
             {
-                if (GameData.CurrentUser.Value != null && placement.Username == GameData.CurrentUser.Value.Name) ScoreText.Text = $"#{placement.Placement}    {placement.Score} score";
+                //TODO: Rewrite
+                // if (GameData.CurrentUser.Value != null && placement.Username == GameData.CurrentUser.Value.Name) ScoreText.Text = $"#{placement.Placement}    {placement.Score} score";
                 AddListing(placement);
             }
         }

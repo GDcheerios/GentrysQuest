@@ -20,6 +20,11 @@ public class WeaponSkill : Skill
     public override string Description { get; protected set; } = "Your weapon";
     public override double Cooldown { get; protected set; }
 
+    protected override void SkillDo()
+    {
+        // forced to implement because I suck at coding
+    }
+
     /// <summary>
     /// Cooldown is normally not to be set from outside
     /// so we have to make an override setter

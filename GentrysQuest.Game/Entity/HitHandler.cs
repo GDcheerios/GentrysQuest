@@ -27,10 +27,10 @@ public class HitHandler
     /// </summary>
     public DamageDetails Details { get; private set; }
 
-    private DrawableEntity receiver;
-    private Entity receiverBase;
-    private Entity sender;
-    private StatTracker stats;
+    private readonly DrawableEntity receiver;
+    private readonly Entity receiverBase;
+    private readonly Entity sender;
+    private readonly StatTracker stats;
 
     public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null, int projectileDamage = 0)
     {
@@ -39,7 +39,7 @@ public class HitHandler
         Details.Sender = this.sender = sender;
         this.receiver = receiver;
         Details.Receiver = receiverBase = receiver.GetBase();
-        stats = GameData.CurrentStats;
+        // stats = GameData.CurrentStats;
 
         // logic
         calcDamage(projectileDamage);
@@ -47,14 +47,17 @@ public class HitHandler
         applyHitCount();
         applyKnockback();
         invokeHitEvent();
-        applyRewards();
+        // applyRewards();
     }
 
     private bool getCritChance() => sender.Stats.CritRate.Current.Value > MathBase.RandomInt(0, 100);
 
     private void calcDamage(int projectileDamage)
     {
-        int damage = (int)(sender.Stats.Attack.GetCurrent() + sender.Weapon!.Damage.GetCurrent());
+        int weaponDamage = 0;
+        if (sender.Weapon != null) weaponDamage = (int)sender.Weapon.Damage.GetCurrent();
+
+        int damage = (int)(sender.Stats.Attack.GetCurrent() + weaponDamage);
         damage += projectileDamage;
         Details.IsCrit = getCritChance();
         if (Details.IsCrit) damage += (int)MathBase.GetPercent(damage, sender.Stats.CritDamage.GetCurrent());
@@ -75,6 +78,8 @@ public class HitHandler
 
     private void applyKnockback()
     {
+        if (sender.Weapon == null) return;
+
         Vector2 direction = MathBase.GetDirection(sender.PositionRef, receiver.Position);
         float knockbackForce = sender.Weapon!.KnockbackMultiplier / receiverBase.KnockbackModifier;
         if (Details.IsCrit) knockbackForce *= 1.5f;
@@ -86,7 +91,7 @@ public class HitHandler
     {
         foreach (var effect in Details.StatusEffects) receiverBase.AddEffect(effect);
         receiverBase.OnHit(Details);
-        sender.Weapon!.HitEntity(Details);
+        if (sender.Weapon != null) sender.Weapon!.HitEntity(Details);
     }
 
     private void applyRewards()
@@ -95,7 +100,6 @@ public class HitHandler
         {
             case Character character:
                 stats.AddToStat(StatTypes.HitsTaken);
-                if (Details.IsCrit) GameData.CurrentStats.AddToStat(StatTypes.CritsTaken);
                 break;
 
             case Entity:
@@ -108,20 +112,20 @@ public class HitHandler
             case Character character:
                 if (receiverBase.IsDead)
                 {
-                    GameData.CurrentStats.AddToStat(StatTypes.Hits);
-                    if (Details.IsCrit) GameData.CurrentStats.AddToStat(StatTypes.Crits);
-                    GameData.CurrentStats.AddToStat(StatTypes.Damage, Details.Damage);
-                    GameData.CurrentStats.AddToStat(StatTypes.MostDamage, Details.Damage);
+                    // GameData.CurrentStats.AddToStat(StatTypes.Hits);
+                    // if (Details.IsCrit) GameData.CurrentStats.AddToStat(StatTypes.Crits);
+                    // GameData.CurrentStats.AddToStat(StatTypes.Damage, Details.Damage);
+                    // GameData.CurrentStats.AddToStat(StatTypes.MostDamage, Details.Damage);
                     int money = receiverBase.GetMoneyReward();
-                    GameData.CurrentStats.AddToStat(StatTypes.MoneyGained, money);
-                    GameData.CurrentStats.AddToStat(StatTypes.MoneyGainedOnce, money);
+                    // GameData.CurrentStats.AddToStat(StatTypes.MoneyGained, money);
+                    // GameData.CurrentStats.AddToStat(StatTypes.MoneyGainedOnce, money);
                     sender.AddXp(receiverBase.GetXpReward());
-                    GameData.Money.Hand(money);
+                    // GameData.Money.Hand(money);
 
                     Weapon.Weapon reward = receiverBase.GetWeaponReward();
-                    if (reward != null) GameData.Add(reward);
+                    // if (reward != null) GameData.Add(reward);
 
-                    GameData.CurrentStats.AddToStat(StatTypes.Kills);
+                    // GameData.CurrentStats.AddToStat(StatTypes.Kills);
                 }
 
                 break;

@@ -1,12 +1,10 @@
-using GentrysQuest.Game.Database;
-
 namespace GentrysQuest.Game.Screens.Gameplay
 {
-    public partial class WeeklyEventGameplay(int? leaderboardId = null) : Gameplay(leaderboardId)
+    public partial class WeeklyEventGameplay(int? leaderboardId = null) : GameplayScreen
     {
         public override void End()
         {
-            GameData.UnStore();
+            // GameData.UnStore();
             base.End();
         }
     }

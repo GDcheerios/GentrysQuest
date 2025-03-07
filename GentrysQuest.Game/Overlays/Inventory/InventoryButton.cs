@@ -9,7 +9,7 @@ using osuTK;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
-    public partial class InventoryButton : GQButton
+    public partial class InventoryButton : GqButton
     {
         private SpriteText buttonText;
         private Action action;

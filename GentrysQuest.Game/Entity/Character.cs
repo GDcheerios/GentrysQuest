@@ -1,4 +1,3 @@
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.IO;
 
 namespace GentrysQuest.Game.Entity;
@@ -13,43 +12,25 @@ public class Character : Entity
         Artifacts.OnChangeArtifact += UpdateStats;
     }
 
-    public void LoadJson(JsonCharacter jsonEntity)
-    {
-        LoadJsonBase(jsonEntity);
-
-        if (jsonEntity.CurrentWeapon != null)
-        {
-            Weapon.Weapon weapon = GameData.Content.GetWeapon(jsonEntity.CurrentWeapon.Name);
-            weapon.LoadJson(jsonEntity.CurrentWeapon);
-            SetWeapon(weapon);
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            JsonArtifact artifact = jsonEntity.Artifacts[i];
-            if (jsonEntity.Artifacts[i] != null) Artifacts.Equip(GameData.LoadArtifactJson(artifact), i);
-        }
-    }
-
     public override void Damage(int amount)
     {
         base.Damage(amount);
-        GameData.CurrentStats.AddToStat(StatTypes.DamageTaken, amount);
-        GameData.CurrentStats.AddToStat(StatTypes.MostDamageTaken, amount);
+        // GameData.CurrentStats.AddToStat(StatTypes.DamageTaken, amount);
+        // GameData.CurrentStats.AddToStat(StatTypes.MostDamageTaken, amount);
     }
 
     public override void Heal(int amount)
     {
         base.Heal(amount);
-        GameData.CurrentStats.AddToStat(StatTypes.HealthGained, (int)(amount * HealingModifier));
-        GameData.CurrentStats.AddToStat(StatTypes.HealthGainedOnce, (int)(amount * HealingModifier));
+        // GameData.CurrentStats.AddToStat(StatTypes.HealthGained, (int)(amount * HealingModifier));
+        // GameData.CurrentStats.AddToStat(StatTypes.HealthGainedOnce, (int)(amount * HealingModifier));
     }
 
     public override void Die()
     {
         base.Die();
-        GameData.CurrentStats.AddToStat(StatTypes.Deaths);
-        GameData.CurrentStats.Log();
+        // GameData.CurrentStats.AddToStat(StatTypes.Deaths);
+        // GameData.CurrentStats.Log();
     }
 
     public override void UpdateStats()
@@ -59,48 +40,48 @@ public class Character : Entity
         int starRating = StarRating.Value;
 
         Stats.Health.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 1000, Stats.Health.point, 250) +
-            CalculatePointBenefit(level * 50, Stats.Health.point, 25) +
-            CalculatePointBenefit(starRating * 15, Stats.Health.point, 25)
+            CalculatePointBenefit(Difficulty * 1000, Stats.Health.Point, 250) +
+            CalculatePointBenefit(level * 50, Stats.Health.Point, 25) +
+            CalculatePointBenefit(starRating * 15, Stats.Health.Point, 25)
         );
 
         Stats.Attack.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 8, Stats.Attack.point, 5) +
-            CalculatePointBenefit(level * 1, Stats.Attack.point, 4) +
-            CalculatePointBenefit(starRating, Stats.Attack.point, 3)
+            CalculatePointBenefit(Difficulty * 8, Stats.Attack.Point, 5) +
+            CalculatePointBenefit(level * 1, Stats.Attack.Point, 4) +
+            CalculatePointBenefit(starRating, Stats.Attack.Point, 3)
         );
 
         Stats.Defense.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 6, Stats.Defense.point, 4) +
-            CalculatePointBenefit(level * 1, Stats.Defense.point, 2) +
-            CalculatePointBenefit(starRating, Stats.Defense.point, 3)
+            CalculatePointBenefit(Difficulty * 6, Stats.Defense.Point, 4) +
+            CalculatePointBenefit(level * 1, Stats.Defense.Point, 2) +
+            CalculatePointBenefit(starRating, Stats.Defense.Point, 3)
         );
 
         Stats.CritRate.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.CritRate.point, 5)
+            CalculatePointBenefit(0, Stats.CritRate.Point, 5)
         );
 
         Stats.CritDamage.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 5, Stats.CritDamage.point, 5) +
-            CalculatePointBenefit(starRating, Stats.CritDamage.point, 2)
+            CalculatePointBenefit(Difficulty * 5, Stats.CritDamage.Point, 5) +
+            CalculatePointBenefit(starRating, Stats.CritDamage.Point, 2)
         );
 
         Stats.Speed.SetDefaultValue(
             1 +
-            CalculatePointBenefit(0, Stats.Speed.point, 0.2)
+            CalculatePointBenefit(0, Stats.Speed.Point, 0.2)
         );
 
         Stats.AttackSpeed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.AttackSpeed.point, 0.3)
+            CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
         );
 
         Stats.RegenSpeed.SetDefaultValue(
             1 +
-            CalculatePointBenefit(0, Stats.RegenSpeed.point, 1)
+            CalculatePointBenefit(0, Stats.RegenSpeed.Point, 1)
         );
 
         Stats.RegenStrength.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 1, Stats.RegenStrength.point, 1)
+            CalculatePointBenefit(Difficulty * 1, Stats.RegenStrength.Point, 1)
         );
 
         if (Weapon != null) AddToStat(Weapon.Buff);

@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Graphics
         private SpriteIcon icon;
         private SpriteText text;
 
-        public LoadingIndicator()
+        public LoadingIndicator(string text = "Loading...")
         {
             Size = new Vector2(84);
             AddInternal(icon = new SpriteIcon
@@ -21,9 +21,9 @@ namespace GentrysQuest.Game.Graphics
                 Origin = Anchor.Centre,
                 Anchor = Anchor.Centre
             });
-            AddInternal(text = new SpriteText
+            AddInternal(this.text = new SpriteText
             {
-                Text = "Loading...",
+                Text = text,
                 RelativeSizeAxes = Axes.Both,
                 RelativePositionAxes = Axes.Both,
                 Anchor = Anchor.BottomCentre,

@@ -3,6 +3,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game.Overlays.Notifications
@@ -10,6 +11,8 @@ namespace GentrysQuest.Game.Overlays.Notifications
     public partial class Notification : CompositeDrawable
     {
         public string Message;
+
+        private static NotificationManager notificationManager;
 
         public Notification(string message, NotificationType type = NotificationType.None)
         {
@@ -38,9 +41,9 @@ namespace GentrysQuest.Game.Overlays.Notifications
             Anchor = Anchor.TopRight;
             Origin = Anchor.TopRight;
             Margin = new MarginPadding { Bottom = 36 };
-            Size = new Vector2(350, 24);
-            InternalChildren = new Drawable[]
-            {
+            Size = new Vector2(500, 26);
+            InternalChildren =
+            [
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -54,8 +57,8 @@ namespace GentrysQuest.Game.Overlays.Notifications
                         Radius = 20,
                         Roundness = 3
                     },
-                    Children = new Drawable[]
-                    {
+                    Children =
+                    [
                         new Box
                         {
                             Colour = new Colour4(0, 0, 0, 180),
@@ -71,9 +74,15 @@ namespace GentrysQuest.Game.Overlays.Notifications
                             Truncate = false,
                             Font = FontUsage.Default.With(size: 20)
                         }
-                    }
+                    ]
                 }
-            };
+            ];
+
+            Logger.Log($"Notification: {message}");
+            notificationManager?.AddNotification(this);
         }
+
+        public static Notification Create(string message, NotificationType type = NotificationType.None) => new(message, type);
+        public static void ProvideManager(NotificationManager manager) => notificationManager = manager;
     }
 }

@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Linq;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
@@ -199,7 +198,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 },
             };
             Origin = Anchor.Centre;
-            itemContainer.AddFromList(GameData.Characters);
+            // itemContainer.AddFromList(GameData.Characters);
             displayingSection.BindValueChanged(_ =>
             {
                 changeState();
@@ -287,16 +286,16 @@ namespace GentrysQuest.Game.Overlays.Inventory
                                     Weapon weapon = (Weapon)entityInfoDrawable.entity;
                                     Weapon? weaponFromCharacter = equippingToCharacter?.Weapon;
                                     equippingToCharacter?.SetWeapon(weapon);
-                                    if (weaponFromCharacter != null) GameData.Add(weaponFromCharacter);
-                                    GameData.Weapons.Remove(weapon);
+                                    // if (weaponFromCharacter != null) GameData.Add(weaponFromCharacter);
+                                    // GameData.Weapons.Remove(weapon);
                                 }
                                 else
                                 {
                                     Artifact artifact = (Artifact)entityInfoDrawable.entity;
                                     Artifact? artifactFromCharacter = equippingToCharacter?.Artifacts.Get((int)artifactSelectionIndex);
                                     equippingToCharacter?.Artifacts.Equip(artifact, (int)artifactSelectionIndex);
-                                    if (artifactFromCharacter != null) GameData.Artifacts.Add(artifactFromCharacter);
-                                    GameData.Artifacts.Remove(artifact);
+                                    // if (artifactFromCharacter != null) GameData.Artifacts.Add(artifactFromCharacter);
+                                    // GameData.Artifacts.Remove(artifact);
                                 }
 
                                 swapCategory(InventoryDisplay.Characters);
@@ -312,7 +311,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 selectionMode = SelectionModes.Single;
                 displayingSection.Value = InventoryDisplay.Characters;
             });
-            GameData.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
+            // GameData.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
             Hide();
         }
 
@@ -346,17 +345,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
             switch (displayingSection.Value)
             {
                 case InventoryDisplay.Characters:
-                    itemContainer.AddFromList(GameData.Characters);
+                    // itemContainer.AddFromList(GameData.Characters);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Artifacts:
-                    itemContainer.AddFromList(GameData.Artifacts);
+                    // itemContainer.AddFromList(GameData.Artifacts);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Weapons:
-                    itemContainer.AddFromList(GameData.Weapons);
+                    // itemContainer.AddFromList(GameData.Weapons);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
             }
@@ -404,7 +403,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedWeapon)
                 {
                     FocusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
-                    GameData.Weapons.Remove((Weapon)entityInfoDrawable.entity);
+                    // GameData.Weapons.Remove((Weapon)entityInfoDrawable.entity);
                 }
             }
 
@@ -438,7 +437,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void RemoveWeapon()
         {
-            GameData.Weapons.Add(equippingToCharacter.Weapon);
+            // GameData.Weapons.Add(equippingToCharacter.Weapon);
             equippingToCharacter.SetWeapon(null);
             itemInfo.DisplayItem(equippingToCharacter);
         }
@@ -458,9 +457,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (FocusedArtifact.Experience.CurrentLevel() < FocusedArtifact.StarRating * 4)
                 {
                     FocusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
-                    GameData.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
+                    // GameData.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
                 }
-                else NotificationContainer.Instance.AddNotification(new Notification("Artifact is max level", NotificationType.Informative));
+                else Notification.Create("Artifact is max level", NotificationType.Informative);
             }
 
             changeState();

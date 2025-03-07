@@ -35,7 +35,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The overhead of the entity
         /// </summary>
-        private readonly DrawableEntityBar entityBar;
+        public readonly DrawableEntityBar EntityBar;
 
         /// <summary>
         /// The visual weapon
@@ -43,8 +43,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableWeapon Weapon;
 
         public AffiliationType Affiliation { get; set; }
-        public List<Particle> Particles { get; set; } = new();
-        public List<Projectile> QueuedProjectiles { get; set; } = new();
+        public List<Particle> Particles { get; set; } = [];
+        public List<Projectile> QueuedProjectiles { get; set; } = [];
 
         public HitBox HitBox { get; set; }
         public CollisonHitBox ColliderBox;
@@ -110,18 +110,18 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
-                entityBar = new DrawableEntityBar(Entity),
+                EntityBar = new DrawableEntityBar(Entity),
                 HitBox,
                 ColliderBox
             };
 
             if (!showInfo)
             {
-                entityBar.HealthProgressBar.Hide();
-                entityBar.HealthText.Hide();
-                entityBar.EntityLevel.Hide();
-                entityBar.StatusEffects.Anchor = Anchor.CentreLeft;
-                entityBar.StatusEffects.Origin = Anchor.CentreLeft;
+                EntityBar.HealthProgressBar.Hide();
+                EntityBar.HealthText.Hide();
+                EntityBar.EntityLevel.Hide();
+                EntityBar.StatusEffects.Anchor = Anchor.CentreLeft;
+                EntityBar.StatusEffects.Origin = Anchor.CentreLeft;
             }
 
             if (Entity.Weapon != null) Weapon = new DrawableWeapon(this, Affiliation);
@@ -199,7 +199,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             float value = (float)(Clock.ElapsedFrameTime * speed);
             ColliderBox.Position += (direction * 0.05f) * value;
 
-            if (!HitBoxScene.Collides(ColliderBox)) OnMove?.Invoke(direction, speed);
+            if (!HitBoxScene.Collides(ColliderBox)) { OnMove?.Invoke(direction, speed); }
         }
 
         /// <summary>
@@ -211,13 +211,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             if (!Entity.CanAttack) return;
 
             double angle = MathBase.GetAngle(Position + CENTER, position);
-            Weapon.OnClick((float)angle + 90);
+            Weapon?.OnClick((float)angle + 90);
         }
 
-        public virtual void OnRelease()
-        {
-            Weapon.OnRelease();
-        }
+        public virtual void OnRelease() => Weapon?.OnRelease();
 
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage
@@ -269,6 +266,9 @@ namespace GentrysQuest.Game.Entity.Drawables
                 ApplyKnockback(Direction, (int)(BASE_DODGE_SPEED + GetSpeed()), DODGE_TIME, KnockbackType.StopsMovement);
             }
         }
+
+        public void HideBar() => EntityBar.Hide();
+        public void ShowBar() => EntityBar.Show();
 
         private void setDrawableWeapon()
         {
@@ -330,9 +330,9 @@ namespace GentrysQuest.Game.Entity.Drawables
             Entity.Affect(Clock.CurrentTime);
 
             // Skills logic
-            Entity.Secondary?.update();
-            Entity.Utility?.update();
-            Entity.Ultimate?.update();
+            Entity.Secondary?.Update();
+            Entity.Utility?.Update();
+            Entity.Ultimate?.Update();
 
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
@@ -355,6 +355,12 @@ namespace GentrysQuest.Game.Entity.Drawables
             if (Entity.Stats.RegenSpeed.Current.Value == 0) return;
 
             if (elapsedRegenTime * Entity.Stats.RegenSpeed.Current.Value >= 1000) regen();
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            HitBoxScene.Remove(HitBox);
+            base.Dispose(isDisposing);
         }
     }
 }

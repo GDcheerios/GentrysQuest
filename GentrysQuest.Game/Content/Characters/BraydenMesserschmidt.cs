@@ -14,18 +14,18 @@ namespace GentrysQuest.Game.Content.Characters
             StarRating = new StarRating(5);
             Description = "An osu player who formed a contract with ppy(Dean Herbert) to not talk to females.";
 
-            Stats.Speed.point = 1;
-            Stats.AttackSpeed.point = 1;
-            Stats.CritRate.point = 1;
-            Stats.CritDamage.point = 1;
+            Stats.Speed.Point = 1;
+            Stats.AttackSpeed.Point = 1;
+            Stats.CritRate.Point = 1;
+            Stats.CritDamage.Point = 1;
 
             Secondary = new CircleThrow();
             Utility = new Teleport();
 
             OnUpdateStats += checkWeapon;
 
-            TextureMapping.Add("Icon", "brayden_idle.png");
-            TextureMapping.Add("Idle", "brayden_idle.png");
+            TextureMapping.Add("Icon", "characters_brayden_idle.png");
+            TextureMapping.Add("Idle", "characters_brayden_idle.png");
 
             AudioMapping.Add("Spawn", "Brayden_Messerschmidt_Spawn.mp3");
             AudioMapping.Add("Damage", "Brayden_Messerschmidt_Damage.mp3");

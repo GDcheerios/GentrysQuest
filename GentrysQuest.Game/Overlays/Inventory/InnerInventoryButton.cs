@@ -7,7 +7,7 @@ using osu.Framework.Input.Events;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
-    public partial class InnerInventoryButton : GQButton
+    public partial class InnerInventoryButton : GqButton
     {
         private readonly Box backgroundBox;
         public readonly SpriteText Text;

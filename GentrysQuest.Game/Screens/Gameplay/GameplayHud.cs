@@ -74,7 +74,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 {
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
-                    Position = new Vector2(0, 0),
+                    RelativePositionAxes = Axes.Both,
                     Size = new Vector2(500, 200),
                     Margin = new MarginPadding { Right = 30, Bottom = 20 }
                 }
@@ -110,6 +110,18 @@ namespace GentrysQuest.Game.Screens.Gameplay
             levelText.Text = $"Level {experience.Level.Current}";
             experienceBar.Current = experience.Xp.Current.Value;
             experienceBar.Max = experience.Xp.Requirement.Value;
+        }
+
+        public void Disappear()
+        {
+            barsContainer.MoveToY(1, 250, Easing.OutQuint);
+            skillOverlay.MoveToY(1, 250, Easing.OutQuint);
+        }
+
+        public void Appear()
+        {
+            barsContainer.MoveToY(0, 250, Easing.OutQuint);
+            skillOverlay.MoveToY(0, 250, Easing.OutQuint);
         }
     }
 }

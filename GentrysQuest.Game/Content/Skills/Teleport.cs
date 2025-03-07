@@ -10,10 +10,8 @@ namespace GentrysQuest.Game.Content.Skills
         public override double Cooldown { get; protected set; } = new Second(7);
         public override int MaxStack { get; protected set; } = 3;
 
-        public override void Act()
+        protected override void SkillDo()
         {
-            base.Act();
-
             User.ApplyKnockback(User.Direction, 20, 100, KnockbackType.StopsMovement);
         }
     }

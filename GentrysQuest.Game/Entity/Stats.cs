@@ -78,7 +78,7 @@
 
             foreach (Stat stat in statGrouping)
             {
-                points += stat.point;
+                points += stat.Point;
             }
 
             return points;

@@ -27,7 +27,7 @@ public partial class DrawablePlayableEntity : DrawableEntity
     public DrawablePlayableEntity(Character entity)
         : base(entity, AffiliationType.Player, false)
     {
-        entity.OnLevelUp += delegate { NotificationContainer.Instance.AddNotification(new Notification("Leveled up!", NotificationType.Informative)); };
+        entity.OnLevelUp += delegate { Notification.Create("Leveled up!", NotificationType.Informative); };
         if (entity.Secondary != null) entity.Secondary.User = this;
         if (entity.Utility != null) entity.Utility.User = this;
         if (entity.Ultimate != null) entity.Ultimate.User = this;

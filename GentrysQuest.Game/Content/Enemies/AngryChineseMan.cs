@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Content.Enemies
 
         public AngryChineseMan()
         {
-            Stats.Speed.point = 2;
+            Stats.Speed.Point = 2;
 
             TextureMapping.Add("Idle", "enemies_angry_chinese_man_idle.gif");
 

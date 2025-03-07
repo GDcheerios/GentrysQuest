@@ -1,4 +1,3 @@
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Cursor;
@@ -31,7 +30,6 @@ namespace GentrysQuest.Game.Tests.Visual
 
         public GentrysQuestTestScene()
         {
-            GameData.Reset();
             HitBoxScene.Clear();
         }
     }

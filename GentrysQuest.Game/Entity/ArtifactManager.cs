@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GentrysQuest.Game.Database;
+using GentrysQuest.Game.Content;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -45,9 +45,9 @@ namespace GentrysQuest.Game.Entity
 
             foreach (string name in familyCount.Keys)
             {
-                GameData.Content.GetFamily(name).FourSetBuff?.RemoveFromCharacter(parent);
-                if (familyCount[name] >= 2) GameData.Content.GetFamily(name).TwoSetBuff?.ApplyToCharacter(parent);
-                if (familyCount[name] >= 4) GameData.Content.GetFamily(name).FourSetBuff?.ApplyToCharacter(parent);
+                ContentManager.GetFamily(name).FourSetBuff?.RemoveFromCharacter(parent);
+                if (familyCount[name] >= 2) ContentManager.GetFamily(name).TwoSetBuff?.ApplyToCharacter(parent);
+                if (familyCount[name] >= 4) ContentManager.GetFamily(name).FourSetBuff?.ApplyToCharacter(parent);
                 if (familyCount[name] == 5) parent.Stats.Boost((int)averageRating);
             }
         }
@@ -56,7 +56,7 @@ namespace GentrysQuest.Game.Entity
 
         public void Remove(int index)
         {
-            GameData.Artifacts.Add(artifacts[index]);
+            // user.AddItem(artifacts[index]);
             artifacts[index].Holder = null;
             artifacts[index] = null;
             OnChangeArtifact?.Invoke();

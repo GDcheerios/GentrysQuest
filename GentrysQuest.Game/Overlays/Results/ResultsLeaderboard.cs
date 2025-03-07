@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Scoring;
 using GentrysQuest.Game.Screens.Gameplay.Results;
 using osu.Framework.Graphics;
@@ -40,7 +39,7 @@ namespace GentrysQuest.Game.Overlays.Results
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
-                                Text = $"{(int)GameData.CurrentStats.GetStat(StatTypes.Score).Value} Score",
+                                Text = $"0 Score", //TODO: rewrite
                                 Colour = Colour4.Black,
                                 Font = FontUsage.Default.With(size: 42)
                             },

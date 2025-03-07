@@ -1,7 +1,9 @@
+using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Families;
-using GentrysQuest.Game.Database;
+using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Overlays.Inventory;
+using GentrysQuest.Game.Users;
 using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -13,6 +15,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
     public partial class InventoryOverlayTestScene : GentrysQuestTestScene
     {
         private InventoryOverlay inventoryOverlay;
+        private GuestUser user;
 
         public InventoryOverlayTestScene()
         {
@@ -21,26 +24,18 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
                 RelativeSizeAxes = Axes.Both,
                 Colour = ColourInfo.GradientVertical(Colour4.Black, Colour4.White)
             });
+        }
 
-            GameData.Money.InfiniteMoney = true;
-
-            GameData.Add(new TestCharacter(1));
-            GameData.Add(new TestCharacter(2));
-            GameData.Add(new TestCharacter(3));
-            GameData.Add(new TestCharacter(4));
-            GameData.Add(new TestCharacter(5));
-
-            foreach (var character in GameData.Content.Characters)
+        [Test]
+        public void Initialize()
+        {
+            AddStep("Load Content", ContentManager.LoadContent);
+            AddStep("Create user", () => { user = GuestUser.Create("test"); });
+            AddStep("Give infinite money", () =>
             {
-                GameData.Add(character);
-            }
-
-            foreach (var weapon in GameData.Content.Weapons)
-            {
-                GameData.Add(weapon);
-            }
-
-            Add(inventoryOverlay = new InventoryOverlay());
+                user.MoneyHandler.InfiniteMoney = true;
+            });
+            AddStep("Create Inventory", () => { inventoryOverlay = new InventoryOverlay(); });
         }
 
         [Test]
@@ -53,7 +48,9 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [Test]
         public void Collection()
         {
-            AddStep("Add Artifact", () => GameData.Add(new TestArtifact()));
+            AddStep("Add Artifact", () => user.AddItem(new TestArtifact()));
+            AddStep("Add Weapon", () => user.AddItem(new Sword()));
+            AddStep("Add Character", () => user.AddItem(new TestCharacter(1)));
         }
     }
 }

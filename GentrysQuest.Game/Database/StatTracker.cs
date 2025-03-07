@@ -6,30 +6,30 @@ namespace GentrysQuest.Game.Database
 {
     public class StatTracker
     {
-        private readonly List<IStatistic> stats = new();
+        public List<IStatistic> Stats { get; private set; } = new();
         public readonly ScoreStatistic ScoreStatistic;
 
         public StatTracker()
         {
             ScoreStatistic = new ScoreStatistic();
-            stats.Add(ScoreStatistic);
-            stats.Add(new Statistic(StatTypes.Hits, 10));
-            stats.Add(new Statistic(StatTypes.Damage, 0.1f));
-            stats.Add(new MaxStatistic(StatTypes.MostDamage));
-            stats.Add(new Statistic(StatTypes.Crits, 20));
-            stats.Add(new Statistic(StatTypes.Kills, 100));
-            stats.Add(new Statistic(StatTypes.DamageTaken, 0.1f));
-            stats.Add(new MaxStatistic(StatTypes.MostDamageTaken));
-            stats.Add(new Statistic(StatTypes.HitsTaken, 2));
-            stats.Add(new MaxStatistic(StatTypes.ConsecutiveCrits));
-            stats.Add(new Statistic(StatTypes.CritsTaken));
-            stats.Add(new Statistic(StatTypes.Deaths));
-            stats.Add(new MaxStatistic(StatTypes.MoneySpentOnce));
-            stats.Add(new MaxStatistic(StatTypes.MoneyGainedOnce));
-            stats.Add(new Statistic(StatTypes.MoneySpent, 1));
-            stats.Add(new Statistic(StatTypes.MoneyGained));
-            stats.Add(new Statistic(StatTypes.HealthGained, 0.5f));
-            stats.Add(new MaxStatistic(StatTypes.HealthGainedOnce));
+            Stats.Add(ScoreStatistic);
+            Stats.Add(new Statistic(StatTypes.Hits, 10));
+            Stats.Add(new Statistic(StatTypes.Damage, 0.1f));
+            Stats.Add(new MaxStatistic(StatTypes.MostDamage));
+            Stats.Add(new Statistic(StatTypes.Crits, 20));
+            Stats.Add(new Statistic(StatTypes.Kills, 100));
+            Stats.Add(new Statistic(StatTypes.DamageTaken, 0.1f));
+            Stats.Add(new MaxStatistic(StatTypes.MostDamageTaken));
+            Stats.Add(new Statistic(StatTypes.HitsTaken, 2));
+            Stats.Add(new MaxStatistic(StatTypes.ConsecutiveCrits));
+            Stats.Add(new Statistic(StatTypes.CritsTaken));
+            Stats.Add(new Statistic(StatTypes.Deaths));
+            Stats.Add(new MaxStatistic(StatTypes.MoneySpentOnce));
+            Stats.Add(new MaxStatistic(StatTypes.MoneyGainedOnce));
+            Stats.Add(new Statistic(StatTypes.MoneySpent, 1));
+            Stats.Add(new Statistic(StatTypes.MoneyGained));
+            Stats.Add(new Statistic(StatTypes.HealthGained, 0.5f));
+            Stats.Add(new MaxStatistic(StatTypes.HealthGainedOnce));
         }
 
         private void addToStatPattern(IStatistic statistic, int amount)
@@ -44,9 +44,9 @@ namespace GentrysQuest.Game.Database
             statistic.Add();
         }
 
-        public StatTracker(List<IStatistic> stats) => this.stats = stats;
-        public IStatistic GetStat(int index) => stats[index];
-        public IStatistic GetStat(StatTypes type) => stats.FirstOrDefault(t => t.StatType == type);
+        public StatTracker(List<IStatistic> stats) => this.Stats = stats;
+        public IStatistic GetStat(int index) => Stats[index];
+        public IStatistic GetStat(StatTypes type) => Stats.FirstOrDefault(t => t.StatType == type);
         public void AddToStat(StatTypes type, int amount) => addToStatPattern(GetStat(type), amount);
         public void AddToStat(StatTypes type) => addToStatPattern(GetStat(type));
 
@@ -56,9 +56,9 @@ namespace GentrysQuest.Game.Database
         /// <param name="otherStats">The other stat tracker</param>
         public void Merge(StatTracker otherStats)
         {
-            for (int statIndex = 0; statIndex < stats.Count; statIndex++)
+            for (int statIndex = 0; statIndex < Stats.Count; statIndex++)
             {
-                stats[statIndex].Result(otherStats.GetStat(statIndex));
+                Stats[statIndex].Result(otherStats.GetStat(statIndex));
             }
         }
 
@@ -71,9 +71,9 @@ namespace GentrysQuest.Game.Database
         {
             List<IStatistic> newStats = new();
 
-            for (int statIndex = 0; statIndex < stats.Count; statIndex++)
+            for (int statIndex = 0; statIndex < Stats.Count; statIndex++)
             {
-                newStats.Add(compare(stats[statIndex], otherStats.GetStat(statIndex)));
+                newStats.Add(compare(Stats[statIndex], otherStats.GetStat(statIndex)));
             }
 
             return new StatTracker(newStats);
@@ -84,16 +84,16 @@ namespace GentrysQuest.Game.Database
             return (stat1.Value > stat2.Value) ? stat1 : stat2;
         }
 
-        public List<IStatistic> GetStats() => stats;
+        public List<IStatistic> GetStats() => Stats;
 
         /// <summary>
         /// Logs stat summary to the console
         /// </summary>
         public void Log()
         {
-            for (int statIndex = 0; statIndex < stats.Count; statIndex++)
+            for (int statIndex = 0; statIndex < Stats.Count; statIndex++)
             {
-                Console.WriteLine(stats[statIndex].Summary());
+                Console.WriteLine(Stats[statIndex].Summary());
             }
         }
     }

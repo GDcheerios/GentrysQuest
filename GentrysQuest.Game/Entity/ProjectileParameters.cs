@@ -35,7 +35,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// The amount of times the projectile can pass through enemies
         /// </summary>
-        public int PassthroughAmount = 0;
+        public int PassthroughAmount = 1;
 
         /// <summary>
         /// projectile damage
