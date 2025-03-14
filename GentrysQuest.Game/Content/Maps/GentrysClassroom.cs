@@ -161,6 +161,8 @@ namespace GentrysQuest.Game.Content.Maps
 
                         Npcs.Add(studentEntity);
 
+                        studentEntity.GetBase().Stats.Defense.SetDefaultValue(9999999);
+
                         studentEntity.HideBar();
 
                         counter++;

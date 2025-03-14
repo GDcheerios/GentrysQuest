@@ -17,6 +17,7 @@ namespace GentrysQuest.Game.Entity
         public bool CanAttack = true;
         public bool CanMove = true;
         public bool Invincible = false;
+        public bool CanDie = true;
         public int CurrentTenacity = 0;
         public Vector2 PositionRef;
 
@@ -101,6 +102,8 @@ namespace GentrysQuest.Game.Entity
 
         public virtual void Die()
         {
+            if (CanDie) return;
+
             CanMove = false;
             CanAttack = false;
             IsDead = true;

@@ -1,13 +1,16 @@
+using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity.Drawables;
+using GentrysQuest.Game.Graphics.Dialogue;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Screens.Gameplay;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
 
@@ -19,9 +22,20 @@ namespace GentrysQuest.Game.Screens
         private DrawableEnemyEntity enemy;
         private GameplayHud gameplayHud;
 
+        private SpriteText keyMovementText;
+
         private readonly MapScene scene = new();
 
-        private readonly SceneScript script = new();
+        private readonly SceneScript introScript = new();
+        private readonly SceneScript afterCombatScript = new();
+
+        private bool ninetyPercent = false;
+        private bool eightyPercent = false;
+        private bool fiftyPercent = false;
+        private bool twentyFivePercent = false;
+        private bool tenPercent = false;
+        private bool fivePercent = false;
+        private bool onePercent = false;
 
         public Tutorial()
         {
@@ -29,17 +43,18 @@ namespace GentrysQuest.Game.Screens
 
             gameplayHud = new GameplayHud();
 
-            #region Script
+            #region introScript
 
-            script.AddEvent("Fade In", new SceneEvent
+            introScript.AddEvent("Fade In", new SceneEvent
             {
                 Event =
                     () =>
                     {
                         scene.GetMap().FadeOut().Then().FadeIn(1000);
+                        AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
                     }
             });
-            script.AddEvent("Pan Up", new SceneEvent
+            introScript.AddEvent("Pan Up", new SceneEvent
             {
                 Event =
                     () =>
@@ -48,7 +63,7 @@ namespace GentrysQuest.Game.Screens
                     },
                 Delay = 1100
             });
-            script.AddEvent("G-Dialogue1", new SceneEvent
+            introScript.AddEvent("G-Dialogue1", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
@@ -59,7 +74,7 @@ namespace GentrysQuest.Game.Screens
                 Duration = 7000,
                 Delay = 7000
             });
-            script.AddEvent("C-Dialogue", new SceneEvent
+            introScript.AddEvent("C-Dialogue", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
@@ -70,7 +85,7 @@ namespace GentrysQuest.Game.Screens
                 Duration = 2000,
                 Delay = 2000
             });
-            script.AddEvent("G-Dialogue2", new SceneEvent
+            introScript.AddEvent("G-Dialogue2", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
@@ -81,12 +96,12 @@ namespace GentrysQuest.Game.Screens
                 Duration = 2000,
                 Delay = 2000
             });
-            script.AddEvent("Power Outage", new SceneEvent
+            introScript.AddEvent("Power Outage", new SceneEvent
             {
                 Duration = 2000, Delay = 2000,
                 Event = () => { scene.FadeTo(0); }
             });
-            script.AddEvent("G-Dialogue3", new SceneEvent
+            introScript.AddEvent("G-Dialogue3", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
@@ -96,7 +111,7 @@ namespace GentrysQuest.Game.Screens
                 },
                 Duration = 2000
             });
-            script.AddEvent("G-Dialogue4", new SceneEvent
+            introScript.AddEvent("G-Dialogue4", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
@@ -106,7 +121,7 @@ namespace GentrysQuest.Game.Screens
                 },
                 Duration = 1000
             });
-            script.AddEvent("Evil Gentry Entrance", new SceneEvent
+            introScript.AddEvent("Evil Gentry Entrance", new SceneEvent
             {
                 Event = () =>
                 {
@@ -121,7 +136,7 @@ namespace GentrysQuest.Game.Screens
                 },
                 Delay = 10
             });
-            script.AddEvent("Pan to player", new SceneEvent
+            introScript.AddEvent("Pan to player", new SceneEvent
             {
                 Event = () =>
                 {
@@ -130,27 +145,147 @@ namespace GentrysQuest.Game.Screens
                     enemy.MoveTo(new Vector2(enemy.X + 200, 0), 1000);
                 }
             });
-            script.AddEvent("Initiate Combat Tutorial", new SceneEvent
+            introScript.AddEvent("Initiate Combat Tutorial", new SceneEvent
             {
                 Event = () =>
                 {
-                    gameplayHud.Appear();
-                    gameplayHud.SetEntity(player.GetBase());
+                    Scheduler.AddDelayed(() =>
+                        {
+                            gameplayHud.Appear();
+                            gameplayHud.SetEntity(player.GetBase());
+                            keyMovementText.MoveToY(0.05f, 250, Easing.OutQuint).Then()
+                                           .Delay(3000).Then()
+                                           .FadeOut(500, Easing.OutQuint);
+                        }, 250
+                    );
 
                     player.GetBase().SetWeapon(new Sword());
                     player.EntityBar.ShowAll();
                     player.GetBase().RemoveEffect("Paused");
                     player.SetupClickContainer();
+                    player.Weapon.GetBase().OnHitEntity += (details) =>
+                    {
+                        if (details.GetHitAmount() == 1 && details.Receiver == enemy.GetBase())
+                        {
+                            displayDialogue(new DialogueEvent
+                            {
+                                Author = "Evil Gentry",
+                                Text = "You really wanna try and fight me?",
+                                Duration = 1000
+                            });
+                        }
+                    };
+                    // player.GetBase().OnDeath += () =>
 
+                    enemy.GetBase().CanDie = false;
                     enemy.GetBase().SetWeapon(new Sword());
                     enemy.EntityBar.ShowAll();
                     enemy.FollowEntity(player);
-                    enemy.GetBase().RemoveEffect("Paused");
+                    enemy.GetBase().OnDamage += _ => checkEnemyHealth();
+                    Scheduler.AddDelayed(() => { enemy.GetBase().RemoveEffect("Paused"); }, 1000);
                 },
                 Delay = 1000
             });
 
             #endregion
+
+            #region afterCombatScript
+
+            afterCombatScript.AddEvent("AfterFight", new SceneEvent
+            {
+                Event = () =>
+                {
+                    gameplayHud.Disappear();
+                }
+            });
+
+            #endregion
+        }
+
+        private void checkEnemyHealth()
+        {
+            int currentHealth = (int)enemy.GetBase().Stats.Health.Current.Value;
+            float healthPercent = (float)(currentHealth / enemy.GetBase().Stats.Health.Total());
+
+            switch (healthPercent)
+            {
+                case var x when x <= 0.01f && !onePercent:
+                    onePercent = true;
+                    break;
+
+                case var x when x <= 0.05f && !fivePercent:
+                    fivePercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "You shouldn't be this strong.",
+                        Duration = 1000
+                    });
+                    break;
+
+                case var x when x <= 0.1f && !tenPercent:
+                    tenPercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "Not a chance",
+                        Duration = 1000
+                    });
+                    break;
+
+                case var x when x <= 0.25f && !twentyFivePercent:
+                    twentyFivePercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "No",
+                        Duration = 1000
+                    });
+                    break;
+
+                case var x when x <= 0.5f && !fiftyPercent:
+                    fiftyPercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "You're pretty strong",
+                        Duration = 1000
+                    });
+                    break;
+
+                case var x when x <= 0.8f && !eightyPercent:
+                    eightyPercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "...",
+                        Duration = 1000
+                    });
+                    break;
+
+                case var x when x <= 0.9f && !ninetyPercent:
+                    ninetyPercent = true;
+                    displayDialogue(new DialogueEvent
+                    {
+                        Author = "Evil Gentry",
+                        Text = "You've got some fight in you.",
+                        Duration = 1000
+                    });
+                    break;
+            }
+        }
+
+        private void runAfterCombatScript()
+        {
+
+        }
+
+        private void displayDialogue(DialogueEvent dialogueEvent)
+        {
+            AutoDialogueBox dialogueBox = new AutoDialogueBox(dialogueEvent.Author, dialogueEvent.Text);
+            AddInternal(dialogueBox);
+            Scheduler.AddDelayed(() => { dialogueBox.FadeOut(500); }, dialogueEvent.Duration + 500);
+            Scheduler.AddDelayed(() => { RemoveInternal(dialogueBox, true); }, dialogueEvent.Duration + 1000);
         }
 
         [BackgroundDependencyLoader]
@@ -160,13 +295,24 @@ namespace GentrysQuest.Game.Screens
             AddInternal(gameplayHud);
             gameplayHud.Disappear();
 
+            AddInternal(keyMovementText = new SpriteText
+            {
+                RelativePositionAxes = Axes.Both,
+                X = 0.05f,
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopLeft,
+                Text = "Use WASD to move around.",
+                Font = FontUsage.Default.With(size: 50),
+                Y = -0.05f
+            });
+
             scene.GetMap().Y = -400;
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
         {
             base.OnEntering(e);
-            script.Start(Overlay, Scheduler);
+            introScript.Start(Overlay, Scheduler);
         }
     }
 }

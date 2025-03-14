@@ -186,7 +186,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
                 case KnockbackType.Stuns:
                     Entity.AddEffect(new Stun(duration + 300));
-                    Weapon.RestWeapon();
+                    Weapon?.RestWeapon();
                     break;
 
                 default:
