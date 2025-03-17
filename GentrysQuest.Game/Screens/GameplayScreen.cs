@@ -94,7 +94,6 @@ namespace GentrysQuest.Game.Screens
                     RelativeSizeAxes = Axes.Both
                 },
                 gameplayHud = new GameplayHud(),
-                inventoryOverlay = new InventoryOverlay(),
                 scoreFlowContainer = new TextFlowContainer
                 {
                     AutoSizeAxes = Axes.Both,

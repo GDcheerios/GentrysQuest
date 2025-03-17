@@ -5,6 +5,7 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Overlays.Notifications;
+using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -62,8 +63,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public Weapon FocusedWeapon;
         private int? artifactSelectionIndex;
 
-        public InventoryOverlay()
+        private IUser user { get; set; }
+
+        public InventoryOverlay(IUser user)
         {
+            this.user = user;
             RelativeSizeAxes = Axes.Both;
             RelativePositionAxes = Axes.Both;
             Anchor = Anchor.Centre;
@@ -198,7 +202,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 },
             };
             Origin = Anchor.Centre;
-            // itemContainer.AddFromList(GameData.Characters);
             displayingSection.BindValueChanged(_ =>
             {
                 changeState();
@@ -286,16 +289,16 @@ namespace GentrysQuest.Game.Overlays.Inventory
                                     Weapon weapon = (Weapon)entityInfoDrawable.entity;
                                     Weapon? weaponFromCharacter = equippingToCharacter?.Weapon;
                                     equippingToCharacter?.SetWeapon(weapon);
-                                    // if (weaponFromCharacter != null) GameData.Add(weaponFromCharacter);
-                                    // GameData.Weapons.Remove(weapon);
+                                    if (weaponFromCharacter != null) user.AddItem(weaponFromCharacter);
+                                    user.Weapons.Remove(weapon);
                                 }
                                 else
                                 {
                                     Artifact artifact = (Artifact)entityInfoDrawable.entity;
                                     Artifact? artifactFromCharacter = equippingToCharacter?.Artifacts.Get((int)artifactSelectionIndex);
                                     equippingToCharacter?.Artifacts.Equip(artifact, (int)artifactSelectionIndex);
-                                    // if (artifactFromCharacter != null) GameData.Artifacts.Add(artifactFromCharacter);
-                                    // GameData.Artifacts.Remove(artifact);
+                                    if (artifactFromCharacter != null) user.AddItem(artifactFromCharacter);
+                                    user.Artifacts.Remove(artifact);
                                 }
 
                                 swapCategory(InventoryDisplay.Characters);
@@ -311,7 +314,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 selectionMode = SelectionModes.Single;
                 displayingSection.Value = InventoryDisplay.Characters;
             });
-            // GameData.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
+            // user.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
             Hide();
         }
 
@@ -345,17 +348,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
             switch (displayingSection.Value)
             {
                 case InventoryDisplay.Characters:
-                    // itemContainer.AddFromList(GameData.Characters);
+                    itemContainer.AddFromList(user.Characters);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Artifacts:
-                    // itemContainer.AddFromList(GameData.Artifacts);
+                    itemContainer.AddFromList(user.Artifacts);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Weapons:
-                    // itemContainer.AddFromList(GameData.Weapons);
+                    itemContainer.AddFromList(user.Weapons);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
             }
@@ -403,7 +406,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedWeapon)
                 {
                     FocusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
-                    // GameData.Weapons.Remove((Weapon)entityInfoDrawable.entity);
+                    user.Weapons.Remove((Weapon)entityInfoDrawable.entity);
                 }
             }
 
@@ -437,7 +440,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void RemoveWeapon()
         {
-            // GameData.Weapons.Add(equippingToCharacter.Weapon);
+            user.Weapons.Add(equippingToCharacter.Weapon);
             equippingToCharacter.SetWeapon(null);
             itemInfo.DisplayItem(equippingToCharacter);
         }
@@ -457,7 +460,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (FocusedArtifact.Experience.CurrentLevel() < FocusedArtifact.StarRating * 4)
                 {
                     FocusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
-                    // GameData.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
+                    user.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
                 }
                 else Notification.Create("Artifact is max level", NotificationType.Informative);
             }

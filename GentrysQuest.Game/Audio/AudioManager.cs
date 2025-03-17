@@ -22,9 +22,9 @@ namespace GentrysQuest.Game.Audio
 
         public event PlayMusicEvent OnPlayMusic;
 
-        private readonly Volume gameVolume = new(0.5);
-        private readonly Volume musicVolume = new(0.25);
-        private readonly Volume soundVolume = new(0.25);
+        private readonly Volume gameVolume = new(1);
+        private readonly Volume musicVolume = new(1);
+        private readonly Volume soundVolume = new(1);
 
         [BackgroundDependencyLoader]
         private void load(ITrackStore trackStore, ISampleStore sampleStore)
@@ -67,6 +67,10 @@ namespace GentrysQuest.Game.Audio
                 gameMusic.VolumeTo(0, FADE_TIME).Then().Finally(_ => modifyTrack());
             }
         }
+
+        public void StopMusic() => gameMusic?.Stop();
+        public void FadeOutMusic(int time = FADE_TIME) => gameMusic.FadeOut(time);
+        public void FadeInMusic(int time = FADE_TIME) => gameMusic.FadeIn(time);
 
         public void PlaySound(DrawableSample sample)
         {

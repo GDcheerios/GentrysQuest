@@ -34,7 +34,7 @@ public partial class DialogueTextFlowContainer : TextFlowContainer
                 part.FadeIn(characterAppearanceDuration);
             }, currentTimeOffset);
 
-            currentTimeOffset += characterAppearanceDuration; // Update the offset based on the new duration
+            currentTimeOffset += characterAppearanceDuration;
         }
 
         return currentTimeOffset;

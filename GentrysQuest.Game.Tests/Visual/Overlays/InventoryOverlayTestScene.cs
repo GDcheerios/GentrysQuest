@@ -35,7 +35,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
             {
                 user.MoneyHandler.InfiniteMoney = true;
             });
-            AddStep("Create Inventory", () => { inventoryOverlay = new InventoryOverlay(); });
+            AddStep("Create Inventory", () => { Add(inventoryOverlay = new InventoryOverlay(user)); });
         }
 
         [Test]

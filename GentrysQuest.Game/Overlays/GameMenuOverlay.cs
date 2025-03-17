@@ -35,12 +35,14 @@ namespace GentrysQuest.Game.Overlays
         /// <summary>
         /// The inventory overlay
         /// </summary>
-        private readonly InventoryOverlay inventoryOverlay = new InventoryOverlay() { Y = -0.05f };
+        private InventoryOverlay inventoryOverlay;
 
         /// <summary>
         /// The weekly event overlay
         /// </summary>
         private readonly WeeklyEventOverlay weeklyEventOverlay = new WeeklyEventOverlay();
+
+        private bool isVisible;
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
@@ -58,6 +60,7 @@ namespace GentrysQuest.Game.Overlays
 
         public GameMenuOverlay()
         {
+            Depth = -10000;
             RelativeSizeAxes = Axes.Both;
             InternalChildren =
             [
@@ -79,7 +82,7 @@ namespace GentrysQuest.Game.Overlays
                             Y = 200,
                             Children =
                             [
-                                backButton = new GqMenuButton("Back"),
+                                backButton = new GqMenuButton("Quit"),
                                 weeklyEvent = new GqMenuButton("Weekly Event"),
                                 travelButton = new GqMenuButton("Travel"),
                                 inventoryButton = new GqMenuButton("Inventory"),
@@ -95,7 +98,6 @@ namespace GentrysQuest.Game.Overlays
                             Origin = Anchor.TopCentre,
                             Children =
                             [
-                                inventoryOverlay,
                                 weeklyEventOverlay
                             ]
                         }
@@ -111,8 +113,23 @@ namespace GentrysQuest.Game.Overlays
             state.ValueChanged += handleState;
         }
 
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            user.ValueChanged += delegate { createNewInventory(); };
+            inventoryOverlay = new InventoryOverlay(user.Value);
+            focusContainer.Add(inventoryOverlay);
+        }
+
+        private void createNewInventory()
+        {
+            inventoryOverlay = new InventoryOverlay(user.Value);
+        }
+
         public void Appear()
         {
+            if (user.Value == null) return;
+
             state.TriggerChange();
             this.FadeIn();
             navBar.X = -2;
@@ -126,6 +143,13 @@ namespace GentrysQuest.Game.Overlays
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
+        }
+
+        public void Toggle()
+        {
+            if (isVisible) Disappear();
+            else Appear();
+            isVisible = !isVisible;
         }
 
         private void handleState(ValueChangedEvent<SelectionState> stateChange)

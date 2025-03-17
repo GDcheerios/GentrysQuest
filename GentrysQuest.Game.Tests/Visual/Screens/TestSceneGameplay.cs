@@ -23,7 +23,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
             testWeapon = new Bow();
             theGuy.SetWeapon(testWeapon);
             Add(screens = new ScreenStack());
-            screens.Push(gameplayScreen = new GameplayScreen());
+            // screens.Push(gameplayScreen = new GameplayScreen());
         }
 
         [Test]

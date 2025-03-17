@@ -1,7 +1,7 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Effects;
-using GentrysQuest.Game.Content.Maps;
+using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
@@ -13,6 +13,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
+using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -159,6 +160,8 @@ namespace GentrysQuest.Game.Screens
                         }, 250
                     );
 
+                    AudioManager.Instance.ChangeMusic(new Anguish());
+
                     player.GetBase().SetWeapon(new Sword());
                     player.EntityBar.ShowAll();
                     player.GetBase().RemoveEffect("Paused");
@@ -196,7 +199,50 @@ namespace GentrysQuest.Game.Screens
                 Event = () =>
                 {
                     gameplayHud.Disappear();
+
+                    AudioManager.Instance.StopMusic();
+
+                    player.EntityBar.OnlyShowName();
+                    player.GetBase().AddEffect(new Paused());
+                    player.GetBase().SetWeapon(null);
+
+                    enemy.EntityBar.OnlyShowName();
+                    enemy.GetBase().AddEffect(new Paused());
+                    enemy.GetBase().SetWeapon(null);
                 }
+            });
+            afterCombatScript.AddEvent("EG-dialogue1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Author = "Evil Gentry",
+                    Text = "Actually...",
+                    Duration = 20
+                },
+                Duration = 2000,
+                Delay = 1000
+            });
+            afterCombatScript.AddEvent("EG-dialogue2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Author = "Evil Gentry",
+                    Text = "You're pretty strong...",
+                    Duration = 2000
+                },
+                Duration = 5000,
+                Delay = 1000
+            });
+            afterCombatScript.AddEvent("EG-dialogue3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Author = "Evil Gentry",
+                    Text = "For a frisbee golf player!",
+                    Duration = 2000
+                },
+                Duration = 2000,
+                Delay = 2000
             });
 
             #endregion
@@ -211,6 +257,7 @@ namespace GentrysQuest.Game.Screens
             {
                 case var x when x <= 0.01f && !onePercent:
                     onePercent = true;
+                    afterCombatScript.Start(Overlay, Scheduler);
                     break;
 
                 case var x when x <= 0.05f && !fivePercent:
@@ -273,11 +320,6 @@ namespace GentrysQuest.Game.Screens
                     });
                     break;
             }
-        }
-
-        private void runAfterCombatScript()
-        {
-
         }
 
         private void displayDialogue(DialogueEvent dialogueEvent)

@@ -102,7 +102,7 @@ namespace GentrysQuest.Game.Entity
 
         public virtual void Die()
         {
-            if (CanDie) return;
+            if (!CanDie) return;
 
             CanMove = false;
             CanAttack = false;

@@ -9,7 +9,8 @@ namespace GentrysQuest.Game.Content.Characters
             Name = "Evil Gentry";
             Description = "Mr. Gentry’s evil twin brother who hates frisbee golf.";
 
-            Stats.Health.Point = 100;
+            Stats.Health.Point = 0;
+            Stats.Speed.Point = 5;
 
             TextureMapping.Add("Idle", "enemies_gmoney_idle.png");
         }

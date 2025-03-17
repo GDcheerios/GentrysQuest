@@ -12,12 +12,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
-using osuTK.Input;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -135,6 +133,7 @@ namespace GentrysQuest.Game.Screens
                 profileButton.Hide();
                 Scheduler.AddDelayed(() =>
                 {
+                    AudioManager.Instance.FadeOutMusic(3000);
                     this.Push(new Tutorial());
                     title.FadeOut();
                 }, 5000);
@@ -179,22 +178,6 @@ namespace GentrysQuest.Game.Screens
         {
             title.MoveToY(300, 200, Easing.Out);
             title.ScaleTo(1, 200, Easing.Out);
-        }
-
-        protected override bool OnKeyDown(KeyDownEvent e)
-        {
-            switch (e.Key)
-            {
-                case Key.Escape:
-                    PressBack();
-                    break;
-
-                case Key.P:
-                    PressPlay();
-                    break;
-            }
-
-            return base.OnKeyDown(e);
         }
 
         protected override void LoadComplete()
