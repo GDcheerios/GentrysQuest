@@ -14,9 +14,9 @@
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2025.313.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2025.321.0" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.50" />
-    <PackageReference Include="ppy.osu.Framework.Android" Version="2025.313.0" />
+    <PackageReference Include="ppy.osu.Framework.Android" Version="2025.321.0" />
     <PackageReference Include="Xamarin.Essentials" Version="1.8.1"/>
   </ItemGroup>
   <ItemGroup>
