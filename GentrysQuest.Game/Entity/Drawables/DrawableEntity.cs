@@ -84,6 +84,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public delegate void Movement(Vector2 direction, double speed);
 
         public event Movement OnMove;
+        public event Action OnDodge;
 
         /// <summary>
         /// A drawable entity
@@ -259,6 +260,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             if (Entity.CanDodge)
             {
+                OnDodge?.Invoke();
                 Entity.CanDodge = false;
                 Entity.IsDodging = true;
                 Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, DODGE_TIME);

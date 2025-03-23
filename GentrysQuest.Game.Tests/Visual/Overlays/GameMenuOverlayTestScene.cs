@@ -5,8 +5,6 @@ using GentrysQuest.Game.Users;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 
 namespace GentrysQuest.Game.Tests.Visual.Overlays
@@ -19,28 +17,25 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         private Bindable<IUser> guestUser = new Bindable<IUser>();
 
         [Cached]
-        private ProfileButton profileButton = new ProfileButton(new Bindable<IUser>());
+        private ProfileButton profileButton;
 
         [Cached]
         private ScreenManager screenManager = new ScreenManager(new ScreenStack());
 
         public GameMenuOverlayTestScene()
         {
-            Add(new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.White
-            });
-            Add(gameMenuOverlay = new GameMenuOverlay());
+            guestUser.Value = GuestUser.Create("testy");
+            profileButton = new ProfileButton(guestUser);
+            Add(gameMenuOverlay = new GameMenuOverlay() { Y = -100 });
             gameMenuOverlay.Disappear();
         }
 
         [Test]
         public void Test()
         {
+            AddStep("Create User", () => gameMenuOverlay.Show());
             AddStep("Appear", () => gameMenuOverlay.Appear());
             AddStep("Disappear", () => gameMenuOverlay.Disappear());
         }
-
     }
 }

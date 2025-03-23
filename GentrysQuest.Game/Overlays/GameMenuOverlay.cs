@@ -35,12 +35,12 @@ namespace GentrysQuest.Game.Overlays
         /// <summary>
         /// The inventory overlay
         /// </summary>
-        private InventoryOverlay inventoryOverlay;
+        private readonly InventoryOverlay inventoryOverlay = new();
 
         /// <summary>
         /// The weekly event overlay
         /// </summary>
-        private readonly WeeklyEventOverlay weeklyEventOverlay = new WeeklyEventOverlay();
+        private readonly WeeklyEventOverlay weeklyEventOverlay = new();
 
         private bool isVisible;
 
@@ -52,11 +52,6 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
-
-        /// <summary>
-        /// A variable to check if the user has pressed the weekly event already.
-        /// </summary>
-        private bool hasPressedWeeklyAsGuest;
 
         public GameMenuOverlay()
         {
@@ -98,6 +93,7 @@ namespace GentrysQuest.Game.Overlays
                             Origin = Anchor.TopCentre,
                             Children =
                             [
+                                inventoryOverlay,
                                 weeklyEventOverlay
                             ]
                         }
@@ -105,6 +101,11 @@ namespace GentrysQuest.Game.Overlays
                 }
             ];
 
+            backButton.SetAction(delegate
+            {
+                user.Value.Save();
+                user.Value = null;
+            });
             weeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
             inventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
             travelButton.SetAction(delegate { state.Value = SelectionState.Travel; });
@@ -116,14 +117,8 @@ namespace GentrysQuest.Game.Overlays
         [BackgroundDependencyLoader]
         private void load()
         {
-            user.ValueChanged += delegate { createNewInventory(); };
-            inventoryOverlay = new InventoryOverlay(user.Value);
-            focusContainer.Add(inventoryOverlay);
-        }
-
-        private void createNewInventory()
-        {
-            inventoryOverlay = new InventoryOverlay(user.Value);
+            user.ValueChanged += delegate { inventoryOverlay.ProvideUser(user.Value); };
+            inventoryOverlay.ProvideUser(user.Value);
         }
 
         public void Appear()
@@ -167,17 +162,8 @@ namespace GentrysQuest.Game.Overlays
                 case SelectionState.WeeklyEvent:
                     if (user.Value is GuestUser)
                     {
-                        if (hasPressedWeeklyAsGuest)
-                        {
-                            userProfileButton.GoUserSelectionLogIn();
-                            hasPressedWeeklyAsGuest = false;
-                            Disappear();
-                            return;
-                        }
-
                         Notification.Create("You must be logged in to view the weekly event leaderboard.", NotificationType.Error);
                         state.Value = SelectionState.Inventory;
-                        hasPressedWeeklyAsGuest = true;
                         return;
                     }
 

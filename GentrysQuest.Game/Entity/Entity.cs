@@ -148,6 +148,14 @@ namespace GentrysQuest.Game.Entity
             OnHeal?.Invoke((int)(amount * HealingModifier));
         }
 
+        public void Heal()
+        {
+            int amount = (int)Stats.Health.Total();
+            Stats.Health.UpdateCurrentValue(amount);
+            OnHealthEvent?.Invoke();
+            OnHeal?.Invoke(amount);
+        }
+
         public void SetWeapon([CanBeNull] Weapon.Weapon weapon)
         {
             Weapon = weapon;

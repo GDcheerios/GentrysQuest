@@ -102,6 +102,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             if (AnimationPlaying) return;
 
+            Weapon.AttackAmount++;
             DamageQueue.Clear();
             readyForRest = false;
 

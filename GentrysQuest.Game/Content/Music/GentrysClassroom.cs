@@ -5,7 +5,7 @@ namespace GentrysQuest.Game.Content.Music
     public class GentrysClassroom : ISong
     {
         public string Name { get; } = "Gentrys Classroom";
-        public string ArtistName { get; } = "JJ";
+        public string ArtistName { get; } = "JTheWonton";
         public string FileName { get; } = "gentrys_classroom.wav";
         public TimingPointsHandler TimingPoints { get; } = new();
     }

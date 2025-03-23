@@ -63,9 +63,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public Weapon FocusedWeapon;
         private int? artifactSelectionIndex;
 
-        private IUser user { get; set; }
+        private IUser? user { get; set; }
 
-        public InventoryOverlay(IUser user)
+        public InventoryOverlay()
         {
             this.user = user;
             RelativeSizeAxes = Axes.Both;
@@ -289,16 +289,16 @@ namespace GentrysQuest.Game.Overlays.Inventory
                                     Weapon weapon = (Weapon)entityInfoDrawable.entity;
                                     Weapon? weaponFromCharacter = equippingToCharacter?.Weapon;
                                     equippingToCharacter?.SetWeapon(weapon);
-                                    if (weaponFromCharacter != null) user.AddItem(weaponFromCharacter);
-                                    user.Weapons.Remove(weapon);
+                                    if (weaponFromCharacter != null) user?.AddItem(weaponFromCharacter);
+                                    user?.Weapons.Remove(weapon);
                                 }
                                 else
                                 {
                                     Artifact artifact = (Artifact)entityInfoDrawable.entity;
                                     Artifact? artifactFromCharacter = equippingToCharacter?.Artifacts.Get((int)artifactSelectionIndex);
                                     equippingToCharacter?.Artifacts.Equip(artifact, (int)artifactSelectionIndex);
-                                    if (artifactFromCharacter != null) user.AddItem(artifactFromCharacter);
-                                    user.Artifacts.Remove(artifact);
+                                    if (artifactFromCharacter != null) user?.AddItem(artifactFromCharacter);
+                                    user?.Artifacts.Remove(artifact);
                                 }
 
                                 swapCategory(InventoryDisplay.Characters);
@@ -317,6 +317,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
             // user.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
             Hide();
         }
+
+        public void ProvideUser(IUser user) => this.user = user;
 
         private void setStatus()
         {
@@ -348,17 +350,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
             switch (displayingSection.Value)
             {
                 case InventoryDisplay.Characters:
-                    itemContainer.AddFromList(user.Characters);
+                    itemContainer.AddFromList(user?.Characters);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Artifacts:
-                    itemContainer.AddFromList(user.Artifacts);
+                    itemContainer.AddFromList(user?.Artifacts);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
 
                 case InventoryDisplay.Weapons:
-                    itemContainer.AddFromList(user.Weapons);
+                    itemContainer.AddFromList(user?.Weapons);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
                     break;
             }

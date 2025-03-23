@@ -69,8 +69,8 @@ namespace GentrysQuest.Game.Audio
         }
 
         public void StopMusic() => gameMusic?.Stop();
-        public void FadeOutMusic(int time = FADE_TIME) => gameMusic.FadeOut(time);
-        public void FadeInMusic(int time = FADE_TIME) => gameMusic.FadeIn(time);
+        public void FadeOutMusic(int time = FADE_TIME) => gameMusic?.FadeOut(time);
+        public void FadeInMusic(int time = FADE_TIME) => gameMusic?.FadeIn(time);
 
         public void PlaySound(DrawableSample sample)
         {

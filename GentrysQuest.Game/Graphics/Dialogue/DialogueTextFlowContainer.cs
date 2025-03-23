@@ -48,7 +48,7 @@ public partial class DialogueTextFlowContainer : TextFlowContainer
             spriteText.Font = new FontUsage(size: FONT_SIZE);
             spriteText.Text = character.ToString();
             creationParameters?.Invoke(spriteText);
-            AddInternal(spriteText);
+            AddText(spriteText);
             return spriteText;
         }).ToArray();
     }

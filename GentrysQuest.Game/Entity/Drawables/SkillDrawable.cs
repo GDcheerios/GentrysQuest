@@ -16,7 +16,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         private readonly Sprite skillDisplay;
         private readonly SpriteText skillStack;
 
-        public SkillDrawable(Skill skillReference)
+        public SkillDrawable(Skill skillReference, string keyBind = "")
         {
             if (skillReference == null)
             {
@@ -37,10 +37,23 @@ namespace GentrysQuest.Game.Entity.Drawables
                             new FillFlowContainer
                             {
                                 Direction = FillDirection.Vertical,
-                                AutoSizeAxes = Axes.Both,
+                                AutoSizeAxes = Axes.Y,
                                 Anchor = Anchor.TopCentre,
                                 Children = new Drawable[]
                                 {
+                                    new Container
+                                    {
+                                        Size = new Vector2(20),
+                                        Margin = new MarginPadding { Bottom = 20 },
+                                        Origin = Anchor.Centre,
+                                        Child = new SpriteText
+                                        {
+                                            Text = keyBind,
+                                            Origin = Anchor.Centre,
+                                            Anchor = Anchor.Centre,
+                                            Font = FontUsage.Default.With(size: 24)
+                                        }
+                                    },
                                     new FillFlowContainer
                                     {
                                         Direction = FillDirection.Horizontal,
