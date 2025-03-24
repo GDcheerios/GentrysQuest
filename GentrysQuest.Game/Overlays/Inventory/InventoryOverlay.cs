@@ -442,7 +442,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void RemoveWeapon()
         {
-            user.Weapons.Add(equippingToCharacter.Weapon);
+            user!.AddItem(equippingToCharacter.Weapon);
             equippingToCharacter.SetWeapon(null);
             itemInfo.DisplayItem(equippingToCharacter);
         }
@@ -462,7 +462,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (FocusedArtifact.Experience.CurrentLevel() < FocusedArtifact.StarRating * 4)
                 {
                     FocusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
+                    user!.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
                 }
                 else Notification.Create("Artifact is max level", NotificationType.Informative);
             }
@@ -496,7 +496,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void RemoveArtifact(int index)
         {
-            equippingToCharacter.Artifacts.Remove(index);
+            user!.AddItem(equippingToCharacter.Artifacts.Remove(index));
             itemInfo.DisplayItem(equippingToCharacter);
         }
 

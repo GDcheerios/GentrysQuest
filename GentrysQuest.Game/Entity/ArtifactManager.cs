@@ -54,13 +54,14 @@ namespace GentrysQuest.Game.Entity
 
         public void Clear() => artifacts = new Artifact[5];
 
-        public void Remove(int index)
+        public Artifact Remove(int index)
         {
-            // user.AddItem(artifacts[index]);
+            Artifact artifact = artifacts[index];
             artifacts[index].Holder = null;
             artifacts[index] = null;
             OnChangeArtifact?.Invoke();
             UpdateStats();
+            return artifact;
         }
     }
 }
