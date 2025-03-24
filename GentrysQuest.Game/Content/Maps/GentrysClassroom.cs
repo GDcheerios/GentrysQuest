@@ -30,7 +30,8 @@ namespace GentrysQuest.Game.Content.Maps
         [
             new BraydenMesserschmidt(),
             new PhilipMcClure(),
-            new MekhiElliot()
+            new MekhiElliot(),
+            new BenMeier()
         ];
 
         public override void Load()
