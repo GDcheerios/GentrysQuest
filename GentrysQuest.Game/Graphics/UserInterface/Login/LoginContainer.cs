@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Graphics.UserInterface.Login
@@ -18,6 +19,9 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
         private GqTextBox usernameInput;
         private GqPasswordBox passwordInput;
         private LoginButton loginButton;
+        private SpriteText statusText;
+
+        private Bindable<string> status = new();
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
@@ -67,6 +71,14 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                             Height = INPUT_HEIGHT,
                             Width = 0.5f
                         },
+                        statusText = new SpriteText
+                        {
+                            Text = "",
+                            Origin = Anchor.TopCentre,
+                            Anchor = Anchor.TopCentre,
+                            Margin = new MarginPadding { Top = 10 },
+                            Font = FontUsage.Default.With(size: 20)
+                        },
                         background = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
@@ -76,6 +88,8 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                     ]
                 }
             ];
+
+            status.BindValueChanged(s => statusText.Text = s.NewValue);
 
             loginButton.SetAction(async () =>
             {
@@ -89,7 +103,7 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                     if (loginRequest.Response != null)
                     {
                         Logger.Log($"Login successful: {loginRequest.Response}", LoggingTarget.Network);
-                        user.Value = loginRequest.Response;
+                        status.Value = "";
                     }
                     else
                     {
