@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
@@ -26,7 +27,7 @@ namespace GentrysQuest.Game.Users
         public List<Weapon> Weapons { get; set; } = [];
         public Character EquippedCharacter { get; set; } = null;
 
-        public void Load()
+        public Task Load()
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{Name}.json");
             if (!File.Exists(filePath))
@@ -42,9 +43,11 @@ namespace GentrysQuest.Game.Users
             {
                 throw new InvalidOperationException($"Error loading guest user data for '{Name}'.", ex);
             }
+
+            return Task.CompletedTask;
         }
 
-        public void Save()
+        public Task Save()
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{Name}.json");
 
@@ -57,6 +60,8 @@ namespace GentrysQuest.Game.Users
             {
                 throw new InvalidOperationException($"Error saving guest user data for '{Name}'.", ex);
             }
+
+            return Task.CompletedTask;
         }
 
         public void AddItem(EntityBase entity)

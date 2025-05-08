@@ -32,7 +32,7 @@ namespace GentrysQuest.Game.Location.Drawables
 
             map.Load();
 
-            Size = map.Size;
+            Size = map.Size * 2;
 
             foreach (var newMapObject in map.Objects.Select(mapObject => new DrawableMapObject(mapObject)))
             {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
@@ -71,12 +72,12 @@ namespace GentrysQuest.Game.Users
         /// <summary>
         /// Loads the user's data
         /// </summary>
-        public void Load();
+        public Task Load();
 
         /// <summary>
         /// Saves the user's data
         /// </summary>
-        public void Save();
+        public Task Save();
 
         /// <summary>
         /// Add an item to this user's data

@@ -12,7 +12,7 @@ namespace GentrysQuest.Game.Content.Effects
         public override string Name { get; set; } = "Disarm";
         public override string Description { get; set; } = "Disarm effect";
         public override Colour4 EffectColor { get; protected set; } = Colour4.Gray;
-        public override bool IsInfinite { get; set; } = false;
+        public override bool IsInfinite { get; set; }
 
         public override void Handle() => Effector.CanAttack = false;
     }

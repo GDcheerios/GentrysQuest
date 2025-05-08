@@ -51,7 +51,7 @@ public abstract class StatusEffect
     /// <summary>
     /// is it effecting?
     /// </summary>
-    public bool Effecting = false;
+    public bool Active = false;
 
     /// <summary>
     /// The time between effect
@@ -88,6 +88,7 @@ public abstract class StatusEffect
         Time = 0;
         StartTime = null;
         Stack = 1;
+        Active = false;
     }
 
     /// <summary>
