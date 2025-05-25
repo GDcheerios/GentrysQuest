@@ -80,7 +80,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     RelativePositionAxes = Axes.Both,
-                    Size = new Vector2(0.98f, 200),
+                    Size = new Vector2(0.98f, 100),
                     Child = new FillFlowContainer<InventoryButton>
                     {
                         Direction = FillDirection.Horizontal,
@@ -109,7 +109,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Size = new Vector2(0.7f, 0.78f),
-                    Margin = new MarginPadding { Vertical = 180 },
+                    Margin = new MarginPadding { Top = 100 },
                     Children = new Drawable[]
                     {
                         new Box

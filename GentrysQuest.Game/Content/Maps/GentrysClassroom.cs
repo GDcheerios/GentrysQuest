@@ -33,12 +33,15 @@ namespace GentrysQuest.Game.Content.Maps
             new MekhiElliot()
         ];
 
-        public override void Load()
+        public GentrysClassroom()
         {
             Name = "Gentry's Classroom";
             DifficultyScales = false;
             Size = new Vector2(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
+        }
 
+        public override void Load()
+        {
             #region Layout
 
             // Floor

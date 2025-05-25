@@ -19,7 +19,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         private const int stuckThreshold = 1; // Number of frames to consider as "stuck"
         private const float stuckDistanceThreshold = 1f; // Minimum movement to consider as not stuck
         private VisibilityBox surroundingVisibility;
-        private AiState aiState = AiState.Idle;
+        public AiState AiState = AiState.Idle;
 
         /// <summary>
         /// The last position check to determine if we should set a new destination.
@@ -139,7 +139,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         public override void DoAttack(Vector2 position)
         {
             base.DoAttack(position);
-            GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
+            // GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
             GetBase().AddEffect(new Disarm(2000));
             base.OnRelease();
         }
@@ -149,7 +149,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.Update();
             if (followEntity == null) return;
 
-            switch (aiState)
+            switch (AiState)
             {
                 case AiState.Pursuing:
                     if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) DoAttack(followEntity.Position);
@@ -161,19 +161,32 @@ namespace GentrysQuest.Game.Entity.Drawables
                         break;
                     }
 
-                    aiState = AiState.Idle;
+                    AiState = AiState.Wandering;
 
                     break;
 
-                case AiState.Idle:
+                case AiState.Wandering:
                     if (checkTime())
                     {
                         updateTime();
                         updatePosition();
                     }
 
-                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) aiState = AiState.Pursuing;
+                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) AiState = AiState.Pursuing;
 
+                    break;
+
+                case AiState.Idle:
+                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) AiState = AiState.Pursuing;
+                    break;
+
+                case AiState.FollowGoal:
+                    if (Position == FocusedPosition) AiState = AiState.Wandering;
+                    break;
+
+                case AiState.HardPursue:
+                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) DoAttack(followEntity.Position);
+                    FocusedPosition = Vector2.Zero;
                     break;
 
                 default:

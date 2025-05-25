@@ -28,15 +28,6 @@ namespace GentrysQuest.Game.Entity
             return false;
         }
 
-        public void CalculateRequirement(int level, int starRating)
-        {
-            int difficulty = 1 + (level / 20);
-            int starRatingExperience = starRating * 25;
-            int levelExperience = level * 10;
-
-            Requirement.Value = level * difficulty * difficulty * 100 + levelExperience + starRatingExperience;
-        }
-
         public override string ToString()
         {
             return $"{Current.Value}/{Requirement.Value} ({Progress}%)";

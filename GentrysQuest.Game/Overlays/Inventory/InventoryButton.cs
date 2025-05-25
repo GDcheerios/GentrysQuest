@@ -24,7 +24,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             CornerRadius = 10;
             // BorderColour = Colour4.Black;
             // BorderThickness = 2;
-            Size = new Vector2(200, 100);
+            Size = new Vector2(200, 50);
             InternalChildren = new Drawable[]
             {
                 background = new Box

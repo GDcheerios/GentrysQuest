@@ -39,6 +39,15 @@ namespace GentrysQuest.Game.Entity
             OnLevelUp?.Invoke();
         }
 
+        public int CalculateRequirement(int level, int starRating)
+        {
+            int difficulty = 1 + (level / 20);
+            int starRatingExperience = starRating * 25;
+            int levelExperience = level * 10;
+
+            return level * difficulty * difficulty * 100 + levelExperience + starRatingExperience;
+        }
+
         public void LinkOnlineItem(int idLink) => ID = idLink;
 
         public void LoadJsonBase(IJsonEntity jsonEntity)
@@ -48,6 +57,6 @@ namespace GentrysQuest.Game.Entity
             Experience.Xp.Current.Value = jsonEntity.CurrentXp;
         }
 
-        public virtual void CalculateXpRequirement() => Experience.Xp.CalculateRequirement(Experience.Level.Current.Value, StarRating.Value);
+        public virtual void CalculateXpRequirement() => Experience.Xp.Requirement.Value = CalculateRequirement(Experience.CurrentLevel(), StarRating.Value);
     }
 }

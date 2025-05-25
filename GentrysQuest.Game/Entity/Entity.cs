@@ -234,6 +234,15 @@ namespace GentrysQuest.Game.Entity
             OnEffect?.Invoke();
         }
 
+        public void ClearEffects()
+        {
+            foreach (var effect in Effects.ToList())
+            {
+                effect.OnRemove?.Invoke();
+                Effects.Remove(effect);
+            }
+        }
+
         public void Affect(double time)
         {
             foreach (StatusEffect effect in Effects.ToList())

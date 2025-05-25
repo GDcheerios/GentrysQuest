@@ -28,6 +28,8 @@ namespace GentrysQuest.Game.Online.API
             }
         }
 
+        public static string GetToken() => token;
+
         public static async Task DeleteToken()
         {
             if (token != null) await new DeleteTokenRequest(token).PerformAsync();

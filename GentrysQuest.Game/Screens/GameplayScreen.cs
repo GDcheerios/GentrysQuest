@@ -281,7 +281,7 @@ namespace GentrysQuest.Game.Screens
         {
             var value = (float)(Clock.ElapsedFrameTime * speed);
             drawable.MoveTo(drawable.Position + -direction * value);
-            drawable.FocusedPosition += -direction * value;
+            drawable.FocusedPosition += direction * value;
         }
 
         /// <summary>

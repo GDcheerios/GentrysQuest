@@ -24,7 +24,11 @@ namespace GentrysQuest.Game.Location
         {
             var value = (float)(GameClock.FrameTime * speed);
             map.MoveTo(map.Position + -direction * value);
-            enemies.ForEach(e => e.MoveTo(e.Position + -direction * value));
+            enemies.ForEach(e =>
+            {
+                e.MoveTo(e.Position + -direction * value);
+                e.FocusedPosition += -direction * value;
+            });
             projectiles.ForEach(p => p.MoveTo(p.Position + -direction * value));
         }
 

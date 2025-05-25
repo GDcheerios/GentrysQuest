@@ -130,6 +130,7 @@ namespace GentrysQuest.Game.Overlays
             navBar.X = -2;
             navBar.MoveToX(0, 150, Easing.Out);
             if (user.Value is GuestUser) weeklyEvent.FadeTo(0.5f, 250, Easing.OutQuint);
+            else weeklyEvent.FadeTo(1, 250, Easing.OutQuint);
         }
 
         public void Disappear()
