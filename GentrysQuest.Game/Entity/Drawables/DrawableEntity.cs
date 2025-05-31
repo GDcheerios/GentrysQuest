@@ -27,6 +27,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         protected readonly Entity Entity;
 
+        public const int SIZE = 100;
+
         /// <summary>
         /// The entity sprite
         /// </summary>
@@ -70,7 +72,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The center of this DrawableEntity
         /// </summary>
-        private static readonly Vector2 CENTER = new Vector2(50);
+        private static readonly Vector2 CENTER = new((int)(SIZE / 2));
 
         /// <summary>
         /// When doing some math you might need this
@@ -98,7 +100,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             entity.Stats.Restore();
             Entity = entity;
             Affiliation = affiliationType;
-            Size = new Vector2(100);
+            Size = new Vector2(SIZE);
             HitBox = new HitBox(this);
             ColliderBox = new CollisonHitBox(this);
             Colour = Colour4.White;

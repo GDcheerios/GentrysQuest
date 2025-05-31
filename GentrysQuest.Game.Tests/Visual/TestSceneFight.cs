@@ -34,7 +34,7 @@ namespace GentrysQuest.Game.Tests.Visual
             player.SetupClickContainer();
             mapScene = new MapScene();
             mapScene.AddPlayer(player);
-            mapScene.LoadMap(new TestMap());
+            mapScene.LoadMap(new RaccoonRiver());
             gameplayHud = new GameplayHud();
             gameplayHud.SetEntity(player.GetBase());
             statContainer = new StatDrawableContainer()

@@ -5,6 +5,8 @@ namespace GentrysQuest.Game.Utils
 {
     public static class MathBase
     {
+        #region VectorMath
+
         /// <summary>
         /// Get the (Normalized) direction from one vector to the other.
         /// </summary>
@@ -86,15 +88,14 @@ namespace GentrysQuest.Game.Utils
             return new Vector2(newX, newY);
         }
 
-        public static double SecondToMs(double input)
-        {
-            return input * 1000;
-        }
-
         public static double GetDistance(Vector2 firstPos, Vector2 secondPos)
         {
             return Math.Sqrt(Math.Pow(secondPos.X - firstPos.X, 2) + Math.Pow(secondPos.Y - firstPos.Y, 2));
         }
+
+        #endregion
+
+        #region RandomMath
 
         public static double GetPercent(double value, double percent) => value * (percent * 0.01f);
         public static int RandomInt(int min, int max) => Random.Shared.Next(min, max + 1);
@@ -105,8 +106,28 @@ namespace GentrysQuest.Game.Utils
         public static bool RandomBool() => Convert.ToBoolean(Random.Shared.Next(2));
         public static bool IsChanceSuccessful(int passingValue, int chance) => (passingValue >= RandomInt(chance));
         public static bool IsChanceSuccessful(float passingValue) => passingValue >= RandomFloat();
-
         public static int RandomChoice(int size) => Random.Shared.Next(size);
+
+        #endregion
+
+        #region TimeMath
+
+        public static double SecondToMs(double input)
+        {
+            return input * 1000;
+        }
+
+        #endregion
+
+        #region UnitConversionMath
+
+        private const int ENTITY_INCHES = 12;
+
+        private const int INCHES_TO_MILES = 63360;
+
+        public static int GetMilesToPixels(double miles) => (int)(miles * (INCHES_TO_MILES * (ENTITY_INCHES * 0.01)));
+
+        #endregion
 
         /// <summary>
         /// Get the star rating based off of difficulty
