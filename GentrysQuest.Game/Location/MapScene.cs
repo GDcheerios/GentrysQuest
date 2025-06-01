@@ -69,6 +69,8 @@ namespace GentrysQuest.Game.Location
         public void LoadMap(Map mapInfo)
         {
             map.Load(mapInfo);
+            map.MoveTo(map.MapReference.SpawnPoint);
+
             AddInternal(locationText = new LocationText(mapInfo.Name));
         }
 

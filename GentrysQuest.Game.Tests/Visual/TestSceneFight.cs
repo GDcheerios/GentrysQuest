@@ -29,7 +29,7 @@ namespace GentrysQuest.Game.Tests.Visual
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.Gray
             });
-            player = new DrawablePlayableEntity(new StarterCharacter());
+            player = new DrawablePlayableEntity(new GMoney());
             player.GetBase().SetWeapon(new Sword());
             player.SetupClickContainer();
             mapScene = new MapScene();

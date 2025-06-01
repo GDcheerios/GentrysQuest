@@ -13,6 +13,7 @@ namespace GentrysQuest.Game.Location
         public List<IMapObject> Objects { get; } = new();
         public List<DrawableEntity> Npcs { get; } = new();
         public Vector2 Size { get; protected set; } = Vector2.Zero;
+        public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
 
         public virtual void Load()
         {

@@ -125,7 +125,7 @@ namespace GentrysQuest.Game.Utils
 
         private const int INCHES_TO_MILES = 63360;
 
-        public static int GetMilesToPixels(double miles) => (int)(miles * (INCHES_TO_MILES * (ENTITY_INCHES * 0.01)));
+        public static int GetMilesToPixels(double miles) => (int)(miles * (INCHES_TO_MILES * (ENTITY_INCHES * 0.1)));
 
         #endregion
 
