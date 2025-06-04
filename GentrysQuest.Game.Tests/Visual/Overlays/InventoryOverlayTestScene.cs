@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         public void Initialize()
         {
             AddStep("Load Content", ContentManager.LoadContent);
-            AddStep("Create user", () => { user = GuestUser.Create("test"); });
+            AddStep("Create user", () => { user = GuestUser.Create("test", true); });
             AddStep("Give infinite money", () =>
             {
                 user.MoneyHandler.InfiniteMoney = true;

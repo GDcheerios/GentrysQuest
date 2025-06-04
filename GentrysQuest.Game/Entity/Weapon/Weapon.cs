@@ -129,12 +129,14 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             Buff = ValidBuffs.Count > 0 ? new Buff(this, ValidBuffs[MathBase.RandomChoice(ValidBuffs.Count)]) : new Buff(this);
             SkillRef = new WeaponSkill();
-            OnLevelUp += delegate
-            {
-                UpdateStats();
-                Buff.Improve();
-                Holder?.UpdateStats();
-            };
+        }
+
+        public override void LevelUp()
+        {
+            base.LevelUp();
+            UpdateStats();
+            Buff.Improve();
+            Holder?.UpdateStats();
         }
 
         public JsonWeapon ToJson()

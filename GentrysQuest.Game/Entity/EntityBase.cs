@@ -20,22 +20,16 @@ namespace GentrysQuest.Game.Entity
         public event EntityEvent OnGainXp;
         public event EntityEvent OnLevelUp;
 
-        protected EntityBase() => Experience.Level.Current.ValueChanged += delegate
-        {
-            Difficulty = (byte)(Experience.Level.Current.Value / 20);
-        };
-
         public void AddXp(int amount)
         {
             while (Experience.Xp.add_xp(ref amount)) LevelUp();
             OnGainXp?.Invoke();
         }
 
-        public void LevelUp()
+        public virtual void LevelUp()
         {
             Experience.Level.AddLevel();
             CalculateXpRequirement();
-
             OnLevelUp?.Invoke();
         }
 

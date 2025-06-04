@@ -117,8 +117,8 @@ namespace GentrysQuest.Game
                 gameplayScreenScreen
             );
 
-            // screenStack.Push(new Tutorial());
-            screenManager.SetScreen(ScreenState.Loading);
+            // screenManager.SetScreen(ScreenState.Loading);
+            screenStack.Push(new CombatTutorial());
         }
 
         protected override bool OnKeyDown(KeyDownEvent e)

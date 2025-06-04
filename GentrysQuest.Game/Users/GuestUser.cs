@@ -20,7 +20,7 @@ namespace GentrysQuest.Game.Users
 
         // public StatTracker Stats { get; set; } = new StatTracker();
         public int StartupAmount { get; set; }
-        public int Money { get; set; }
+        public int Money { get; set; } = 0;
         public Money MoneyHandler { get; set; }
         public List<Character> Characters { get; set; } = [];
         public List<Artifact> Artifacts { get; set; } = [];
@@ -99,17 +99,27 @@ namespace GentrysQuest.Game.Users
             }
         }
 
-        public static GuestUser Create(string name)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name">Name of the guest</param>
+        /// <param name="forceCreation">Will ignore if the user already exists</param>
+        /// <returns></returns>
+        public static GuestUser Create(string name, bool forceCreation = false)
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{name}.json");
 
-            if (File.Exists(filePath))
+            if (!forceCreation)
             {
-                Notification.Create($"Guest user '{name}' already exists.", NotificationType.Error);
-                return new(name);
+                if (File.Exists(filePath))
+                {
+                    Notification.Create($"Guest user '{name}' already exists.", NotificationType.Error);
+                    return new(name);
+                }
             }
 
             GuestUser newUser = new(name);
+            newUser.MoneyHandler = new Money(newUser);
             newUser.Save();
 
             return newUser;

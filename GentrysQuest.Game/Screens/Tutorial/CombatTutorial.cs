@@ -58,201 +58,201 @@ namespace GentrysQuest.Game.Screens
 
             #region introScript
 
-            introScript.AddEvent("Fade In", new SceneEvent
-            {
-                Event =
-                    () =>
-                    {
-                        scene.GetMap().FadeOut().Then().FadeIn(1000);
-                        AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
-                    }
-            });
-            introScript.AddEvent("Pan Up", new SceneEvent
-            {
-                Event =
-                    () =>
-                    {
-                        scene.GetMap().MoveToY(450, 5000);
-                    },
-                Delay = 1100
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Hello students,",
-                    Duration = 1000
-                },
-                Duration = 3000,
-                Delay = 7000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today we’ll be going over chapter 2 of computer programming.",
-                    Duration = 4300
-                },
-                Duration = 7000
-            });
-            introScript.AddEvent("C-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Class",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Okay...",
-                    Duration = 500
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "So, today…",
-                    Duration = 1000
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today will be more of a fun day.",
-                    Duration = 2000
-                },
-                Duration = 3000
-            });
-            introScript.AddEvent("Power Outage", new SceneEvent
-            {
-                Duration = 2000, Delay = 2000,
-                Event = () =>
-                {
-                    scene.FadeTo(0);
-                    AudioManager.Instance.StopMusic();
-                    AudioManager.Instance.PlaySound(lightDie);
-                }
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "uhh",
-                    Duration = 1000,
-                },
-                Duration = 1500
-            });
-            introScript.AddEvent("Evil Gentry First Convo", new SceneEvent
-            {
-                Delay = 2500, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Finally...",
-                    Duration = 2000
-                },
-                Event = () =>
-                {
-                    AudioManager.Instance.ChangeMusic(new AMBI());
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Duration = 8000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I've been waiting years for this moment to come.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("G-dialogue", new SceneEvent
-            {
-                Delay = 1000, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Who are you?",
-                    Duration = 500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 1500, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "hmhmhmhmhm",
-                    Duration = 1500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 7000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "You actually know me quite well.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "In fact...",
-                    Duration = 1000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 6000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I'd say you and I...",
-                    Duration = 4000
-                }
-            });
-            introScript.AddEvent("dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Are the same.",
-                    Duration = 2000
-                }
-            });
+            // introScript.AddEvent("Fade In", new SceneEvent
+            // {
+            //     Event =
+            //         () =>
+            //         {
+            //             scene.GetMap().FadeOut().Then().FadeIn(1000);
+            //             AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
+            //         }
+            // });
+            // introScript.AddEvent("Pan Up", new SceneEvent
+            // {
+            //     Event =
+            //         () =>
+            //         {
+            //             scene.GetMap().MoveToY(450, 5000);
+            //         },
+            //     Delay = 1100
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Hello students,",
+            //         Duration = 1000
+            //     },
+            //     Duration = 3000,
+            //     Delay = 7000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Today we’ll be going over chapter 2 of computer programming.",
+            //         Duration = 4300
+            //     },
+            //     Duration = 7000
+            // });
+            // introScript.AddEvent("C-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Class",
+            //         Text = "...",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 2000,
+            //     Delay = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Okay...",
+            //         Duration = 500
+            //     },
+            //     Duration = 2000,
+            //     Delay = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "So, today…",
+            //         Duration = 1000
+            //     },
+            //     Duration = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Today will be more of a fun day.",
+            //         Duration = 2000
+            //     },
+            //     Duration = 3000
+            // });
+            // introScript.AddEvent("Power Outage", new SceneEvent
+            // {
+            //     Duration = 2000, Delay = 2000,
+            //     Event = () =>
+            //     {
+            //         scene.FadeTo(0);
+            //         AudioManager.Instance.StopMusic();
+            //         AudioManager.Instance.PlaySound(lightDie);
+            //     }
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "...",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "uhh",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 1500
+            // });
+            // introScript.AddEvent("Evil Gentry First Convo", new SceneEvent
+            // {
+            //     Delay = 2500, Duration = 5000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "Finally...",
+            //         Duration = 2000
+            //     },
+            //     Event = () =>
+            //     {
+            //         AudioManager.Instance.ChangeMusic(new AMBI());
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Duration = 8000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "I've been waiting years for this moment to come.",
+            //         Duration = 5000
+            //     }
+            // });
+            // introScript.AddEvent("G-dialogue", new SceneEvent
+            // {
+            //     Delay = 1000, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Who are you?",
+            //         Duration = 500
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 1500, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "hmhmhmhmhm",
+            //         Duration = 1500
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 2000, Duration = 7000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "You actually know me quite well.",
+            //         Duration = 5000
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 0, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "In fact...",
+            //         Duration = 1000
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 0, Duration = 6000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "I'd say you and I...",
+            //         Duration = 4000
+            //     }
+            // });
+            // introScript.AddEvent("dialogue", new SceneEvent
+            // {
+            //     Delay = 2000, Duration = 5000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "Are the same.",
+            //         Duration = 2000
+            //     }
+            // });
             introScript.AddEvent("Evil Gentry Entrance", new SceneEvent
             {
                 Event = () =>
@@ -261,6 +261,7 @@ namespace GentrysQuest.Game.Screens
                     scene.FadeIn();
                     scene.AddPlayer(player = new DrawablePlayableEntity(new GMoney()) { Y = -200, X = -200 });
                     scene.AddEnemy(enemy = new DrawableEnemyEntity(new EvilGentry()) { Y = -200, X = 200 });
+                    enemy.GetBase().Stats.Health.Point = 2;
                     enemy.GetBase().Experience.Level.Current.Value = 20;
                     enemy.GetBase().UpdateStats();
                     enemy.GetBase().Heal();
@@ -299,6 +300,7 @@ namespace GentrysQuest.Game.Screens
                     player.GetBase().OnHitEntity += hideAttackText;
                     player.OnDodge += hideDodgeText;
                     player.GetBase().SetWeapon(new Sword());
+                    player.GetBase().Weapon!.Buff.Value.Value = 0;
                     player.EntityBar.ShowAll();
                     player.GetBase().RemoveEffect("Paused");
                     player.GetBase().Heal();
@@ -486,12 +488,15 @@ namespace GentrysQuest.Game.Screens
 
         private void displayEnemyDialogue(DialogueEvent dialogueEvent)
         {
-            enemy.AiState = AiState.FollowGoal;
-            enemy.FocusedPosition = enemy.Position + MathBase.GetDirection(enemy.Position, player.Position) * 500;
-            enemy.GetBase().AddEffect(new Swiftness((int)dialogueEvent.Duration + 1000, 15));
+            enemy.GetBase().CanMove = false;
+            enemy.FadeOut(150).Then()
+                 .MoveTo(-enemy.Position * (float)1.15);
+
             Scheduler.AddDelayed(() =>
             {
                 enemy.AiState = AiState.HardPursue;
+                enemy.GetBase().CanMove = true;
+                enemy.FadeIn(150);
             }, dialogueEvent.Duration + 1000);
             AutoDialogueBox dialogueBox = new AutoDialogueBox("Evil Gentry", dialogueEvent.Text);
             AddInternal(dialogueBox);

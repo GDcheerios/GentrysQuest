@@ -15,22 +15,16 @@ public class Character : Entity
     public override void Damage(int amount)
     {
         base.Damage(amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.DamageTaken, amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.MostDamageTaken, amount);
     }
 
     public override void Heal(int amount)
     {
         base.Heal(amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.HealthGained, (int)(amount * HealingModifier));
-        // GameData.CurrentStats.AddToStat(StatTypes.HealthGainedOnce, (int)(amount * HealingModifier));
     }
 
     public override void Die()
     {
         base.Die();
-        // GameData.CurrentStats.AddToStat(StatTypes.Deaths);
-        // GameData.CurrentStats.Log();
     }
 
     public override void UpdateStats()

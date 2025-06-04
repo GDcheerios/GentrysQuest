@@ -18,6 +18,7 @@ namespace GentrysQuest.Game.Entity
         public bool CanMove = true;
         public bool Invincible = false;
         public bool CanDie = true;
+        public bool CanKnockback = true;
         public int CurrentTenacity = 0;
         public Vector2 PositionRef;
 
@@ -47,9 +48,6 @@ namespace GentrysQuest.Game.Entity
 
         public Entity()
         {
-            OnLevelUp += UpdateStats;
-            OnLevelUp += Stats.Restore;
-            OnSwapWeapon += UpdateStats;
             CurrentTenacity = (int)Stats.Tenacity.Total();
             CalculateXpRequirement();
         }
@@ -108,6 +106,13 @@ namespace GentrysQuest.Game.Entity
             CanAttack = false;
             IsDead = true;
             OnDeath?.Invoke();
+        }
+
+        public override void LevelUp()
+        {
+            base.LevelUp();
+            UpdateStats();
+            Difficulty = (byte)(Experience.Level.Current.Value / 20);
         }
 
         public void Attack() => OnAttack?.Invoke();

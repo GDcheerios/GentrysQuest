@@ -21,8 +21,10 @@ namespace GentrysQuest.Game.Entity
 
         public void AddLevel()
         {
-            if (Current != Limit) Current.Value++;
+            if (!IsMax()) Current.Value++;
         }
+
+        public bool IsMax() => Current.Value == Limit.Value;
 
         public override string ToString()
         {

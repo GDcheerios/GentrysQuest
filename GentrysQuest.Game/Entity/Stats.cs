@@ -55,10 +55,7 @@
         /// </summary>
         public void Restore()
         {
-            foreach (Stat stat in statGrouping)
-            {
-                stat.RestoreValue();
-            }
+            foreach (Stat stat in statGrouping) stat.RestoreValue();
         }
 
         /// <summary>

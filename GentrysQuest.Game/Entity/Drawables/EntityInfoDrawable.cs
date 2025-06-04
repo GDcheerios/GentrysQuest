@@ -34,7 +34,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             RelativeSizeAxes = Axes.X;
             Origin = Anchor.TopCentre;
             Anchor = Anchor.TopCentre;
-            CornerRadius = 0.2f; Margin = new MarginPadding(2);
+            CornerRadius = 0.2f;
+            Margin = new MarginPadding(2);
             Size = new Vector2(0.8f, 100);
             CornerExponent = 2;
             CornerRadius = 15;

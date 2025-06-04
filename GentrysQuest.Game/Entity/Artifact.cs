@@ -24,12 +24,16 @@ namespace GentrysQuest.Game.Entity
         public Artifact()
         {
             Initialize(ValidStarRatings[Random.Shared.Next(ValidStarRatings.Count)]);
-            OnLevelUp += delegate
-            {
-                if (Experience.Level.Current.Value % 4 == 0) AddBuff();
-                MainAttribute.Improve();
-                Holder?.UpdateStats();
-            };
+        }
+
+        public override void LevelUp()
+        {
+            base.LevelUp();
+            if (Experience.Level.IsMax()) return;
+
+            if (Experience.Level.Current.Value % 4 == 0) AddBuff();
+            MainAttribute.Improve();
+            Holder?.UpdateStats();
         }
 
         public void Initialize(int starRating)

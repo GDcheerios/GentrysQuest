@@ -1,6 +1,6 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Allocation;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Testing;
 
 namespace GentrysQuest.Game.Tests.Visual
@@ -25,7 +25,7 @@ namespace GentrysQuest.Game.Tests.Visual
         [BackgroundDependencyLoader]
         private void load()
         {
-            Add(new CursorContainer());
+            Add(new GqBackground());
         }
 
         public GentrysQuestTestScene()

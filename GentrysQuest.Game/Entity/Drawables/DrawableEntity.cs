@@ -312,18 +312,21 @@ namespace GentrysQuest.Game.Entity.Drawables
             Direction = Vector2.Zero;
 
             //  Knockback logic
-            if (knockbackTimeRemaining > 0)
+            if (GetBase().CanKnockback)
             {
-                float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
-                Entity.SpeedModifier = knockbackForce * knockbackDelta;
-                Direction += knockbackDirection * knockbackForce;
-
-                knockbackTimeRemaining -= Clock.ElapsedFrameTime;
-
-                if (knockbackTimeRemaining < 0)
+                if (knockbackTimeRemaining > 0)
                 {
-                    knockbackTimeRemaining = 0;
-                    Entity.SpeedModifier = 1;
+                    float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
+                    Entity.SpeedModifier = knockbackForce * knockbackDelta;
+                    Direction += knockbackDirection * knockbackForce;
+
+                    knockbackTimeRemaining -= Clock.ElapsedFrameTime;
+
+                    if (knockbackTimeRemaining < 0)
+                    {
+                        knockbackTimeRemaining = 0;
+                        Entity.SpeedModifier = 1;
+                    }
                 }
             }
 

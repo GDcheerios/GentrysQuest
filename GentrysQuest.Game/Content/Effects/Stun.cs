@@ -24,8 +24,7 @@ namespace GentrysQuest.Game.Content.Effects
 
         public override void Handle()
         {
-            Effector.CanAttack = false;
-            Effector.CanMove = false;
+            Effector.Stats.Speed.
         }
     }
 }
