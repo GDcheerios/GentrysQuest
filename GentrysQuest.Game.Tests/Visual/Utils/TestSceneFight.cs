@@ -12,7 +12,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK;
 
-namespace GentrysQuest.Game.Tests.Visual
+namespace GentrysQuest.Game.Tests.Visual.Utils
 {
     [TestFixture]
     public partial class TestSceneFight : GentrysQuestTestScene

@@ -223,6 +223,20 @@ namespace GentrysQuest.Game.Entity
             OnEffect?.Invoke();
         }
 
+        public void RemoveEffect(StatusEffect statusEffect)
+        {
+            foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()).ToList())
+            {
+                effect.Stack--;
+
+                if (effect.Stack == 0)
+                {
+                    effect.OnRemove?.Invoke();
+                    Effects.Remove(effect);
+                }
+            }
+        }
+
         public void RemoveEffect(string name)
         {
             for (var index = 0; index < Effects.Count; index++)

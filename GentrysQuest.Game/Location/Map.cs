@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Location
     {
         public string Name { get; protected set; }
         public List<Family> Families { get; } = new();
-        public List<IMapObject> Objects { get; } = new();
+        public List<MapObject> Objects { get; } = new();
         public List<DrawableEntity> Npcs { get; } = new();
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
@@ -30,5 +30,13 @@ namespace GentrysQuest.Game.Location
 
         public int Difficulty { get; protected set; } = 0;
         public bool DifficultyScales { get; protected set; } = false;
+
+        /// <summary>
+        /// Code that runs every frame
+        /// </summary>
+        public virtual void Update()
+        {
+            // implement map update logic
+        }
     }
 }

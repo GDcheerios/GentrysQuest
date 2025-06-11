@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using osu.Framework.Graphics;
@@ -10,7 +9,7 @@ namespace GentrysQuest.Game.Location.Drawables
     public sealed partial class DrawableMap : CompositeDrawable
     {
         public Map MapReference { get; private set; }
-        public List<DrawableMapObject> Objects { get; private set; }
+        public List<MapObject> Objects { get; private set; }
         public List<DrawableEntity> Npcs { get; private set; } = new();
 
         public DrawableMap()
@@ -34,10 +33,10 @@ namespace GentrysQuest.Game.Location.Drawables
 
             Size = map.Size * 2;
 
-            foreach (var newMapObject in map.Objects.Select(mapObject => new DrawableMapObject(mapObject)))
+            foreach (var mapObject in map.Objects)
             {
-                Objects.Add(newMapObject);
-                AddInternal(newMapObject);
+                Objects.Add(mapObject);
+                AddInternal(mapObject);
             }
 
             foreach (DrawableEntity entity in map.Npcs)
@@ -49,7 +48,7 @@ namespace GentrysQuest.Game.Location.Drawables
 
         public void Unload()
         {
-            foreach (DrawableMapObject mapObject in Objects)
+            foreach (MapObject mapObject in Objects)
             {
                 HitBoxScene.Remove(mapObject.Collider);
                 RemoveInternal(mapObject, true);
@@ -60,6 +59,12 @@ namespace GentrysQuest.Game.Location.Drawables
                 HitBoxScene.Remove(entity.HitBox);
                 RemoveInternal(entity, true);
             }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            MapReference.Update();
         }
     }
 }

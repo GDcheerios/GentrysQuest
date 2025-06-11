@@ -23,13 +23,13 @@ namespace GentrysQuest.Game.Location
         private void moveCamera(Vector2 direction, double speed)
         {
             var value = (float)(GameClock.FrameTime * speed);
-            map.MoveTo(map.Position + -direction * value);
+            map.Position += -direction * value;
             enemies.ForEach(e =>
             {
-                e.MoveTo(e.Position + -direction * value);
+                e.Position += -direction * value;
                 e.FocusedPosition += -direction * value;
             });
-            projectiles.ForEach(p => p.MoveTo(p.Position + -direction * value));
+            projectiles.ForEach(p => p.Position += -direction * value);
         }
 
         public void AddPlayer(DrawablePlayableEntity player)
@@ -69,7 +69,7 @@ namespace GentrysQuest.Game.Location
         public void LoadMap(Map mapInfo)
         {
             map.Load(mapInfo);
-            map.MoveTo(map.MapReference.SpawnPoint);
+            map.Position = map.MapReference.SpawnPoint;
 
             AddInternal(locationText = new LocationText(mapInfo.Name));
         }
@@ -89,6 +89,8 @@ namespace GentrysQuest.Game.Location
         private void load()
         {
             RelativeSizeAxes = Axes.Both;
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
             AddInternal(map);
         }
 

@@ -4,17 +4,17 @@ using osuTK;
 
 namespace GentrysQuest.Game.Location
 {
-    public abstract class MapZone : IMapObject
+    public abstract partial class MapZone : MapObject
     {
-        public Vector2 Size { get; set; } = Vector2.One;
-        public Vector2 Position { get; set; }
-        public EventHandler OnTouchEvent { get; set; }
-        public Anchor Anchor { get; set; } = Anchor.Centre;
-        public Anchor Origin { get; set; } = Anchor.TopLeft;
-        public Axes RelativeSizeAxes { get; set; } = Axes.None;
-        public Axes RelativePositionAxes { get; set; } = Axes.None;
+        public override Vector2 Size { get; set; } = Vector2.One;
+        public new Vector2 Position { get; set; }
+        public new EventHandler OnTouchEvent { get; set; }
+        public new Anchor Anchor { get; set; } = Anchor.Centre;
+        public override Anchor Origin { get; set; } = Anchor.TopLeft;
+        public override Axes RelativeSizeAxes { get; set; } = Axes.None;
+        public new Axes RelativePositionAxes { get; set; } = Axes.None;
 
-        public void OnTouch()
+        public virtual void OnTouch()
         {
             throw new NotImplementedException();
         }
