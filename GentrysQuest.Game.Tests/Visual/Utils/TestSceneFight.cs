@@ -29,12 +29,12 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.Gray
             });
-            player = new DrawablePlayableEntity(new GMoney());
+            player = new DrawablePlayableEntity(new GMoney()) { Depth = -1 };
             player.GetBase().SetWeapon(new Sword());
             player.SetupClickContainer();
             mapScene = new MapScene();
             mapScene.AddPlayer(player);
-            mapScene.LoadMap(new RaccoonRiver());
+            mapScene.LoadMap(new Jvee());
             gameplayHud = new GameplayHud();
             gameplayHud.SetEntity(player.GetBase());
             statContainer = new StatDrawableContainer()

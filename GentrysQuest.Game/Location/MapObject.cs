@@ -23,7 +23,7 @@ public partial class MapObject : CompositeDrawable
     public int Hardness { get; set; } = 1;
 
     [CanBeNull]
-    public CollisonHitBox Collider { get; }
+    public CollisonHitBox Collider { get; set; }
 
     public IntersectingHitBox IntersectingHitBox { get; set; }
 
@@ -33,7 +33,7 @@ public partial class MapObject : CompositeDrawable
     private void load()
     {
         AddInternal(IntersectingHitBox = new IntersectingHitBox(this));
-        if (Collider != null) AddInternal(Collider);
+        if (HasCollider) AddInternal(Collider = new CollisonHitBox(this));
         AddInternal(new Box
         {
             RelativePositionAxes = Axes.Both,

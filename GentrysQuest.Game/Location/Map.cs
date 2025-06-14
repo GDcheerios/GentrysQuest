@@ -19,9 +19,10 @@ namespace GentrysQuest.Game.Location
         {
             // implement map loading logic
 
-            // Add barriers
+            // Add barriers and floor
             // This is the default logic to prevent players from escaping,
             // But you do you
+            Objects.Add(new MapObject { RelativeSizeAxes = Axes.Both, Colour = Colour4.LightGray });
             Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, Size.Y), Colour = Colour4.Black });
             Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, -Size.Y), Colour = Colour4.Black });
             Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(10, Size.Y * 2), Position = new Vector2(Size.X, -Size.Y), Colour = Colour4.Black });
