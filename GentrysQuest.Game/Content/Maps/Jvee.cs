@@ -1,4 +1,5 @@
-﻿using GentrysQuest.Game.Location;
+﻿using GentrysQuest.Game.Content.Maps.JveeMap.ParkingLot;
+using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
 using osuTK;
@@ -7,18 +8,34 @@ namespace GentrysQuest.Game.Content.Maps
 {
     public class Jvee : Map
     {
+        private static readonly int[] HORIZONTAL_PARKING =
+        [
+            -30,
+            30,
+            -30,
+            -30,
+            30,
+            -30,
+            30,
+            -30
+        ];
+
         public Jvee()
         {
             Name = "J-Vee";
             Size = new
                 Vector2(
-                    MathBase.GetFeetToPixels(500)
+                    MathBase.GetFeetToPixels(5),
+                    MathBase.GetFeetToPixels(5)
                 );
+            SpawnPoint = new Vector2(Size.X * 0.5f, -Size.Y + 10);
         }
 
         public override void Load()
         {
             base.Load();
+
+            #region ParkingLot
 
             Objects.Add(new MapObject
             {
@@ -30,6 +47,18 @@ namespace GentrysQuest.Game.Content.Maps
                     MathBase.GetFeetToPixels(12)
                 )
             });
+
+            int startX = (int)(24 + ParkingLines.LINE_WIDTH * 0.5);
+
+            for (int i = 0; i < HORIZONTAL_PARKING.Length; i++)
+            {
+                Objects.Add(new ParkingLines(20, true, HORIZONTAL_PARKING[i])
+                {
+                    X = MathBase.GetFeetToPixels(startX + (i * (ParkingLines.LINE_WIDTH + 24)))
+                });
+            }
+
+            #endregion
         }
     }
 }

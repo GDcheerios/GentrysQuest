@@ -21,6 +21,8 @@ public partial class MapObject : CompositeDrawable
     public new Vector2 Position { get; set; } = Vector2.Zero;
     public int Health { get; set; } = 10000;
     public int Hardness { get; set; } = 1;
+    public bool Filled { get; set; } = true;
+    public bool Reactive { get; set; } = false;
 
     [CanBeNull]
     public CollisonHitBox Collider { get; set; }
@@ -32,12 +34,15 @@ public partial class MapObject : CompositeDrawable
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddInternal(IntersectingHitBox = new IntersectingHitBox(this));
-        if (HasCollider) AddInternal(Collider = new CollisonHitBox(this));
-        AddInternal(new Box
+        if (Filled)
         {
-            RelativePositionAxes = Axes.Both,
-            RelativeSizeAxes = Axes.Both
-        });
+            AddInternal(new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+            });
+        }
+
+        if (Reactive) AddInternal(IntersectingHitBox = new IntersectingHitBox(this));
+        if (HasCollider) AddInternal(Collider = new CollisonHitBox(this));
     }
 }
