@@ -3,12 +3,11 @@ using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Tests.Utils;
 using NUnit.Framework;
 using osu.Framework.Graphics;
-using osu.Framework.Testing;
 
 namespace GentrysQuest.Game.Tests.Visual.Utils
 {
     [TestFixture]
-    public partial class MapViewer : TestScene
+    public partial class MapViewer : GentrysQuestTestScene
     {
         private readonly MapScene mapScene;
         private readonly MapContainer mapContainer;
