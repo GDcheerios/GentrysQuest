@@ -25,12 +25,7 @@ namespace GentrysQuest.Game.Tests.Utils
         }
 
         [BackgroundDependencyLoader]
-        private void load()
-        {
-            RelativeSizeAxes = Axes.Both;
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
-        }
+        private void load() => RelativeSizeAxes = Axes.Both;
 
         protected override bool OnKeyDown(KeyDownEvent e)
         {

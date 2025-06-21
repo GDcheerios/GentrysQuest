@@ -28,14 +28,12 @@ namespace GentrysQuest.Game.Content.Maps
                     MathBase.GetFeetToPixels(540),
                     MathBase.GetFeetToPixels(530)
                 );
-            SpawnPoint = new Vector2(0, MathBase.GetFeetToPixels(-500));
+            // SpawnPoint = GetCoordinatePercent(0.5f, 0.9f);
         }
 
         public override void Load()
         {
             base.Load();
-
-            Objects.Add(new MapObject{Name="test", Position = new Vector2(100, 100), Size = new Vector2(100, 100)});
 
             #region ParkingLot
 
@@ -43,8 +41,7 @@ namespace GentrysQuest.Game.Content.Maps
             {
                 Name = "Concrete",
                 Colour = Colour4.Gray,
-                RelativeSizeAxes = Axes.Both,
-                Anchor = Anchor.Centre
+                RelativeSizeAxes = Axes.Both
             });
 
             Objects.Add(new MapObject
