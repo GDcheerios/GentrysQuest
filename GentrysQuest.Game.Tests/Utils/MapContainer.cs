@@ -54,10 +54,12 @@ namespace GentrysQuest.Game.Tests.Utils
 
                 case Key.Down:
                     mapScene.GetMap().Scale *= 0.5f;
+                    mapScene.GetMap().Position *= 0.5f;
                     break;
 
                 case Key.Up:
-                    mapScene.GetMap().Scale *= 1.5f;
+                    mapScene.GetMap().Scale *= 2f;
+                    mapScene.GetMap().Position *= 2f;
                     break;
             }
 
