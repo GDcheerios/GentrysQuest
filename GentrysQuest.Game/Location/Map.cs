@@ -15,6 +15,9 @@ namespace GentrysQuest.Game.Location
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
 
+        /// <summary>
+        /// Loads map objects.
+        /// </summary>
         public virtual void Load()
         {
             // implement map loading logic
@@ -22,11 +25,28 @@ namespace GentrysQuest.Game.Location
             // Add barriers and floor
             // This is the default logic to prevent players from escaping,
             // But you do you
-            Objects.Add(new MapObject { RelativeSizeAxes = Axes.Both, Colour = Colour4.LightGray });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, -Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(10, Size.Y * 2), Position = new Vector2(Size.X, -Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(10, Size.Y * 2), Position = new Vector2(-Size.X, -Size.Y), Colour = Colour4.Black });
+
+            Objects.Add(new MapObject{ Name = "test", Position = new Vector2(2232,224)});
+
+            // top
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.X,
+                Size = new Vector2(1, 1),
+                HasCollider = true,
+                Filled = false
+            });
+
+            // bottom
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.X,
+                Size = new Vector2(1, 1),
+                RelativePositionAxes = Axes.Y,
+                Y = 1,
+                HasCollider = true,
+                Filled = false
+            });
         }
 
         public int Difficulty { get; protected set; } = 0;

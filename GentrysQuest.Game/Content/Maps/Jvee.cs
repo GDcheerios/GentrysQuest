@@ -25,17 +25,27 @@ namespace GentrysQuest.Game.Content.Maps
             Name = "J-Vee";
             Size = new
                 Vector2(
-                    MathBase.GetFeetToPixels(5),
-                    MathBase.GetFeetToPixels(5)
+                    MathBase.GetFeetToPixels(540),
+                    MathBase.GetFeetToPixels(530)
                 );
-            SpawnPoint = new Vector2(Size.X * 0.5f, -Size.Y + 10);
+            SpawnPoint = new Vector2(0, MathBase.GetFeetToPixels(-500));
         }
 
         public override void Load()
         {
             base.Load();
 
+            Objects.Add(new MapObject{Name="test", Position = new Vector2(100, 100), Size = new Vector2(100, 100)});
+
             #region ParkingLot
+
+            Objects.Add(new MapObject
+            {
+                Name = "Concrete",
+                Colour = Colour4.Gray,
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre
+            });
 
             Objects.Add(new MapObject
             {
