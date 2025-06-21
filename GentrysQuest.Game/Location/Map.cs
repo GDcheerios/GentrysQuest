@@ -26,8 +26,6 @@ namespace GentrysQuest.Game.Location
             // This is the default logic to prevent players from escaping,
             // But you do you
 
-            Objects.Add(new MapObject{ Name = "test", Position = new Vector2(2232,224)});
-
             // top
             Objects.Add(new MapObject
             {
@@ -42,8 +40,28 @@ namespace GentrysQuest.Game.Location
             {
                 RelativeSizeAxes = Axes.X,
                 Size = new Vector2(1, 1),
-                RelativePositionAxes = Axes.Y,
-                Y = 1,
+                Anchor = Anchor.BottomLeft,
+                HasCollider = true,
+                Filled = false
+            });
+
+            // left
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.Y,
+                Size = new Vector2(1, 1),
+                Anchor = Anchor.TopLeft,
+                HasCollider = true,
+                Filled = false
+            });
+
+            // right
+            // left
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.Y,
+                Size = new Vector2(1, 1),
+                Anchor = Anchor.TopRight,
                 HasCollider = true,
                 Filled = false
             });
@@ -51,6 +69,14 @@ namespace GentrysQuest.Game.Location
 
         public int Difficulty { get; protected set; } = 0;
         public bool DifficultyScales { get; protected set; } = false;
+
+        /// <summary>
+        /// Get coordinates based off percentage.
+        /// </summary>
+        /// <param name="x">X percentage</param>
+        /// <param name="y">Y percentage</param>
+        /// <returns>Vector2 coordinates</returns>
+        public Vector2 GetCoordinatePercent(float x, float y) => new(x * (Size.X * 2), y * (Size.Y * 2));
 
         /// <summary>
         /// Code that runs every frame
