@@ -69,7 +69,7 @@ namespace GentrysQuest.Game.Location
         public void LoadMap(Map mapInfo)
         {
             map.Load(mapInfo);
-            map.Position = map.MapReference.SpawnPoint;
+            map.Position = map.MapReference.SpawnPoint / 4;
 
             AddInternal(locationText = new LocationText(mapInfo.Name));
         }
@@ -89,8 +89,6 @@ namespace GentrysQuest.Game.Location
         private void load()
         {
             RelativeSizeAxes = Axes.Both;
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
             AddInternal(map);
         }
 

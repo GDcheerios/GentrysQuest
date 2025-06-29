@@ -50,11 +50,11 @@ namespace GentrysQuest.Game.Location.Drawables
             AddInternal(new MapObject
             {
                 Name = "Spawn Point",
-                Position = map.SpawnPoint,
+                Position = MapReference.SpawnPoint,
                 Size = new Vector2(150),
                 Alpha = 0.5f,
                 Colour = Colour4.LightBlue,
-                Origin = Anchor.Centre,
+                Origin = Anchor.Centre
             });
 #endif
         }

@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
     {
         private readonly MapScene mapScene;
         private readonly MapContainer mapContainer;
-        private readonly Map map = new Jvee();
+        private readonly Map map = new TestMap();
 
         public MapViewer()
         {

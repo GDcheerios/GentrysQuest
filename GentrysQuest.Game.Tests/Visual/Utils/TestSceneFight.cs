@@ -28,7 +28,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
             player.SetupClickContainer();
             mapScene = new MapScene();
             mapScene.AddPlayer(player);
-            mapScene.LoadMap(new Jvee());
+            mapScene.LoadMap(new TestMap());
             gameplayHud = new GameplayHud();
             gameplayHud.SetEntity(player.GetBase());
             statContainer = new StatDrawableContainer()
