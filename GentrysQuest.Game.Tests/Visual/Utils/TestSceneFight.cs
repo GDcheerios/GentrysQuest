@@ -8,7 +8,6 @@ using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Screens.Gameplay;
 using NUnit.Framework;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK;
 
@@ -24,17 +23,12 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
 
         public TestSceneFight()
         {
-            Add(new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.Gray
-            });
-            player = new DrawablePlayableEntity(new GMoney());
+            player = new DrawablePlayableEntity(new GMoney()) { Depth = -1 };
             player.GetBase().SetWeapon(new Sword());
             player.SetupClickContainer();
             mapScene = new MapScene();
             mapScene.AddPlayer(player);
-            mapScene.LoadMap(new RaccoonRiver());
+            mapScene.LoadMap(new TestMap());
             gameplayHud = new GameplayHud();
             gameplayHud.SetEntity(player.GetBase());
             statContainer = new StatDrawableContainer()

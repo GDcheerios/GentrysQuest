@@ -15,21 +15,68 @@ namespace GentrysQuest.Game.Location
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
 
+        /// <summary>
+        /// Loads map objects.
+        /// </summary>
         public virtual void Load()
         {
             // implement map loading logic
 
-            // Add barriers
+            // Add barriers and floor
             // This is the default logic to prevent players from escaping,
             // But you do you
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(Size.X * 2, 10), Position = new Vector2(-Size.X, -Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(10, Size.Y * 2), Position = new Vector2(Size.X, -Size.Y), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(10, Size.Y * 2), Position = new Vector2(-Size.X, -Size.Y), Colour = Colour4.Black });
+
+            // top
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.X,
+                Size = new Vector2(1, 1),
+                HasCollider = true,
+                Filled = false
+            });
+
+            // bottom
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.X,
+                Size = new Vector2(1, 1),
+                Anchor = Anchor.BottomLeft,
+                HasCollider = true,
+                Filled = false
+            });
+
+            // left
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.Y,
+                Size = new Vector2(1, 1),
+                Anchor = Anchor.TopLeft,
+                HasCollider = true,
+                Filled = false
+            });
+
+            // right
+            // left
+            Objects.Add(new MapObject
+            {
+                RelativeSizeAxes = Axes.Y,
+                Size = new Vector2(1, 1),
+                Anchor = Anchor.TopRight,
+                HasCollider = true,
+                Filled = false
+            });
         }
 
         public int Difficulty { get; protected set; } = 0;
         public bool DifficultyScales { get; protected set; } = false;
+
+        /// <summary>
+        /// Get coordinates based off percentage.
+        /// </summary>
+        /// <param name="x">X percentage</param>
+        /// <param name="y">Y percentage</param>
+        /// <returns>Vector2 coordinates</returns>
+        public Vector2 GetCoordinatePercent(float x, float y) => new(x * (Size.X * 2), y * (Size.Y * 2));
 
         /// <summary>
         /// Code that runs every frame

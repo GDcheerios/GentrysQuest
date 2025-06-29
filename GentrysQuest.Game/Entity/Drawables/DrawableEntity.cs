@@ -63,7 +63,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The base speed variable for all entities
         /// </summary>
-        protected const double SPEED_MAIN = 0.15;
+        protected const double SPEED_MAIN = 0.2;
 
         private const int DODGE_TIME = 250;
         private const int DODGE_INTERVAL = 1000;

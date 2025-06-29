@@ -5,7 +5,7 @@ using osu.Framework.Graphics;
 namespace GentrysQuest.Game.Content.Maps.RaccoonRiverMap
 {
     /// <summary>
-    /// TimeCover class represents a 
+    /// TimeCover class represents
     /// </summary>
     public partial class TimeCover : MapObject
     {
