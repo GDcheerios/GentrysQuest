@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -10,6 +11,9 @@ namespace GentrysQuest.Game.Screens
 {
     public partial class InventoryTutorial : GqScreen
     {
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
+
         private SceneScript cinematicScene = new();
 
         private Box flashOverlay = new Box
@@ -41,6 +45,7 @@ namespace GentrysQuest.Game.Screens
         {
             base.OnEntering(e);
             cinematicScene.Start(Overlay, Scheduler);
+            discordRpc.UpdatePresence("Tutorial: Inventory", "Playing");
         }
     }
 }
