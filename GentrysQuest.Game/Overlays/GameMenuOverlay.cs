@@ -10,7 +10,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Events;
 using osuTK;
+using osuTK.Input;
 
 namespace GentrysQuest.Game.Overlays
 {
@@ -181,6 +183,24 @@ namespace GentrysQuest.Game.Overlays
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        // Todo: create input handler and add this to it!
+        protected override bool OnKeyDown(KeyDownEvent e)
+        {
+            switch (e.Key)
+            {
+                case Key.Escape:
+                    Toggle();
+                    break;
+
+                case Key.C:
+                    Appear();
+                    state.Value = SelectionState.Inventory;
+                    break;
+            }
+
+            return base.OnKeyDown(e);
         }
     }
 }
