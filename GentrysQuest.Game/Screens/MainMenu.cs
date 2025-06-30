@@ -138,7 +138,7 @@ namespace GentrysQuest.Game.Screens
                 Scheduler.AddDelayed(() =>
                 {
                     AudioManager.Instance.FadeOutMusic(3000);
-                    this.Push(new CombatTutorial());
+                    this.Push(new Tutorial());
                     title.FadeOut();
                 }, 5000);
                 title.MoveToY(400, 2000, Easing.Out);

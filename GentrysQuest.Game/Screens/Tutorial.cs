@@ -1,17 +1,21 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Effects;
-using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Content.Enemies;
+using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Screens.Gameplay;
+using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Shapes;
@@ -22,10 +26,16 @@ using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
 
 namespace GentrysQuest.Game.Screens
 {
-    public partial class CombatTutorial : GqScreen
+    public partial class Tutorial : GqScreen
     {
         [Resolved]
         private DiscordRpc discordRpc { get; set; }
+
+        [Resolved]
+        private GameMenuOverlay gameMenuOverlay { get; set; }
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
 
         private DrawablePlayableEntity player;
         private DrawableEnemyEntity enemy;
@@ -54,7 +64,7 @@ namespace GentrysQuest.Game.Screens
 
         private Box flashCover;
 
-        public CombatTutorial()
+        public Tutorial()
         {
             scene.LoadMap(new GentrysClassroom());
 
@@ -62,218 +72,222 @@ namespace GentrysQuest.Game.Screens
 
             #region introScript
 
-            introScript.AddEvent("Fade In", new SceneEvent
-            {
-                Event =
-                    () =>
-                    {
-                        scene.GetMap().FadeOut().Then().FadeIn(1000);
-                        AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
-                    }
-            });
-            introScript.AddEvent("Pan Up", new SceneEvent
-            {
-                Event =
-                    () =>
-                    {
-                        scene.GetMap().MoveToY(450, 5000);
-                    },
-                Delay = 1100
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Hello students,",
-                    Duration = 1000
-                },
-                Duration = 3000,
-                Delay = 7000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today we’ll be going over chapter 2 of computer programming.",
-                    Duration = 4300
-                },
-                Duration = 7000
-            });
-            introScript.AddEvent("C-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Class",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Okay...",
-                    Duration = 500
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "So, today…",
-                    Duration = 1000
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today will be more of a fun day.",
-                    Duration = 2000
-                },
-                Duration = 3000
-            });
+            // introScript.AddEvent("Fade In", new SceneEvent
+            // {
+            //     Event =
+            //         () =>
+            //         {
+            //             scene.GetMap().FadeOut().Then().FadeIn(1000);
+            //             AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
+            //         }
+            // });
+            // introScript.AddEvent("Pan Up", new SceneEvent
+            // {
+            //     Event =
+            //         () =>
+            //         {
+            //             scene.GetMap().MoveToY(scene.GetNpc("GMoney").Y, 5000);
+            //         },
+            //     Delay = 1100
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Hello students,",
+            //         Duration = 1000
+            //     },
+            //     Duration = 3000,
+            //     Delay = 7000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Today we’ll be going over chapter 2 of computer programming.",
+            //         Duration = 4300
+            //     },
+            //     Duration = 7000
+            // });
+            // introScript.AddEvent("C-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Class",
+            //         Text = "...",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 2000,
+            //     Delay = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Okay...",
+            //         Duration = 500
+            //     },
+            //     Duration = 2000,
+            //     Delay = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "So, today…",
+            //         Duration = 1000
+            //     },
+            //     Duration = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Today will be more of a fun day.",
+            //         Duration = 2000
+            //     },
+            //     Duration = 3000
+            // });
             introScript.AddEvent("Power Outage", new SceneEvent
             {
                 Duration = 2000, Delay = 2000,
                 Event = () =>
                 {
-                    scene.FadeTo(0);
+                    scene.UnloadMap();
                     AudioManager.Instance.StopMusic();
                     AudioManager.Instance.PlaySound(lightDie);
                 }
             });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "uhh",
-                    Duration = 1000,
-                },
-                Duration = 1500
-            });
-            introScript.AddEvent("Evil Gentry First Convo", new SceneEvent
-            {
-                Delay = 2500, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Finally...",
-                    Duration = 2000
-                },
-                Event = () =>
-                {
-                    AudioManager.Instance.ChangeMusic(new AMBI());
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Duration = 8000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I've been waiting years for this moment to come.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("G-dialogue", new SceneEvent
-            {
-                Delay = 1000, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Who are you?",
-                    Duration = 500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 1500, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "hmhmhmhmhm",
-                    Duration = 1500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 7000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "You actually know me quite well.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "In fact...",
-                    Duration = 1000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 6000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I'd say you and I...",
-                    Duration = 4000
-                }
-            });
-            introScript.AddEvent("dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Are the same.",
-                    Duration = 2000
-                }
-            });
-            introScript.AddEvent("Evil Gentry Entrance", new SceneEvent
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "...",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 2000
+            // });
+            // introScript.AddEvent("G-Dialogue", new SceneEvent
+            // {
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "uhh",
+            //         Duration = 1000,
+            //     },
+            //     Duration = 1500
+            // });
+            // introScript.AddEvent("Evil Gentry First Convo", new SceneEvent
+            // {
+            //     Delay = 2500, Duration = 5000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "Finally...",
+            //         Duration = 2000
+            //     },
+            //     Event = () =>
+            //     {
+            //         AudioManager.Instance.ChangeMusic(new AMBI());
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Duration = 8000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "I've been waiting years for this moment to come.",
+            //         Duration = 5000
+            //     }
+            // });
+            // introScript.AddEvent("G-dialogue", new SceneEvent
+            // {
+            //     Delay = 1000, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "Mr.Gentry",
+            //         Text = "Who are you?",
+            //         Duration = 500
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 1500, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "hmhmhmhmhm",
+            //         Duration = 1500
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 2000, Duration = 7000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "You actually know me quite well.",
+            //         Duration = 5000
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 0, Duration = 3000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "In fact...",
+            //         Duration = 1000
+            //     }
+            // });
+            // introScript.AddEvent("EG-dialogue", new SceneEvent
+            // {
+            //     Delay = 0, Duration = 6000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "I'd say you and I...",
+            //         Duration = 4000
+            //     }
+            // });
+            // introScript.AddEvent("dialogue", new SceneEvent
+            // {
+            //     Delay = 2000, Duration = 5000,
+            //     DialogueEvent = new DialogueEvent
+            //     {
+            //         Author = "???",
+            //         Text = "Are the same.",
+            //         Duration = 2000
+            //     }
+            // });
+            introScript.AddEvent("new map", new SceneEvent
             {
                 Event = () =>
                 {
                     scene.RemoveNpc(scene.GetMap().Npcs[^1]);
                     scene.FadeIn();
                     scene.AddPlayer(player = new DrawablePlayableEntity(new GMoney()) { Y = -200, X = -200 });
-                    scene.AddEnemy(enemy = new DrawableEnemyEntity(new EvilGentry()) { Y = -200, X = 200 });
-                    enemy.GetBase().Stats.Health.Point = 2;
-                    enemy.GetBase().Experience.Level.Current.Value = 20;
-                    enemy.GetBase().UpdateStats();
-                    enemy.GetBase().Heal();
-                    enemy.GetBase().CanAttack = false;
-                    enemy.GetBase().CanMove = false;
                     player.EntityBar.OnlyShowName();
-                    enemy.EntityBar.OnlyShowName();
                     player.GetBase().AddEffect(new Paused());
+                    scene.LoadMap(new EvilGentrysVoid());
+                    DrawableEnemyEntity lostSpirit1 = new DrawableEnemyEntity(new LostSpirit()) { Y = -500 };
+                    DrawableEnemyEntity lostSpirit2 = new DrawableEnemyEntity(new LostSpirit()) { Y = -2500 };
+
+                    lostSpirit1.GetBase().Stats.Health.Current.Value = 100;
+                    lostSpirit2.GetBase().Stats.Health.Current.Value = 100;
+                    lostSpirit1.GetBase().Stats.Speed.Current.Value = 0.25;
+                    lostSpirit2.GetBase().Stats.Speed.Current.Value = 0.25;
+
+                    lostSpirit1.GetBase().OnDeath += () => { };
+                    scene.AddEnemy(lostSpirit1);
+                    scene.AddEnemy(lostSpirit2);
                 },
                 Delay = 10
             });
@@ -281,9 +295,7 @@ namespace GentrysQuest.Game.Screens
             {
                 Event = () =>
                 {
-                    scene.GetMap().MoveTo(new Vector2(-player.X, GentrysClassroom.CLASSROOM_HEIGHT - 1100), 1000);
-                    player.MoveTo(Vector2.Zero, 1000);
-                    enemy.MoveTo(new Vector2(enemy.X + 200, 0), 1000);
+                    player.MoveTo(Vector2.Zero, 5000);
                 }
             });
             introScript.AddEvent("Initiate Combat Tutorial", new SceneEvent
@@ -295,10 +307,8 @@ namespace GentrysQuest.Game.Screens
                             gameplayHud.Appear();
                             gameplayHud.SetEntity(player.GetBase());
                             keyMovementText.FadeIn(250, Easing.OutQuint);
-                        }, 1000
+                        }, 6000
                     );
-
-                    AudioManager.Instance.ChangeMusic(new Anguish());
 
                     player.OnMove += hideMovementText;
                     player.GetBase().OnHitEntity += hideAttackText;
@@ -309,28 +319,6 @@ namespace GentrysQuest.Game.Screens
                     player.GetBase().RemoveEffect("Paused");
                     player.GetBase().Heal();
                     player.SetupClickContainer();
-                    player.Weapon.GetBase().OnHitEntity += (details) =>
-                    {
-                        if (details.GetHitAmount() == 1 && details.Receiver == enemy.GetBase())
-                        {
-                            enemy.GetBase().CanAttack = true;
-                            displayEnemyDialogue(new DialogueEvent
-                            {
-                                Author = "Evil Gentry",
-                                Text = "You really wanna try and fight me?",
-                                Duration = 1000
-                            });
-                        }
-                    };
-
-                    player.GetBase().OnDeath += () => { afterCombatScript.Start(Overlay, Scheduler); };
-
-                    enemy.GetBase().CanDie = false;
-                    enemy.GetBase().SetWeapon(new Sword());
-                    enemy.EntityBar.ShowAll();
-                    enemy.FollowEntity(player);
-                    enemy.GetBase().OnDamage += _ => checkEnemyHealth();
-                    enemy.GetBase().Stats.AttackSpeed.Current.Value = 0.2;
                 },
                 Delay = 1000
             });
@@ -401,7 +389,6 @@ namespace GentrysQuest.Game.Screens
                     {
                         AudioManager.Instance.PlaySound(flashbangSound);
                         flashCover.FadeIn(25, Easing.OutQuint);
-                        Scheduler.AddDelayed(() => this.Push(new InventoryTutorial()), 6000);
                     }, 300);
                 },
                 Delay = 1000
@@ -599,15 +586,13 @@ namespace GentrysQuest.Game.Screens
                 Colour = Colour4.White,
                 Alpha = 0
             });
-
-            scene.GetMap().Y = -400;
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
         {
             base.OnEntering(e);
             introScript.Start(Overlay, Scheduler);
-            discordRpc.UpdatePresence("Tutorial: Combat", "Playing");
+            discordRpc.UpdatePresence("Tutorial", "Playing");
         }
     }
 }

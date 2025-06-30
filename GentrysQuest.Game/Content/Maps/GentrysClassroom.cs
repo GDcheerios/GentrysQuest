@@ -10,8 +10,8 @@ namespace GentrysQuest.Game.Content.Maps
     public class GentrysClassroom : Map
     {
         // classroom layout
-        public const int CLASSROOM_WIDTH = 1500;
-        public const int CLASSROOM_HEIGHT = 1700;
+        public const int CLASSROOM_WIDTH = 750;
+        public const int CLASSROOM_HEIGHT = 850;
 
         // colors
         private static readonly Colour4 FRONT_WALL_COLOUR = new Colour4(167, 66, 46, 255);
@@ -38,6 +38,7 @@ namespace GentrysQuest.Game.Content.Maps
             Name = "Gentry's Classroom";
             DifficultyScales = false;
             Size = new Vector2(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
+            SpawnPoint = new Vector2(CLASSROOM_WIDTH, CLASSROOM_HEIGHT * 1.8f);
         }
 
         public override void Load()
@@ -49,6 +50,7 @@ namespace GentrysQuest.Game.Content.Maps
             {
                 RelativeSizeAxes = Axes.Both,
                 Origin = Anchor.Centre,
+                Anchor = Anchor.Centre,
                 Colour = FLOOR_COLOUR
             });
 
@@ -130,7 +132,7 @@ namespace GentrysQuest.Game.Content.Maps
             {
                 for (int col = 0; col < COLUMNS; col++)
                 {
-                    float x = (col - 1) * (CLASSROOM_WIDTH / 3f);
+                    float x = (col - 1) * (CLASSROOM_WIDTH / 1.5f);
                     float y = -100 + (row - (ROWS - 1) / 2f) * (DESK_HEIGHT + 150f);
 
                     Objects.Add(new MapObject

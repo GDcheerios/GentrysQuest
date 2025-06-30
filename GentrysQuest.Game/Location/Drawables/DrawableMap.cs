@@ -73,11 +73,5 @@ namespace GentrysQuest.Game.Location.Drawables
                 RemoveInternal(entity, true);
             }
         }
-
-        protected override void Update()
-        {
-            base.Update();
-            MapReference.Update();
-        }
     }
 }

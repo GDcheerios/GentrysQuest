@@ -29,7 +29,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
             player.SetupClickContainer();
             mapScene = new MapScene();
             mapScene.AddPlayer(player);
-            mapScene.LoadMap(new TestMap());
+            mapScene.LoadMap(new EvilGentrysVoid());
             gameplayHud = new GameplayHud();
             gameplayHud.SetEntity(player.GetBase());
             statContainer = new StatDrawableContainer()

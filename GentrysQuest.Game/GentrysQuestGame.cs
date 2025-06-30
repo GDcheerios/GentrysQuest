@@ -120,17 +120,5 @@ namespace GentrysQuest.Game
             screenManager.SetScreen(ScreenState.Loading);
             // screenStack.Push(new CombatTutorial());
         }
-
-        protected override bool OnKeyDown(KeyDownEvent e)
-        {
-            switch (e.Key)
-            {
-                case Key.Escape:
-                    gameMenuOverlay.Toggle();
-                    break;
-            }
-
-            return base.OnKeyDown(e);
-        }
     }
 }
