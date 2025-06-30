@@ -10,6 +10,7 @@ namespace GentrysQuest.Game.Content.Characters
             StarRating = new StarRating(5);
             Description = "Big biggest and baddest gentry warrior the biggest alpha sigma of them all.";
 
+            TextureMapping = new();
             TextureMapping.Add("Idle", "characters_mekhi_idle.jpg");
         }
     }

@@ -129,7 +129,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            icon.Texture = textures.Get(entity.TextureMapping.Get("Icon"));
+            if (entity.TextureMapping != null) icon.Texture = textures.Get(entity.TextureMapping.Get("Icon"));
         }
 
         protected override bool OnHover(HoverEvent e)

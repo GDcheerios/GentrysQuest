@@ -10,6 +10,7 @@ namespace GentrysQuest.Game.Content.Characters
         public TestCharacter(int starRating)
         {
             StarRating = new StarRating(starRating);
+            TextureMapping = new();
         }
     }
 }

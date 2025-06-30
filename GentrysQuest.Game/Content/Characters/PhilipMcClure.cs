@@ -9,6 +9,7 @@ namespace GentrysQuest.Game.Content.Characters
             Name = "Philip McClure";
             StarRating = new StarRating(5);
 
+            TextureMapping = new();
             TextureMapping.Add("Idle", "characters_philip_mcclure_idle.png");
 
             AudioMapping.Add("Spawn", "characters_philip_mcclure_spawn.mp3");
