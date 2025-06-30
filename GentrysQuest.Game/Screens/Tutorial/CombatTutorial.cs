@@ -7,6 +7,7 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
 using GentrysQuest.Game.Location;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Screens.Gameplay;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
@@ -23,6 +24,9 @@ namespace GentrysQuest.Game.Screens
 {
     public partial class CombatTutorial : GqScreen
     {
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
+
         private DrawablePlayableEntity player;
         private DrawableEnemyEntity enemy;
         private GameplayHud gameplayHud;
@@ -603,6 +607,7 @@ namespace GentrysQuest.Game.Screens
         {
             base.OnEntering(e);
             introScript.Start(Overlay, Scheduler);
+            discordRpc.UpdatePresence("Tutorial: Combat", "Playing");
         }
     }
 }

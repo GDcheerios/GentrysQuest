@@ -2,6 +2,7 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
@@ -41,6 +42,9 @@ namespace GentrysQuest.Game.Screens
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
 
         public MainMenuScreen(bool keepIntroSong = false)
         {
@@ -166,6 +170,7 @@ namespace GentrysQuest.Game.Screens
                 new Colour4(58, 58, 58, 255)
             ), 500);
             title.Delay(120).Then().FadeIn(120);
+            discordRpc.UpdatePresence("Main Menu", "");
         }
 
         public override void OnResuming(ScreenTransitionEvent e)

@@ -3,6 +3,7 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osuTK;
 
 namespace GentrysQuest.Game.Location.Drawables
 {
@@ -15,7 +16,7 @@ namespace GentrysQuest.Game.Location.Drawables
         public DrawableMap()
         {
             Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
+            Origin = Anchor.TopLeft;
         }
 
         public void RemoveNpc(DrawableEntity entity)
@@ -44,6 +45,18 @@ namespace GentrysQuest.Game.Location.Drawables
                 Npcs.Add(entity);
                 AddInternal(entity);
             }
+
+#if DEBUG
+            AddInternal(new MapObject
+            {
+                Name = "Spawn Point",
+                Position = MapReference.SpawnPoint,
+                Size = new Vector2(150),
+                Alpha = 0.5f,
+                Colour = Colour4.LightBlue,
+                Origin = Anchor.Centre
+            });
+#endif
         }
 
         public void Unload()

@@ -18,14 +18,27 @@ namespace GentrysQuest.Game.Content.Maps
         private const int DAY_STRENGTH = 10;
         private const int NIGHT_STRENGTH = 180;
 
-        public RaccoonRiver()
+        public RaccoonRiver(bool tutorial = false)
         {
             Name = "Raccoon River";
             Size = new Vector2(
-                MathBase.GetMilesToPixels(0.5),
-                MathBase.GetMilesToPixels(1)
+                MathBase.GetFeetToPixels(2600),
+                MathBase.GetFeetToPixels(2830)
             );
-            SpawnPoint = new Vector2();
+
+            if (tutorial)
+            {
+                SpawnPoint = new Vector2(
+                    MathBase.GetFeetToPixels(2330),
+                    MathBase.GetFeetToPixels(2800)
+                );
+            }
+            else
+            {
+                SpawnPoint = new Vector2(
+                    0
+                );
+            }
         }
 
         public override void Load()
