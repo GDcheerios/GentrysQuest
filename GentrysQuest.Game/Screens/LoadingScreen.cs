@@ -1,11 +1,13 @@
 using System.Threading.Tasks;
 using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Online.API;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Screens;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -18,6 +20,9 @@ namespace GentrysQuest.Game.Screens
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
 
         /// <summary>
         /// This is the main loading screen for the game.
@@ -55,6 +60,12 @@ namespace GentrysQuest.Game.Screens
                 Margin = new MarginPadding { Bottom = 50 },
                 Font = FontUsage.Default.With(size: 72)
             });
+        }
+
+        public override void OnEntering(ScreenTransitionEvent e)
+        {
+            base.OnEntering(e);
+            discordRpc.UpdatePresence("Loading", "");
         }
 
         private async Task loadGameData()

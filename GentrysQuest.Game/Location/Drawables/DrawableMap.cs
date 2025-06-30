@@ -16,7 +16,7 @@ namespace GentrysQuest.Game.Location.Drawables
         public DrawableMap()
         {
             Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
+            Origin = Anchor.TopLeft;
         }
 
         public void RemoveNpc(DrawableEntity entity)

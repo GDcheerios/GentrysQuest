@@ -12,8 +12,7 @@ namespace GentrysQuest.Game.Content.Maps
             Name = "Test Map";
             DifficultyScales = true;
             Size = new Vector2(2000);
-            // SpawnPoint = GetCoordinatePercent(0.5f, 0.5f);
-            // SpawnPoint = GetCoordinatePercent(1, 1);
+            SpawnPoint = GetCoordinatePercent(0.5f, 0.5f);
         }
 
         public override void Load()

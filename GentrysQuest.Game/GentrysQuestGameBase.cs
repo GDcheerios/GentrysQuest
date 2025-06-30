@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Database;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
 using osu.Framework.Allocation;
@@ -18,6 +19,9 @@ namespace GentrysQuest.Game
         // the screen scaling for all components including the test browser and framework overlays.
         protected override Container<Drawable> Content { get; }
         private GameClock gameClock;
+
+        [Cached]
+        private DiscordRpc discordRpc = new("1115885237910634587");
 
         protected GentrysQuestGameBase()
         {

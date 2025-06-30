@@ -65,11 +65,15 @@ namespace GentrysQuest.Game.Location
         private void removeNpc(DrawableEntity npc) => map.RemoveNpc(npc);
         public void RemoveNpc(DrawableEntity npc) => removeNpc(npc);
         public void RemoveNpc(int index) => removeNpc(map.Npcs[index]);
+        public DrawableEntity GetNpc(int index) => map.Npcs[index];
+        public DrawableEntity GetNpc(string name) => map.Npcs.FirstOrDefault(n => n.GetBase().Name == name);
+
+        public Vector2 GetSpawnPoint() => -map.MapReference.SpawnPoint;
 
         public void LoadMap(Map mapInfo)
         {
             map.Load(mapInfo);
-            map.Position = map.MapReference.SpawnPoint / 4;
+            map.Position = GetSpawnPoint();
 
             AddInternal(locationText = new LocationText(mapInfo.Name));
         }
