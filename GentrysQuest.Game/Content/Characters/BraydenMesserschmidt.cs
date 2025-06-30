@@ -24,6 +24,7 @@ namespace GentrysQuest.Game.Content.Characters
 
             OnUpdateStats += checkWeapon;
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "characters_brayden_idle.png");
             TextureMapping.Add("Idle", "characters_brayden_idle.png");
 

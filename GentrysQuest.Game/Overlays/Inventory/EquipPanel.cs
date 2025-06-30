@@ -184,7 +184,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private void load(TextureStore textureStore)
         {
             this.textureStore = textureStore;
-            if (entityReference != null) icon.Texture = textureStore.Get(entityReference.TextureMapping.Get("Icon"));
+
+            if (entityReference?.TextureMapping != null)
+            {
+                icon.Texture = textureStore.Get(entityReference.TextureMapping.Get("Icon"));
+            }
         }
 
         public void SetEquip(EntityBase entity)
@@ -203,7 +207,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             if (entity != null)
             {
                 entityReference = entity;
-                icon.Texture = textureStore.Get(entityReference.TextureMapping.Get("Icon"));
+                if (entityReference.TextureMapping != null) icon.Texture = textureStore.Get(entityReference.TextureMapping.Get("Icon"));
                 icon.Show();
                 swapItemButton.Show();
                 removeItemButton.Show();
@@ -231,7 +235,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                             {
                                 Scale = new Vector2(0.5f),
                                 Y = 5,
-                                Margin = new MarginPadding { Left = 25, Right = 80},
+                                Margin = new MarginPadding { Left = 25, Right = 80 },
                             }
                         );
                         break;

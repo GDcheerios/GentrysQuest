@@ -156,7 +156,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             // textures
             Sprite.Colour = Colour4.White;
-            Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            if (Entity.TextureMapping != null) Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            AddInternal(Entity.DrawableTexture);
 
             // sounds
             Entity.OnSpawn += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };

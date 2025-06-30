@@ -78,6 +78,7 @@ namespace GentrysQuest.Game.Content.Weapons
 
             #region TextureMapping
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "weapons_brodys_broadsword.png");
             TextureMapping.Add("Base", "weapons_brodys_broadsword.png");
 

@@ -1,5 +1,6 @@
 ﻿using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.IO;
+using JetBrains.Annotations;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -10,7 +11,12 @@ namespace GentrysQuest.Game.Entity
         public virtual StarRating StarRating { get; protected set; } = new StarRating(1);
         public virtual string Description { get; protected set; } = "This is a description";
         public Experience Experience { get; protected set; } = new();
-        public TextureMapping TextureMapping { get; protected set; } = new();
+
+        [CanBeNull]
+        public TextureMapping TextureMapping { get; protected set; } = null;
+
+        public DrawableTexture DrawableTexture { get; protected set; } = new();
+
         public AudioMapping AudioMapping { get; protected set; } = new();
         public byte Difficulty { get; protected set; } = 0;
 
