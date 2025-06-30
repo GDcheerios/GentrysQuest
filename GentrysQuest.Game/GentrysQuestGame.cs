@@ -10,9 +10,7 @@ using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Input.Events;
 using osu.Framework.Screens;
-using osuTK.Input;
 using Character = SharpFNT.Character;
 
 namespace GentrysQuest.Game
