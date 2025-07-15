@@ -1,4 +1,5 @@
 using System;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Overlays.Notifications;
@@ -11,6 +12,8 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
+using osuTK.Input;
+using InputHandler = GentrysQuest.Game.Input.InputHandler;
 
 namespace GentrysQuest.Game.Overlays
 {
@@ -52,6 +55,9 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private InputHandler inputHandler { get; set; }
 
         public GameMenuOverlay()
         {
@@ -119,6 +125,24 @@ namespace GentrysQuest.Game.Overlays
         {
             user.ValueChanged += delegate { inventoryOverlay.ProvideUser(user.Value); };
             inventoryOverlay.ProvideUser(user.Value);
+
+            InputEvent gameOverlayToggle = new InputEvent
+            {
+                Name = "Game Overlay Toggle",
+                Category = "GameOverlay",
+                Key = Key.Escape,
+                Action = Toggle
+            };
+            InputEvent gameInventory = new InputEvent
+            {
+                Name = "Game Inventory",
+                Category = "GameOverlay",
+                Key = Key.C,
+                Action = () => { state.Value = SelectionState.Inventory; }
+            };
+
+            inputHandler.AddKeyDownEvent(gameOverlayToggle);
+            inputHandler.AddKeyDownEvent(gameInventory);
         }
 
         public void Appear()
