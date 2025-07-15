@@ -10,9 +10,7 @@ using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Input.Events;
 using osu.Framework.Screens;
-using osuTK.Input;
 using Character = SharpFNT.Character;
 
 namespace GentrysQuest.Game
@@ -119,18 +117,6 @@ namespace GentrysQuest.Game
 
             screenManager.SetScreen(ScreenState.Loading);
             // screenStack.Push(new CombatTutorial());
-        }
-
-        protected override bool OnKeyDown(KeyDownEvent e)
-        {
-            switch (e.Key)
-            {
-                case Key.Escape:
-                    gameMenuOverlay.Toggle();
-                    break;
-            }
-
-            return base.OnKeyDown(e);
         }
     }
 }
