@@ -3,6 +3,7 @@ using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Enemies;
 using GentrysQuest.Game.Content.Families;
 using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
+using GentrysQuest.Game.Content.Families.Intro;
 using GentrysQuest.Game.Content.Families.JVee;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
@@ -33,6 +34,7 @@ public static class ContentManager
         FAMILIES.Add(new TestFamily());
         FAMILIES.Add(new BraydenMesserschmidtFamily());
         FAMILIES.Add(new JVeeFamily());
+        FAMILIES.Add(new IntroFamily());
 
         #endregion
 
