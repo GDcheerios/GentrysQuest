@@ -2,6 +2,7 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Content.Enemies;
+using GentrysQuest.Game.Content.Families.Intro;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
@@ -45,6 +46,7 @@ namespace GentrysQuest.Game.Screens
         private SpriteText keyAttackText;
         private SpriteText keyDodgeText;
         private SpriteText keySkillText;
+        private SpriteText InventoryText;
 
         private readonly MapScene scene = new();
 
@@ -69,6 +71,8 @@ namespace GentrysQuest.Game.Screens
             scene.LoadMap(new GentrysClassroom());
 
             gameplayHud = new GameplayHud();
+
+            introScript = new SceneScript();
 
             #region introScript
 
@@ -279,15 +283,37 @@ namespace GentrysQuest.Game.Screens
                     scene.LoadMap(new EvilGentrysVoid());
                     DrawableEnemyEntity lostSpirit1 = new DrawableEnemyEntity(new LostSpirit()) { Y = -500 };
                     DrawableEnemyEntity lostSpirit2 = new DrawableEnemyEntity(new LostSpirit()) { Y = -2500 };
+                    DrawableEnemyEntity lostSpirit3 = new DrawableEnemyEntity(new LostSpirit()) { Y = -3000, X = -200 };
+                    DrawableEnemyEntity lostSpirit4 = new DrawableEnemyEntity(new LostSpirit()) { Y = -4000, X = 200 };
+                    DrawableEnemyEntity lostSpirit5 = new DrawableEnemyEntity(new LostSpirit()) { Y = -5000 };
 
                     lostSpirit1.GetBase().Stats.Health.Current.Value = 100;
                     lostSpirit2.GetBase().Stats.Health.Current.Value = 100;
+                    lostSpirit3.GetBase().Stats.Health.Current.Value = 100;
+                    lostSpirit4.GetBase().Stats.Health.Current.Value = 100;
+                    lostSpirit5.GetBase().Stats.Health.Current.Value = 100;
+
                     lostSpirit1.GetBase().Stats.Speed.Current.Value = 0.25;
                     lostSpirit2.GetBase().Stats.Speed.Current.Value = 0.25;
+                    lostSpirit3.GetBase().Stats.Speed.Current.Value = 0.25;
+                    lostSpirit4.GetBase().Stats.Speed.Current.Value = 0.25;
+                    lostSpirit5.GetBase().Stats.Speed.Current.Value = 0.25;
 
-                    lostSpirit1.GetBase().OnDeath += () => { };
+                    lostSpirit5.GetBase().OnDeath += () =>
+                    {
+                        Keyboard keyboardArtifact = new Keyboard
+                        {
+                            MainAttribute = new Buff(20, StatType.Health, true)
+                        };
+                        user.Value.AddItem(keyboardArtifact);
+                        InventoryText.FadeIn(200);
+                    };
+
                     scene.AddEnemy(lostSpirit1);
                     scene.AddEnemy(lostSpirit2);
+                    scene.AddEnemy(lostSpirit3);
+                    scene.AddEnemy(lostSpirit4);
+                    scene.AddEnemy(lostSpirit5);
                 },
                 Delay = 10
             });
@@ -295,6 +321,7 @@ namespace GentrysQuest.Game.Screens
             {
                 Event = () =>
                 {
+                    user.Value.AddItem(player.GetBase());
                     player.MoveTo(Vector2.Zero, 5000);
                 }
             });
@@ -517,7 +544,6 @@ namespace GentrysQuest.Game.Screens
             if (!keyDodgeText.IsPresent) return;
 
             keyDodgeText.FadeOut(500);
-            enemy.GetBase().Stats.AttackSpeed.Current.Value = 0.5;
             keySkillText.Delay(1000).Then()
                         .MoveToX(-0.1f, 500, Easing.OutQuint).Then()
                         .Delay(6000).Then()
@@ -578,6 +604,16 @@ namespace GentrysQuest.Game.Screens
                 Text = "You can also use RIGHT MOUSE, SPACE, or R to use skills.",
                 Font = FontUsage.Default.With(size: 50),
                 Y = -0.2f
+            });
+
+            AddInternal(InventoryText = new SpriteText
+            {
+                Text = "Press C to open inventory",
+                Origin = Anchor.Centre,
+                Anchor = Anchor.Centre,
+                Font = FontUsage.Default.With(size: 100),
+                Depth = -5,
+                Alpha = 0
             });
 
             AddInternal(flashCover = new Box
