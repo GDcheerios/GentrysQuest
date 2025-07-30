@@ -169,7 +169,7 @@ namespace GentrysQuest.Game.Screens
                 new Colour4(72, 72, 72, 255),
                 new Colour4(58, 58, 58, 255)
             ), 500);
-            title.Delay(120).Then().FadeIn(120);
+            title.Delay(120).Then().FadeIn(120).MoveToY(300);
             discordRpc.UpdatePresence("Main Menu", "");
         }
 

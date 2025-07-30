@@ -1,4 +1,5 @@
 using System;
+using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Overlays.Inventory;
@@ -11,6 +12,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Logging;
 using osuTK;
 using osuTK.Input;
 using InputHandler = GentrysQuest.Game.Input.InputHandler;
@@ -58,6 +60,9 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private InputHandler inputHandler { get; set; }
+
+        [Resolved]
+        private TitleText title { get; set; }
 
         public GameMenuOverlay()
         {
@@ -131,14 +136,47 @@ namespace GentrysQuest.Game.Overlays
                 Name = "Game Overlay Toggle",
                 Category = "GameOverlay",
                 Key = Key.Escape,
-                Action = Toggle
+                Action = () =>
+                {
+                    if (isVisible)
+                    {
+                        Disappear();
+                        isVisible = false;
+                    }
+                    else
+                    {
+                        Appear();
+                        isVisible = true;
+                    }
+                }
             };
             InputEvent gameInventory = new InputEvent
             {
                 Name = "Game Inventory",
                 Category = "GameOverlay",
                 Key = Key.C,
-                Action = () => { state.Value = SelectionState.Inventory; }
+                Action = () =>
+                {
+                    Logger.Log(isVisible.ToString() + state.Value);
+
+                    switch (isVisible)
+                    {
+                        case true when state.Value != SelectionState.Inventory:
+                            state.Value = SelectionState.Inventory;
+                            break;
+
+                        case true when state.Value == SelectionState.Inventory:
+                            Disappear();
+                            isVisible = false;
+                            break;
+
+                        default:
+                            Appear();
+                            isVisible = true;
+                            state.Value = SelectionState.Inventory;
+                            break;
+                    }
+                }
             };
 
             inputHandler.AddKeyDownEvent(gameOverlayToggle);
@@ -149,6 +187,12 @@ namespace GentrysQuest.Game.Overlays
         {
             if (user.Value == null) return;
 
+            title.FadeIn();
+            title.Scale = Vector2.One;
+            title.Origin = Anchor.BottomCentre;
+            title.Anchor = Anchor.TopCentre;
+            title.Y = 0;
+            title.MoveToY(150, 150, Easing.Out);
             state.TriggerChange();
             this.FadeIn();
             navBar.X = -2;
@@ -163,6 +207,7 @@ namespace GentrysQuest.Game.Overlays
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
+            title.MoveToY(0, 150, Easing.In);
         }
 
         public void Toggle()
