@@ -8,11 +8,12 @@ namespace GentrysQuest.Game.Content.Characters
         public GMoney()
         {
             Name = "GMoney";
-            StarRating = new StarRating(5);
+            StarRating = new StarRating(1);
             Description = "Hy-plains Drifter.";
 
             TextureMapping = new();
             TextureMapping.Add("Idle", "characters_gmoney_idle.png");
+            TextureMapping.Add("Icon", "characters_gmoney_idle.png");
 
             Stats.Health.Point = 2;
             Stats.Attack.Point = 2;
