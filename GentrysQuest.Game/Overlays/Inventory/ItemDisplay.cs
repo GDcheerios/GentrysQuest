@@ -4,6 +4,8 @@ using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Users;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -26,7 +28,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private readonly ProgressBar experienceBar;
         private readonly InventoryLevelUpBox inventoryLevelUpBox;
         private readonly InventoryButton levelUpButton;
-        private readonly InventoryButton exchangeButton;
         private readonly StatDrawableContainer statDrawableContainer;
         private readonly InnerInventoryButton detailsButton;
         private readonly InnerInventoryButton statsButton;
@@ -44,6 +45,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private Artifact artifactInfo;
         private Weapon weaponInfo;
         private Bindable<DisplayMode> displaying = new();
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
 
         #region DesignProperties
 
@@ -329,10 +333,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     Spacing = new Vector2(20),
                     Children = new Drawable[]
                     {
-                        exchangeButton = new InventoryButton("Infuse")
-                        {
-                            Size = new Vector2(LEVEL_UP_BUTTON_WIDTH, LEVEL_UP_BUTTON_HEIGHT),
-                        },
                         inventoryLevelUpBox = new InventoryLevelUpBox
                         {
                             Size = new Vector2(LEVEL_UP_BUTTON_WIDTH, LEVEL_UP_BUTTON_HEIGHT),
@@ -389,11 +389,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 int amount = inventoryLevelUpBox.GetAmount();
 
-                // if (GameData.Money.CanAfford(amount))
-                // {
-                    // entity.AddXp(amount * 10);
-                    // GameData.Money.Spend(amount);
-                // }
+                if (user.Value.MoneyHandler.CanAfford(amount))
+                {
+                    entity.AddXp(amount * 10);
+                    user.Value.MoneyHandler.Spend(amount);
+                }
 
                 updateExperienceBar(entity);
             });
@@ -404,7 +404,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 case Character character:
                     characterInfo = character;
 
-                    exchangeButton.Hide();
                     inventoryLevelUpBox.Show();
                     resizeLevelUpComponents(2);
 
@@ -457,7 +456,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     inventoryReference.FocusedArtifact = artifact;
                     artifactInfo = artifact;
                     Buff mainAttribute = artifact.MainAttribute;
-                    exchangeButton.SetAction(inventoryReference.StartArtifactExchange);
 
                     string description = $"{artifact.Description}\n"
                                          + $"Two Set Buff:\n"
@@ -468,7 +466,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     descriptionText.SetTaggedText(description);
                     descriptionText.Y = 0;
                     inventoryLevelUpBox.Hide();
-                    exchangeButton.Show();
                     levelUpButton.SetAction(delegate
                     {
                         inventoryReference.ExchangeArtifacts();
@@ -496,17 +493,15 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     weaponInfo = weapon;
 
                     descriptionText.Y = 0;
-                    exchangeButton.SetAction(inventoryReference.StartWeaponExchange);
-                    exchangeButton.Show();
                     inventoryLevelUpBox.Show();
                     weaponPanel.Hide();
                     levelUpButton.SetAction(delegate
                     {
-                        // if (GameData.Money.CanAfford(inventoryLevelUpBox.GetAmount()))
-                        // {
-                            // entity.AddXp(inventoryLevelUpBox.GetAmount() * 10);
-                            // GameData.Money.Spend(inventoryLevelUpBox.GetAmount());
-                        // }
+                        if (user.Value.MoneyHandler.CanAfford(inventoryLevelUpBox.GetAmount()))
+                        {
+                            entity.AddXp(inventoryLevelUpBox.GetAmount() * 10);
+                            user.Value.MoneyHandler.Spend(inventoryLevelUpBox.GetAmount());
+                        }
 
                         inventoryReference.ExchangeWeapons();
 
@@ -526,7 +521,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private void resizeLevelUpComponents(int amount)
         {
             if (amount < 2) amount = 2;
-            exchangeButton.ResizeTo(new Vector2(LEVEL_UP_BUTTON_WIDTH / amount, LEVEL_UP_BUTTON_HEIGHT));
             inventoryLevelUpBox.ResizeTo(new Vector2(LEVEL_UP_BUTTON_WIDTH / amount, LEVEL_UP_BUTTON_HEIGHT));
             levelUpButton.ResizeTo(new Vector2(LEVEL_UP_BUTTON_WIDTH / amount, LEVEL_UP_BUTTON_HEIGHT));
         }

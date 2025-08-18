@@ -2,12 +2,12 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Content.Enemies;
-using GentrysQuest.Game.Content.Families.Intro;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Overlays;
@@ -23,7 +23,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
+using osuTK.Input;
 using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
+using Keyboard = GentrysQuest.Game.Content.Families.Intro.Keyboard;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -38,6 +40,9 @@ namespace GentrysQuest.Game.Screens
         [Resolved]
         private Bindable<IUser> user { get; set; }
 
+        [Resolved]
+        private InputHandler inputHandler { get; set; }
+
         private DrawablePlayableEntity player;
         private DrawableEnemyEntity enemy;
         private GameplayHud gameplayHud;
@@ -47,6 +52,8 @@ namespace GentrysQuest.Game.Screens
         private SpriteText keyDodgeText;
         private SpriteText keySkillText;
         private SpriteText InventoryText;
+
+        private InputEvent hideInventoryText = null;
 
         private readonly MapScene scene = new();
 
@@ -299,14 +306,29 @@ namespace GentrysQuest.Game.Screens
                     lostSpirit4.GetBase().Stats.Speed.Current.Value = 0.25;
                     lostSpirit5.GetBase().Stats.Speed.Current.Value = 0.25;
 
+                    lostSpirit1.GetBase().OnDeath += () => player.GetBase().AddXp(25);
+                    lostSpirit2.GetBase().OnDeath += () => player.GetBase().AddXp(25);
+                    lostSpirit3.GetBase().OnDeath += () => player.GetBase().AddXp(25);
+                    lostSpirit4.GetBase().OnDeath += () =>
+                    {
+                        Keyboard keyboardArtifact = new Keyboard
+                        {
+                            MainAttribute = new Buff(20, StatType.Health, true)
+                        };
+                        player.GetBase().AddXp(25);
+                        user.Value.AddItem(keyboardArtifact);
+                    };
                     lostSpirit5.GetBase().OnDeath += () =>
                     {
                         Keyboard keyboardArtifact = new Keyboard
                         {
                             MainAttribute = new Buff(20, StatType.Health, true)
                         };
+                        hideInventoryText!.Enabled = true;
+                        gameMenuOverlay.InventoryOverlay.InitiateArtifactTutorial();
                         user.Value.AddItem(keyboardArtifact);
                         InventoryText.FadeIn(200);
+                        player.GetBase().AddXp(25);
                     };
 
                     scene.AddEnemy(lostSpirit1);
@@ -615,6 +637,20 @@ namespace GentrysQuest.Game.Screens
                 Depth = -5,
                 Alpha = 0
             });
+
+            hideInventoryText = new InputEvent
+            {
+                Name = "Hide Inventory Text",
+                Category = "Tutorial",
+                Key = Key.C,
+                Action = () =>
+                {
+                    InventoryText.FadeOut(250);
+                    hideInventoryText!.Enabled = false;
+                },
+            };
+
+            inputHandler.AddKeyDownEvent(hideInventoryText);
 
             AddInternal(flashCover = new Box
             {

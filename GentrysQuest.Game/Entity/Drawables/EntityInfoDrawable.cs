@@ -157,6 +157,8 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         protected override bool OnClick(ClickEvent e)
         {
+            this.FadeColour(Colour4.White);
+
             switch (IsSelected)
             {
                 case true:

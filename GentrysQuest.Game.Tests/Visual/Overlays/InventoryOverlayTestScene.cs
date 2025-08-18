@@ -5,6 +5,8 @@ using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Users;
 using NUnit.Framework;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Shapes;
@@ -15,7 +17,9 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
     public partial class InventoryOverlayTestScene : GentrysQuestTestScene
     {
         private InventoryOverlay inventoryOverlay;
-        private GuestUser user;
+
+        [Cached]
+        private Bindable<IUser> user = new();
 
         public InventoryOverlayTestScene()
         {
@@ -30,13 +34,13 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         public void Initialize()
         {
             AddStep("Load Content", ContentManager.LoadContent);
-            AddStep("Create user", () => { user = GuestUser.Create("test", true); });
+            AddStep("Create user", () => { user.Value = GuestUser.Create("test", true); });
             AddStep("Give infinite money", () =>
             {
-                user.MoneyHandler.InfiniteMoney = true;
+                user.Value.MoneyHandler.InfiniteMoney = true;
             });
             AddStep("Create Inventory", () => { Add(inventoryOverlay = new InventoryOverlay()); });
-            AddStep("Link User", () => inventoryOverlay.ProvideUser(user));
+            AddStep("Link User", () => inventoryOverlay.ProvideUser(user.Value));
         }
 
         [Test]
@@ -49,9 +53,9 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [Test]
         public void Collection()
         {
-            AddStep("Add Artifact", () => user.AddItem(new TestArtifact()));
-            AddStep("Add Weapon", () => user.AddItem(new Sword()));
-            AddStep("Add Character", () => user.AddItem(new TestCharacter(1)));
+            AddStep("Add Artifact", () => user.Value.AddItem(new TestArtifact()));
+            AddStep("Add Weapon", () => user.Value.AddItem(new Sword()));
+            AddStep("Add Character", () => user.Value.AddItem(new TestCharacter(1)));
         }
     }
 }

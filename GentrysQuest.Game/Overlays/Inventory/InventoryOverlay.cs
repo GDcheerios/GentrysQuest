@@ -179,14 +179,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         new DrawSizePreservingFillContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Child = itemContainer = new EntityInfoListContainer
-                            {
-                                RelativePositionAxes = Axes.Y,
-                                Y = 0.1f,
-                                Anchor = Anchor.TopLeft,
-                                Origin = Anchor.TopLeft,
-                                Size = new Vector2(1, 0.2f)
-                            }
+                            Children =
+                            [
+                                itemContainer = new EntityInfoListContainer
+                                {
+                                    RelativePositionAxes = Axes.Y,
+                                    Y = 0.1f,
+                                    Anchor = Anchor.TopLeft,
+                                    Origin = Anchor.TopLeft,
+                                    Size = new Vector2(1, 0.2f)
+                                }
+                            ]
                         },
                         new DrawSizePreservingFillContainer
                         {
@@ -311,10 +314,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
             };
             selectionBackButton.SetAction(delegate
             {
+                unDisplayInfo();
+                clearSelections();
                 selectionMode = SelectionModes.Single;
-                displayingSection.Value = InventoryDisplay.Characters;
             });
-            // user.Money.Amount.ValueChanged += delegate { moneyText.Text = $"${GameData.Money.Amount}"; };
+            if (user != null) user.MoneyHandler.Amount.ValueChanged += delegate { moneyText.Text = $"${user.MoneyHandler.Amount}"; };
             Hide();
         }
 
@@ -357,6 +361,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 case InventoryDisplay.Artifacts:
                     itemContainer.AddFromList(user?.Artifacts);
                     itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
+
                     break;
 
                 case InventoryDisplay.Weapons:
@@ -403,7 +408,15 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void ExchangeWeapons()
         {
-            foreach (EntityInfoDrawable entityInfoDrawable in itemContainer.GetEntityInfoDrawables())
+            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedArtifact).ToList();
+
+            if (entityInfoDrawables.Count == 0)
+            {
+                StartWeaponExchange();
+                return;
+            }
+
+            foreach (EntityInfoDrawable entityInfoDrawable in entityInfoDrawables)
             {
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedWeapon)
                 {
@@ -457,7 +470,15 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void ExchangeArtifacts()
         {
-            foreach (var entityInfoDrawable in itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedArtifact))
+            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedArtifact).ToList();
+
+            if (entityInfoDrawables.Count == 0)
+            {
+                StartArtifactExchange();
+                return;
+            }
+
+            foreach (var entityInfoDrawable in entityInfoDrawables)
             {
                 if (FocusedArtifact.Experience.CurrentLevel() < FocusedArtifact.StarRating * 4)
                 {
@@ -516,15 +537,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         private void displayInfo(EntityInfoDrawable entityInfoDrawable)
         {
-            itemContainer.ResizeTo(new Vector2(0.5f, 0.9f), 100);
-            itemInfo.ResizeTo(new Vector2(0.5f, 0.9f), 100);
+            selectionBackButton.FadeIn(100);
+            itemContainer.ResizeTo(new Vector2(0.5f, 0.79f), 100);
+            itemInfo.ResizeTo(new Vector2(0.5f, 1), 100);
             itemInfo.DisplayItem(entityInfoDrawable.entity);
         }
 
         private void unDisplayInfo()
         {
-            itemContainer.ResizeTo(new Vector2(1, 0.9f), 100);
-            itemInfo.ResizeTo(new Vector2(0, 0.9f), 100);
+            selectionBackButton.FadeOut(100);
+            itemContainer.ResizeTo(new Vector2(1, 1), 100);
+            itemInfo.ResizeTo(new Vector2(0, 1), 100);
             itemInfo.FadeOut(100);
         }
 
@@ -548,6 +571,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
             displayingSection.Value = InventoryDisplay.Hidden;
             itemContainerBox.FadeOut(FADE_TIME, Easing.InOutCubic);
             setStatus();
+        }
+
+        public void InitiateArtifactTutorial()
+        {
+            artifactsButton.Highlight();
         }
     }
 }

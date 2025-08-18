@@ -12,7 +12,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Logging;
 using osuTK;
 using osuTK.Input;
 using InputHandler = GentrysQuest.Game.Input.InputHandler;
@@ -40,7 +39,7 @@ namespace GentrysQuest.Game.Overlays
         /// <summary>
         /// The inventory overlay
         /// </summary>
-        private readonly InventoryOverlay inventoryOverlay = new();
+        public readonly InventoryOverlay InventoryOverlay = new();
 
         /// <summary>
         /// The weekly event overlay
@@ -104,7 +103,7 @@ namespace GentrysQuest.Game.Overlays
                             Origin = Anchor.TopCentre,
                             Children =
                             [
-                                inventoryOverlay,
+                                InventoryOverlay,
                                 weeklyEventOverlay
                             ]
                         }
@@ -128,8 +127,8 @@ namespace GentrysQuest.Game.Overlays
         [BackgroundDependencyLoader]
         private void load()
         {
-            user.ValueChanged += delegate { inventoryOverlay.ProvideUser(user.Value); };
-            inventoryOverlay.ProvideUser(user.Value);
+            user.ValueChanged += delegate { InventoryOverlay.ProvideUser(user.Value); };
+            InventoryOverlay.ProvideUser(user.Value);
 
             InputEvent gameOverlayToggle = new InputEvent
             {
@@ -157,8 +156,6 @@ namespace GentrysQuest.Game.Overlays
                 Key = Key.C,
                 Action = () =>
                 {
-                    Logger.Log(isVisible.ToString() + state.Value);
-
                     switch (isVisible)
                     {
                         case true when state.Value != SelectionState.Inventory:
@@ -203,7 +200,7 @@ namespace GentrysQuest.Game.Overlays
 
         public void Disappear()
         {
-            inventoryOverlay.Hide();
+            InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
@@ -219,14 +216,14 @@ namespace GentrysQuest.Game.Overlays
 
         private void handleState(ValueChangedEvent<SelectionState> stateChange)
         {
-            inventoryOverlay.Hide();
+            InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
 
             switch (state.Value)
             {
                 case SelectionState.Inventory:
-                    inventoryOverlay.Show();
+                    InventoryOverlay.Show();
                     break;
 
                 case SelectionState.WeeklyEvent:

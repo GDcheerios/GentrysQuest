@@ -150,6 +150,8 @@ namespace GentrysQuest.Game.Entity
 
         private void handleValue(double value, double starRating, double level, double percentDiffer)
         {
+            if (ParentEntity == null) return;
+
             switch (ParentEntity)
             {
                 case Weapon.Weapon weapon:

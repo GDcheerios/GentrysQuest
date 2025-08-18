@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
+using GentrysQuest.Game.Location.Drawables;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -14,6 +15,7 @@ namespace GentrysQuest.Game.Location
         public List<DrawableEntity> Npcs { get; } = new();
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
+        private DrawableMap drawableInstance = null;
 
         /// <summary>
         /// Loads map objects.
@@ -66,6 +68,9 @@ namespace GentrysQuest.Game.Location
                 Filled = false
             });
         }
+
+        public void SetDrawable(DrawableMap drawable) => drawableInstance = drawable;
+        public DrawableMap GetDrawable() => drawableInstance;
 
         public int Difficulty { get; protected set; } = 0;
         public bool DifficultyScales { get; protected set; } = false;

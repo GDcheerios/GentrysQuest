@@ -9,6 +9,7 @@ namespace GentrysQuest.Game.Content.Maps
     public class EvilGentrysVoid : Map
     {
         private static readonly Colour4 barrier_colour = new(12, 12, 12, 255);
+        private StarsContainer starsContainer;
 
         public EvilGentrysVoid()
         {
@@ -20,6 +21,10 @@ namespace GentrysQuest.Game.Content.Maps
         public override void Load()
         {
             Objects.Add(new EvilGentrysVoidBackground());
+
+            Objects.Add(starsContainer = new StarsContainer());
+            GetDrawable().OnMove += vector2 => starsContainer.Position = vector2 * 0.5f;
+
             Objects.Add(new MapObject
             {
                 Colour = barrier_colour,
