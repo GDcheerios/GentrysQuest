@@ -21,13 +21,15 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.Gray
             });
-            Add(statDrawable1 = new StatDrawable("Poop Stat", stat1, true)
+            Add(statDrawable1 = new StatDrawable("Poop Stat")
             {
-                Position = new Vector2(0, 200)
+                Position = new Vector2(0),
+                Size = new Vector2(600)
             });
-            Add(statDrawable2 = new StatDrawable("Minor Poop Stat", stat2, false)
+            Add(statDrawable2 = new StatDrawable("Minor Poop Stat")
             {
-                Position = new Vector2(0, 400)
+                Position = new Vector2(0, 26),
+                Size = new Vector2(600, 200)
             });
         }
 

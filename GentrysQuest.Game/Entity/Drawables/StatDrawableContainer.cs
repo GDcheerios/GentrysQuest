@@ -1,4 +1,5 @@
 using System.Linq;
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -9,6 +10,8 @@ namespace GentrysQuest.Game.Entity.Drawables
     public partial class StatDrawableContainer : CompositeDrawable
     {
         private FillFlowContainer<StatDrawable> statDrawables;
+
+        private const float HEIGHT = 20;
 
         public StatDrawableContainer()
         {
@@ -37,6 +40,29 @@ namespace GentrysQuest.Game.Entity.Drawables
                         AutoSizeAxes = Axes.Y,
                         RelativeSizeAxes = Axes.X
                     }
+                },
+                new Container
+                {
+                    RelativeSizeAxes = Axes.X,
+                    Height = HEIGHT,
+                    Children =
+                    [
+                        new GqText("Stat")
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                        },
+                        new GqText("+")
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                        },
+                        new GqText("Total")
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                        },
+                    ]
                 }
             };
         }
@@ -48,6 +74,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         }
 
         public StatDrawable GetStatDrawable(string identifier) => statDrawables.Children.FirstOrDefault(statDrawable => statDrawable.Identifier == identifier);
+        public StatDrawable[] GetStatDrawables() => statDrawables.Children.ToArray();
 
         public void Clear() => statDrawables.Clear();
     }

@@ -18,9 +18,9 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
                 Colour = Colour4.Gray
             });
             Add(container = new StatDrawableContainer());
-            container.AddStat(new StatDrawable("Main stat", 10, true));
-            container.AddStat(new StatDrawable("Poop", 5, false));
-            container.AddStat(new StatDrawable("Fart", 5, false));
+            // container.AddStat(new StatDrawable("Main stat", 10, true));
+            // container.AddStat(new StatDrawable("Poop", 5, false));
+            // container.AddStat(new StatDrawable("Fart", 5, false));
         }
 
         [Test]

@@ -92,12 +92,12 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         {
             foreach (Stat stat in entity.Stats.GetStats())
             {
-                characterStats.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
+                // characterStats.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
             }
 
             foreach (Stat stat in enemy.Stats.GetStats())
             {
-                enemyStats.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
+                // enemyStats.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
             }
         }
 

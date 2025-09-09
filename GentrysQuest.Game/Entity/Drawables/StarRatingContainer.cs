@@ -16,6 +16,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         private StarRatingDrawable starRatingDrawable4 = new StarRatingDrawable(4);
         private StarRatingDrawable starRatingDrawable5 = new StarRatingDrawable(5);
 
+        private const int DELAY_INCREMENT = 100;
+
         public StarRatingContainer(int starRating)
         {
             this.starRating.Value = 1;
@@ -44,7 +46,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             int newVal = valueChangedEvent.NewValue;
             int oldVal = valueChangedEvent.OldValue;
 
-            List<int> delayList = Enumerable.Range(0, 5).Select(i => (i + 1) * 50).ToList();
+            List<int> delayList = Enumerable.Range(0, 5).Select(i => (i + 1) * DELAY_INCREMENT).ToList();
             if (oldVal > newVal) delayList.Reverse();
 
             ColourInfo color = GetColorGradient(newVal);
