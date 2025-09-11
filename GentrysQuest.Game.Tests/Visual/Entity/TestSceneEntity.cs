@@ -105,12 +105,12 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         {
             foreach (Stat stat in entity.Stats.GetStats())
             {
-                characterStats.GetStatDrawable(stat.Name).UpdateValue((float)stat.Current.Value);
+                characterStats.GetStatDrawable(stat.Name).Value.Value = (float)stat.Current.Value;
             }
 
             foreach (Stat stat in enemy.Stats.GetStats())
             {
-                enemyStats.GetStatDrawable(stat.Name).UpdateValue((float)stat.Current.Value);
+                enemyStats.GetStatDrawable(stat.Name).Value.Value = (float)stat.Current.Value;
             }
         }
 

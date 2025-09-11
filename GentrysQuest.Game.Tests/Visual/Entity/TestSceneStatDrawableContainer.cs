@@ -28,9 +28,9 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         {
             AddStep("Increment all", () =>
             {
-                container.GetStatDrawable("Main stat").UpdateValue(1);
-                container.GetStatDrawable("Poop").UpdateValue(1);
-                container.GetStatDrawable("Fart").UpdateValue(1);
+                container.GetStatDrawable("Main stat").Value.Value = 1;
+                container.GetStatDrawable("Poop").Value.Value = 1;
+                container.GetStatDrawable("Fart").Value.Value = 1;
             });
         }
     }

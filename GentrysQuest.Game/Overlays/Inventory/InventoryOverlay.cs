@@ -14,7 +14,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osuTK;
+using osuTK.Input;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
@@ -24,6 +26,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
         /// The time it takes to fade
         /// </summary>
         private const int FADE_TIME = 300;
+
+        private int selectedIndex = -1;
 
         /// <summary>
         /// if the inventory is being displayed
@@ -36,6 +40,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private readonly Bindable<InventoryDisplay> displayingSection = new Bindable<InventoryDisplay>(InventoryDisplay.Hidden);
 
         private readonly Container topButtons;
+
+        private readonly ItemDisplayContainer itemDisplayContainer;
 
         private readonly InventoryButton charactersButton;
         private readonly InventoryButton artifactsButton;
@@ -55,14 +61,14 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private readonly InnerInventoryButton sortButton;
         private readonly InventoryButton selectionBackButton;
 
-        private readonly string[] sortTypes = new[] { "Star Rating", "Name", "Level" };
+        private readonly string[] sortTypes = ["Star Rating", "Name", "Level"];
         private int sortIndexCounter = 0;
 
         private SelectionModes selectionMode = SelectionModes.Single;
-        private Character equippingToCharacter;
-        public Artifact FocusedArtifact;
-        public Weapon FocusedWeapon;
-        private int? artifactSelectionIndex;
+        private Character focusedCharacter;
+        private Artifact focusedArtifact;
+        private Weapon focusedWeapon;
+        private int artifactSelectionIndex;
 
         private IUser? user { get; set; }
 
@@ -111,12 +117,19 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     Origin = Anchor.TopCentre,
                     Size = new Vector2(0.7f, 0.78f),
                     Margin = new MarginPadding { Top = 100 },
-                    Children = new Drawable[]
-                    {
+                    Children =
+                    [
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
                             Colour = new Colour4(0, 0, 0, 185)
+                        },
+                        itemDisplayContainer = new ItemDisplayContainer(this)
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.BottomCentre,
+                            RelativePositionAxes = Axes.Both,
+                            Height = 0.9f
                         },
                         selectionBackButton = new InventoryButton("Back")
                         {
@@ -188,17 +201,17 @@ namespace GentrysQuest.Game.Overlays.Inventory
                                     Y = 0.1f,
                                     Anchor = Anchor.TopLeft,
                                     Origin = Anchor.TopLeft,
-                                    Size = new Vector2(1, 0.2f)
+                                    Size = new Vector2(1)
                                 }
                             ]
                         }
-                    }
+                    ]
                 },
             };
             Origin = Anchor.Centre;
             displayingSection.BindValueChanged(async void (_) =>
             {
-                await changeState();
+                await handleDisplayChange();
             });
             charactersButton.SetAction(() =>
             {
@@ -221,87 +234,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
             };
             reverseButton.OnClickEvent += delegate { itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed); };
-            itemContainer.FinishedLoading += delegate { itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed); };
-            itemContainer.FinishedLoading += delegate
-            {
-                switch (selectionMode)
-                {
-                    case SelectionModes.Single:
-                        selectionBackButton.FadeOut(100);
-                        itemContainer.ResizeHeightTo(1, 100);
-
-                        foreach (EntityInfoDrawable entityInfoDrawable in itemContainer.GetEntityInfoDrawables())
-                        {
-                            entityInfoDrawable.OnClickEvent += delegate
-                            {
-                                foreach (EntityInfoDrawable entityInfoDrawable2 in itemContainer.GetEntityInfoDrawables())
-                                {
-                                    if (entityInfoDrawable != entityInfoDrawable2) entityInfoDrawable2.Unselect();
-                                }
-
-                                unDisplayInfo();
-                                if (entityInfoDrawable.IsSelected) displayInfo(entityInfoDrawable);
-
-                                switch (entityInfoDrawable.entity)
-                                {
-                                    case Character entity:
-                                        equippingToCharacter = entity;
-                                        break;
-                                }
-                            };
-                        }
-
-                        break;
-
-                    case SelectionModes.Multi:
-                        selectionBackButton.FadeIn(100);
-                        itemContainer.ResizeHeightTo(0.79f, 100);
-
-                        foreach (EntityInfoDrawable entityInfoDrawable in itemContainer.GetEntityInfoDrawables())
-                        {
-                            if (entityInfoDrawable.entity == FocusedWeapon || entityInfoDrawable.entity == FocusedArtifact)
-                            {
-                                entityInfoDrawable.Unselect();
-                                entityInfoDrawable.ResizeTo(0);
-                            }
-                        }
-
-                        break;
-
-                    case SelectionModes.Equipping:
-                        selectionBackButton.FadeIn(100);
-                        itemContainer.ResizeHeightTo(0.79f, 100);
-
-                        foreach (EntityInfoDrawable entityInfoDrawable in itemContainer.GetEntityInfoDrawables())
-                        {
-                            entityInfoDrawable.OnClickEvent += delegate
-                            {
-                                entityInfoDrawable.Unselect();
-
-                                if (artifactSelectionIndex == null)
-                                {
-                                    Weapon weapon = (Weapon)entityInfoDrawable.entity;
-                                    Weapon? weaponFromCharacter = equippingToCharacter?.Weapon;
-                                    equippingToCharacter?.SetWeapon(weapon);
-                                    if (weaponFromCharacter != null) user?.AddItem(weaponFromCharacter);
-                                    user?.Weapons.Remove(weapon);
-                                }
-                                else
-                                {
-                                    Artifact artifact = (Artifact)entityInfoDrawable.entity;
-                                    Artifact? artifactFromCharacter = equippingToCharacter?.Artifacts.Get((int)artifactSelectionIndex);
-                                    equippingToCharacter?.Artifacts.Equip(artifact, (int)artifactSelectionIndex);
-                                    if (artifactFromCharacter != null) user?.AddItem(artifactFromCharacter);
-                                    user?.Artifacts.Remove(artifact);
-                                }
-
-                                swapCategory(InventoryDisplay.Characters);
-                            };
-                        }
-
-                        break;
-                }
-            };
             selectionBackButton.SetAction(delegate
             {
                 unDisplayInfo();
@@ -313,6 +245,40 @@ namespace GentrysQuest.Game.Overlays.Inventory
         }
 
         public void ProvideUser(IUser user) => this.user = user;
+
+        private async void handleEntityClick(EntityInfoDrawable entityInfoDrawable)
+        {
+            switch (selectionMode)
+            {
+                case SelectionModes.Single:
+                    await displayInfo(entityInfoDrawable);
+                    break;
+
+                case SelectionModes.Equipping:
+                    switch (entityInfoDrawable.entity)
+                    {
+                        case Weapon weapon:
+                            if (focusedCharacter.Weapon != null) user?.AddItem(focusedCharacter.Weapon);
+                            user?.Weapons.Remove(weapon);
+                            focusedCharacter.Weapon = weapon;
+                            await displayInfo(new EntityInfoDrawable(focusedCharacter));
+                            break;
+
+                        case Artifact artifact:
+                            Artifact? artifactRef = focusedCharacter.Artifacts.Get(artifactSelectionIndex);
+                            if (artifactRef != null) user?.AddItem(artifactRef);
+                            user?.Artifacts.Remove(artifact);
+                            focusedCharacter.Artifacts.Equip(artifact, artifactSelectionIndex);
+                            await displayInfo(new EntityInfoDrawable(focusedCharacter));
+                            break;
+                    }
+
+                    break;
+
+                case SelectionModes.Multi:
+                    break;
+            }
+        }
 
         private void setStatus()
         {
@@ -337,7 +303,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             categoryText.Text = category;
         }
 
-        private async Task changeState()
+        private async Task handleDisplayChange()
         {
             itemContainer.ScrollToTop();
             await itemContainer.ClearList();
@@ -358,9 +324,12 @@ namespace GentrysQuest.Game.Overlays.Inventory
             }
 
             List<EntityInfoDrawable> items = itemContainer.GetEntityInfoDrawables();
+            if (itemContainer.GetEntityInfoDrawables().Count == 0) return;
+
             itemContainer.Sort(sortTypes[sortIndexCounter], reverseButton.Reversed);
             items.ForEach(item =>
             {
+                item.OnClickEvent += (_, _) => handleEntityClick(item);
                 item.FadeOut();
                 item.starRatingContainer.starRating.Value = 0;
             });
@@ -385,6 +354,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         private void swapCategory(InventoryDisplay inventoryDisplay)
         {
+            if (displayingSection.Value == inventoryDisplay) _ = handleDisplayChange();
             displayingSection.Value = inventoryDisplay;
             selectionMode = SelectionModes.Single;
             setStatus();
@@ -406,13 +376,13 @@ namespace GentrysQuest.Game.Overlays.Inventory
         {
             displayingSection.Value = InventoryDisplay.Weapons;
             selectionMode = SelectionModes.Multi;
-            changeState();
+            handleDisplayChange();
             setStatus();
         }
 
         public void ExchangeWeapons()
         {
-            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedArtifact).ToList();
+            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedArtifact).ToList();
 
             if (entityInfoDrawables.Count == 0)
             {
@@ -422,56 +392,35 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
             foreach (EntityInfoDrawable entityInfoDrawable in entityInfoDrawables)
             {
-                if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedWeapon)
+                if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedWeapon)
                 {
-                    FocusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
+                    focusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
                     user.Weapons.Remove((Weapon)entityInfoDrawable.entity);
                 }
             }
 
-            changeState();
-        }
-
-        public void ClickWeapon()
-        {
-            clearSelections();
-            Weapon? weaponRef = equippingToCharacter.Weapon;
-            artifactSelectionIndex = null;
-
-            if (weaponRef == null)
-            {
-                displayingSection.Value = InventoryDisplay.Weapons;
-                selectionMode = SelectionModes.Equipping;
-            }
-
-            setStatus();
+            handleDisplayChange();
         }
 
         public void SwapWeapon()
         {
-            artifactSelectionIndex = null;
-            displayingSection.Value = InventoryDisplay.Weapons;
+            swapCategory(InventoryDisplay.Weapons);
             selectionMode = SelectionModes.Equipping;
+            unDisplayInfo();
             setStatus();
-        }
-
-        public void RemoveWeapon()
-        {
-            user!.AddItem(equippingToCharacter.Weapon);
-            equippingToCharacter.SetWeapon(null);
         }
 
         public void StartArtifactExchange()
         {
             displayingSection.Value = InventoryDisplay.Artifacts;
             selectionMode = SelectionModes.Multi;
-            changeState();
+            handleDisplayChange();
             setStatus();
         }
 
         public void ExchangeArtifacts()
         {
-            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != FocusedArtifact).ToList();
+            var entityInfoDrawables = itemContainer.GetEntityInfoDrawables().Where(entityInfoDrawable => entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedArtifact).ToList();
 
             if (entityInfoDrawables.Count == 0)
             {
@@ -481,21 +430,21 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
             foreach (var entityInfoDrawable in entityInfoDrawables)
             {
-                if (FocusedArtifact.Experience.CurrentLevel() < FocusedArtifact.StarRating * 4)
+                if (focusedArtifact.Experience.CurrentLevel() < focusedArtifact.StarRating * 4)
                 {
-                    FocusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
+                    focusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
                     user!.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
                 }
                 else Notification.Create("Artifact is max level", NotificationType.Informative);
             }
 
-            changeState();
+            handleDisplayChange();
         }
 
         public void ClickArtifact(int index)
         {
             clearSelections();
-            Artifact? artifactRef = equippingToCharacter.Artifacts.Get(index);
+            Artifact? artifactRef = focusedCharacter.Artifacts.Get(index);
 
             if (artifactRef == null)
             {
@@ -509,14 +458,15 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         public void SwapArtifact(int index)
         {
-            displayingSection.Value = InventoryDisplay.Artifacts;
+            swapCategory(InventoryDisplay.Artifacts);
             selectionMode = SelectionModes.Equipping;
             artifactSelectionIndex = index;
+            unDisplayInfo();
         }
 
         public void RemoveArtifact(int index)
         {
-            user!.AddItem(equippingToCharacter.Artifacts.Remove(index));
+            user!.AddItem(focusedCharacter.Artifacts.Remove(index));
         }
 
         public void ToggleDisplay()
@@ -533,16 +483,130 @@ namespace GentrysQuest.Game.Overlays.Inventory
             }
         }
 
-        private void displayInfo(EntityInfoDrawable entityInfoDrawable)
+        private async Task displayInfo(EntityInfoDrawable entityInfoDrawable)
         {
-            selectionBackButton.FadeIn(100);
-            itemContainer.ResizeTo(new Vector2(0.5f, 0.79f), 100);
+            await itemContainer.ClearList();
+            await itemDisplayContainer.SetEntity(entityInfoDrawable.entity);
+            focusedCharacter = null;
+            focusedWeapon = null;
+            focusedArtifact = null;
+
+            switch (entityInfoDrawable.entity)
+            {
+                case Character character:
+                    focusedCharacter = character;
+                    break;
+
+                case Weapon weapon:
+                    focusedWeapon = weapon;
+                    break;
+
+                case Artifact artifact:
+                    focusedArtifact = artifact;
+                    break;
+            }
+
+            itemDisplayContainer.Show();
         }
 
         private void unDisplayInfo()
         {
             selectionBackButton.FadeOut(100);
-            itemContainer.ResizeTo(new Vector2(1, 1), 100);
+            itemDisplayContainer.FadeOut(100);
+        }
+
+        protected override bool OnKeyDown(KeyDownEvent e)
+        {
+            switch (e.Key)
+            {
+                case Key.Left:
+                    selectedIndex = -1;
+                    itemDisplayContainer.FadeOut(100);
+
+                    if (displayingSection.Value != InventoryDisplay.Hidden)
+                    {
+                        if (displayingSection.Value == InventoryDisplay.Characters)
+                            displayingSection.Value = InventoryDisplay.Weapons;
+                        else if (displayingSection.Value == InventoryDisplay.Artifacts)
+                            displayingSection.Value = InventoryDisplay.Characters;
+                        else if (displayingSection.Value == InventoryDisplay.Weapons)
+                            displayingSection.Value = InventoryDisplay.Artifacts;
+                        selectionMode = SelectionModes.Single;
+                        setStatus();
+                    }
+
+                    break;
+
+                case Key.Right:
+                    selectedIndex = -1;
+                    itemDisplayContainer.FadeOut(100);
+
+                    if (displayingSection.Value != InventoryDisplay.Hidden)
+                    {
+                        if (displayingSection.Value == InventoryDisplay.Characters)
+                            displayingSection.Value = InventoryDisplay.Artifacts;
+                        else if (displayingSection.Value == InventoryDisplay.Artifacts)
+                            displayingSection.Value = InventoryDisplay.Weapons;
+                        else if (displayingSection.Value == InventoryDisplay.Weapons)
+                            displayingSection.Value = InventoryDisplay.Characters;
+                        selectionMode = SelectionModes.Single;
+                        setStatus();
+                    }
+
+                    break;
+
+                case Key.Up:
+                    if (displayingSection.Value != InventoryDisplay.Hidden)
+                    {
+                        var items = itemContainer.GetEntityInfoDrawables();
+
+                        if (items.Count > 0)
+                        {
+                            selectedIndex = Math.Max(0, selectedIndex - 1);
+                            clearSelections();
+                            items[selectedIndex].Select();
+                            itemContainer.ScrollToItem(selectedIndex);
+                        }
+                    }
+
+                    break;
+
+                case Key.Down:
+                    if (displayingSection.Value != InventoryDisplay.Hidden)
+                    {
+                        var items = itemContainer.GetEntityInfoDrawables();
+
+                        if (items.Count > 0)
+                        {
+                            selectedIndex = Math.Min(items.Count - 1, selectedIndex + 1);
+                            clearSelections();
+                            items[selectedIndex].Select();
+                            itemContainer.ScrollToItem(selectedIndex);
+                        }
+                    }
+
+                    break;
+
+                case Key.Enter:
+                    if (displayingSection.Value != InventoryDisplay.Hidden)
+                    {
+                        var items = itemContainer.GetEntityInfoDrawables();
+
+                        if (items.Count > 0 && selectedIndex >= 0 && selectedIndex < items.Count)
+                        {
+                            handleEntityClick(items[selectedIndex]);
+                        }
+                    }
+
+                    break;
+
+                case Key.Escape:
+                    unDisplayInfo();
+                    _ = handleDisplayChange();
+                    break;
+            }
+
+            return base.OnKeyDown(e);
         }
 
         public override void Show()

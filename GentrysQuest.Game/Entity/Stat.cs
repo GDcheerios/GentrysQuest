@@ -16,6 +16,8 @@ namespace GentrysQuest.Game.Entity
         /// </summary>
         public int Point;
 
+        public bool IsPercent { get; private set; } = false;
+
         public Bindable<double> Default { get; private set; } = new();
         public Bindable<double> Minimum { get; } = new();
         public Bindable<double> Current { get; private set; } = new();
@@ -30,6 +32,17 @@ namespace GentrysQuest.Game.Entity
             Current.Value = Total();
             ResetsOnUpdate = resetsOnUpdate;
             calculate();
+
+            switch (statType)
+            {
+                case StatType.CritRate:
+                    IsPercent = true;
+                    break;
+
+                case StatType.CritDamage:
+                    IsPercent = true;
+                    break;
+            }
         }
 
         private void calculate()

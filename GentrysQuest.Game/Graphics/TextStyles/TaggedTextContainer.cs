@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using osu.Framework.Allocation;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osuTK.Graphics;
 
 namespace GentrysQuest.Game.Graphics.TextStyles
@@ -19,6 +22,13 @@ namespace GentrysQuest.Game.Graphics.TextStyles
         };
 
         private static readonly Regex TagRegex = new Regex(@"\[(\w+)\](.*?)\[\/\1\]", RegexOptions.Compiled);
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Flow.AutoSizeAxes = Axes.None;
+            Flow.RelativeSizeAxes = Axes.Both;
+        }
 
         public void SetTaggedText(string input)
         {
@@ -73,8 +83,17 @@ namespace GentrysQuest.Game.Graphics.TextStyles
 
             foreach (var word in words)
             {
-                AddText(word + " ", t => t.Colour = color);
+                AddText(word + " ", t =>
+                {
+                    t.Colour = color;
+                    t.Font = FontUsage.Default.With(size: FONT);
+                });
             }
+        }
+
+        public IEnumerable<Drawable> GetSpriteTexts()
+        {
+            return Flow.Children;
         }
     }
 }

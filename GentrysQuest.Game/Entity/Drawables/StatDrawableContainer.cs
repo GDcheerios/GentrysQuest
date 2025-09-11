@@ -23,7 +23,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     Text = "Stats",
                     Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
+                    Origin = Anchor.BottomCentre,
                     Font = FontUsage.Default.With(size: 36)
                 },
                 new BasicScrollContainer
@@ -51,16 +51,18 @@ namespace GentrysQuest.Game.Entity.Drawables
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
+                            Margin = new MarginPadding { Left = 10 }
                         },
                         new GqText("+")
                         {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre
                         },
                         new GqText("Total")
                         {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
+                            Anchor = Anchor.CentreRight,
+                            Origin = Anchor.CentreRight,
+                            Margin = new MarginPadding { Right = 10 }
                         },
                     ]
                 }

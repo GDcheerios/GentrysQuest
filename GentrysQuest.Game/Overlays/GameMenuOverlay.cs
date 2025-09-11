@@ -204,7 +204,7 @@ namespace GentrysQuest.Game.Overlays
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
-            title.MoveToY(0, 150, Easing.In);
+            title?.MoveToY(0, 150, Easing.In);
         }
 
         public void Toggle()

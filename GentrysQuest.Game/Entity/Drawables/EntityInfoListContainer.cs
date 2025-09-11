@@ -143,12 +143,21 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public void ScrollToTop() => scrollContainer.ScrollToStart();
 
+        public void ScrollToItem(int index)
+        {
+            if (index < 3 || index > entityReferences.Count - 4) return;
+
+            var targetY = (index - 3) * 110;
+            scrollContainer.ScrollTo(targetY);
+        }
+
         public void Sort(string condition, bool reversed)
         {
             List<dynamic[]> newList = new();
 
-            foreach (EntityInfoDrawable entityInfoDrawable in scrollContainer.Children)
+            foreach (var drawable in scrollContainer.Children)
             {
+                var entityInfoDrawable = (EntityInfoDrawable)drawable;
                 newList.Add(new dynamic[] { entityInfoDrawable.entity, entityInfoDrawable });
             }
 

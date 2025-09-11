@@ -40,8 +40,8 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             {
                 stat1 += 1;
                 stat2 += 0.5f;
-                statDrawable1.UpdateValue(stat1);
-                statDrawable2.UpdateValue(stat2);
+                statDrawable1.Value.Value = stat1;
+                statDrawable2.Value.Value = stat2;
             });
         }
     }

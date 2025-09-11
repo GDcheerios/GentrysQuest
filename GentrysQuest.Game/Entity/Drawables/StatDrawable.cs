@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -7,17 +8,15 @@ using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
-    // TODO: Add way to display percentage
     public partial class StatDrawable : CompositeDrawable
     {
-        private const int DURATION = 500;
+        private const int DURATION = 100;
 
         public string Identifier { get; private set; }
-        public new string Name { get; private set; }
+        public Bindable<double> Value { get; private set; } = new();
+        public Bindable<double> AdditionalValue { get; private set; } = new();
 
         private bool isPercent;
-        private float width;
-        private float height;
 
         private Box backgroundBox;
         private Box newIndicationBox;
@@ -27,16 +26,26 @@ namespace GentrysQuest.Game.Entity.Drawables
         private SpriteText changedToValue;
         private SpriteIcon arrowIndicator;
         private SpriteText newIndicationText;
+        private Container nameContainer;
+        private Container valueContainer;
+        private Container additionalValueContainer;
 
         private const float CORNER_RADIUS = 10;
         private Colour4 backgroundColour = Colour4.DarkGray;
 
         public StatDrawable(string name, [CanBeNull] string identifier = null)
         {
-            this.isPercent = isPercent;
             Identifier = identifier ?? name;
             Name = name;
-            width = 0.33f;
+        }
+
+        public StatDrawable(Stat stat)
+        {
+            isPercent = stat.IsPercent;
+            Name = stat.Name;
+            Identifier = stat.Name;
+            Value.Value = stat.Total();
+            AdditionalValue.Value = stat.GetAdditional();
         }
 
         public StatDrawable(Buff attribute, [CanBeNull] string identifier = null)
@@ -45,7 +54,15 @@ namespace GentrysQuest.Game.Entity.Drawables
             var name = attribute.StatType.ToString();
             Identifier = identifier ?? name;
             Name = name;
-            width = 0.495f;
+            Value.Value = attribute.Value.Value;
+            AdditionalValue.Value = attribute.Level;
+        }
+
+        private void setUpdateEvent()
+        {
+            string percentText = isPercent ? "%" : " ";
+            Value.ValueChanged += _ => valueText.Text = Value.Value + percentText;
+            AdditionalValue.ValueChanged += _ => additionalValueText.Text = AdditionalValue.Value.ToString();
         }
 
         [BackgroundDependencyLoader]
@@ -58,41 +75,42 @@ namespace GentrysQuest.Game.Entity.Drawables
                 new Container
                 {
                     Masking = true,
-                    CornerRadius = CORNER_RADIUS,
+                    CornerRadius = 10,
                     CornerExponent = 2,
                     RelativeSizeAxes = Axes.Both,
                     Children =
                     [
-                        new Container
+                        nameContainer = new Container
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            Width = width,
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.Both,
+                            RelativePositionAxes = Axes.X,
+                            Width = 1,
                             Children =
                             [
                                 new Box
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Colour = backgroundColour
+                                    Colour = backgroundColour,
                                 },
                                 nameText = new SpriteText
                                 {
                                     Text = Name,
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Margin = new MarginPadding { Left = 5 },
                                     Font = FontUsage.Default.With(size: 20)
                                 }
                             ],
                         },
-                        new Container
+                        additionalValueContainer = new Container
                         {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
                             RelativeSizeAxes = Axes.Both,
-                            Width = width,
-                            Alpha = width == 0.495f ? 0 : 1,
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            RelativePositionAxes = Axes.X,
+                            X = 0.35f,
+                            Width = 0,
                             Children =
                             [
                                 new Box
@@ -102,33 +120,33 @@ namespace GentrysQuest.Game.Entity.Drawables
                                 },
                                 additionalValueText = new SpriteText
                                 {
-                                    Text = "0",
+                                    Text = "",
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Margin = new MarginPadding { Left = 5 },
                                     Font = FontUsage.Default.With(size: 20)
                                 }
                             ],
                         },
-                        new Container
+                        valueContainer = new Container
                         {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
                             RelativeSizeAxes = Axes.Both,
-                            Width = width,
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight,
+                            RelativePositionAxes = Axes.X,
+                            X = 0.70f,
+                            Width = 0,
                             Children =
                             [
                                 new Box
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Colour = backgroundColour
+                                    Colour = backgroundColour,
                                 },
                                 valueText = new SpriteText
                                 {
-                                    Text = "0",
+                                    Text = "",
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Margin = new MarginPadding { Left = 5 },
                                     Font = FontUsage.Default.With(size: 20)
                                 }
                             ],
@@ -136,9 +154,15 @@ namespace GentrysQuest.Game.Entity.Drawables
                     ]
                 }
             ];
-        }
 
-        private string percentText => isPercent ? "%" : " ";
+            string percentText = isPercent ? "%" : " ";
+            nameContainer.Delay(DURATION * 2).ResizeWidthTo(0.33f, DURATION);
+            additionalValueContainer.Delay(DURATION * 3).Then().ResizeWidthTo(0.33f, DURATION).Then()
+                                    .Finally(_ => additionalValueText.Text = AdditionalValue.Value.ToString());
+            valueContainer.Delay(DURATION * 4).Then().ResizeWidthTo(0.33f, DURATION).Then()
+                          .Finally(_ => valueText.Text = Value.Value + percentText);
+            setUpdateEvent();
+        }
 
         /// <summary>
         /// Displays a notification to indicate it's a new stat.
@@ -147,22 +171,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             newIndicationBox.FadeIn(100);
             newIndicationText.FadeIn(100);
-        }
-
-        /// <summary>
-        /// Updates the value displayed on the stat drawable.
-        /// </summary>
-        public void UpdateValue(float newValue)
-        {
-            if (valueText.Text == $"{newValue}{percentText}")
-                return;
-
-            animateValueChange(newValue);
-        }
-
-        private void animateValueChange(float newValue)
-        {
-            valueText.Text = newValue.ToString();
         }
     }
 }

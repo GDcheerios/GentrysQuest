@@ -16,7 +16,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         private StarRatingDrawable starRatingDrawable4 = new StarRatingDrawable(4);
         private StarRatingDrawable starRatingDrawable5 = new StarRatingDrawable(5);
 
-        private const int DELAY_INCREMENT = 100;
+        private const int DELAY_INCREMENT = 60;
 
         public StarRatingContainer(int starRating)
         {

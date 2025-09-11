@@ -46,7 +46,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         {
             foreach (StatDrawable statDrawable in statContainer.GetStatDrawables())
             {
-                statContainer.GetStatDrawable(statDrawable.Identifier).UpdateValue(0);
+                statContainer.GetStatDrawable(statDrawable.Identifier).Value.Value = 0;
             }
         }
 
