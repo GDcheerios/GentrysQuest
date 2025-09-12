@@ -1,3 +1,4 @@
+using System;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
@@ -22,6 +23,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
         private string nameRef;
         private int starRating;
         private string textureRef;
+        private RemoveButton removeButton;
+        private SwapButton swapButton;
 
         public EquipPanel([CanBeNull] EntityBase entity)
         {
@@ -29,6 +32,22 @@ namespace GentrysQuest.Game.Overlays.Inventory
             nameRef = "Empty";
             starRating = 0;
             textureRef = "huh.png";
+            swapButton = new SwapButton
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.TopCentre,
+                Margin = new MarginPadding { Top = 10 },
+                X = -15,
+                Alpha = 0
+            };
+            removeButton = new RemoveButton
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.TopCentre,
+                Margin = new MarginPadding { Top = 10 },
+                X = 15,
+                Alpha = 0
+            };
 
             if (entity == null) return;
 
@@ -42,6 +61,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 X = 20,
                 Scale = new Vector2(0.25f)
             };
+            swapButton.Alpha = 1;
+            removeButton.Alpha = 1;
         }
 
         [BackgroundDependencyLoader]
@@ -77,7 +98,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
                             Font = FontUsage.Default.With(size: 14)
                         }
                     ]
-                }
+                },
+                removeButton,
+                swapButton
             ];
 
             if (starRatingContainer != null) Add(starRatingContainer);
@@ -103,5 +126,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     break;
             }
         }
+
+        public void SetSwapAction(Action action) => swapButton.SetAction(action);
+        public void SetRemoveAction(Action action) => removeButton.SetAction(action);
     }
 }

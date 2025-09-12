@@ -18,7 +18,7 @@ namespace GentrysQuest.Game.Entity
         public DrawableTexture DrawableTexture { get; protected set; } = new();
 
         public AudioMapping AudioMapping { get; protected set; } = new();
-        public byte Difficulty { get; protected set; } = 0;
+        public byte Difficulty { get; protected set; } = 1;
 
         public delegate void EntityEvent();
 

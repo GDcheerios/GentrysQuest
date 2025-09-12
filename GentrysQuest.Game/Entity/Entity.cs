@@ -112,7 +112,7 @@ namespace GentrysQuest.Game.Entity
         {
             base.LevelUp();
             UpdateStats();
-            Difficulty = (byte)(Experience.Level.Current.Value / 20);
+            Difficulty = (byte)(1 + Experience.Level.Current.Value / 20);
         }
 
         public void Attack() => OnAttack?.Invoke();

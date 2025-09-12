@@ -50,14 +50,14 @@ public partial class DrawableEntityBar : CompositeDrawable
                             Font = FontUsage.Default.With(size: 32)
                         }
                     },
-                    HealthProgressBar = new ProgressBar(0, entity.Stats.Health.Total())
+                    HealthProgressBar = new ProgressBar
                     {
                         RelativeSizeAxes = Axes.X,
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         Size = new Vector2(0.98f, 20)
                     },
-                    TenacityBar = new ProgressBar(0, entity.Stats.Tenacity.Total())
+                    TenacityBar = new ProgressBar
                     {
                         BackgroundColour = Colour4.Transparent,
                         ForegroundColour = Colour4.Yellow,
@@ -88,19 +88,19 @@ public partial class DrawableEntityBar : CompositeDrawable
 
         entity.OnHealthEvent += delegate
         {
-            HealthProgressBar.Current = entity.Stats.Health.Current.Value;
+            HealthProgressBar.Current.Value = (float)entity.Stats.Health.Current.Value;
             HealthText.Text = entity.Stats.Health.Current.Value.ToString();
-            TenacityBar.Current = entity.CurrentTenacity;
-            TenacityBar.Max = entity.Stats.Tenacity.Total();
+            TenacityBar.Current.Value = entity.CurrentTenacity;
+            TenacityBar.Max.Value = (float)entity.Stats.Tenacity.Total();
         };
         entity.OnUpdateStats += delegate
         {
             EntityLevel.Text = entity.Experience.Level.Current.Value.ToString();
-            HealthProgressBar.Current = entity.Stats.Health.GetCurrent();
-            HealthProgressBar.Max = entity.Stats.Health.Total();
+            HealthProgressBar.Current.Value = (float)entity.Stats.Health.GetCurrent();
+            HealthProgressBar.Max.Value = (float)entity.Stats.Health.Total();
             HealthText.Text = entity.Stats.Health.Current.Value.ToString();
-            TenacityBar.Current = entity.CurrentTenacity;
-            TenacityBar.Max = entity.Stats.Tenacity.Total();
+            TenacityBar.Current.Value = entity.CurrentTenacity;
+            TenacityBar.Max.Value = (float)entity.Stats.Tenacity.Total();
         };
         entity.OnDeath += delegate { this.FadeOut(); };
         entity.OnSpawn += delegate { this.FadeIn(); };

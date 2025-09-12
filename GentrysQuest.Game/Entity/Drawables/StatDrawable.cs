@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -61,8 +62,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         private void setUpdateEvent()
         {
             string percentText = isPercent ? "%" : " ";
-            Value.ValueChanged += _ => valueText.Text = Value.Value + percentText;
-            AdditionalValue.ValueChanged += _ => additionalValueText.Text = AdditionalValue.Value.ToString();
+            Value.ValueChanged += _ => valueText.Text = Math.Round(Value.Value, 2) + percentText;
+            AdditionalValue.ValueChanged += _ => additionalValueText.Text = Math.Round(AdditionalValue.Value, 2).ToString();
         }
 
         [BackgroundDependencyLoader]
@@ -156,6 +157,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             ];
 
             string percentText = isPercent ? "%" : " ";
+            this.FadeColour(Colour4.White, DURATION);
             nameContainer.Delay(DURATION * 2).ResizeWidthTo(0.33f, DURATION);
             additionalValueContainer.Delay(DURATION * 3).Then().ResizeWidthTo(0.33f, DURATION).Then()
                                     .Finally(_ => additionalValueText.Text = AdditionalValue.Value.ToString());
@@ -171,6 +173,22 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             newIndicationBox.FadeIn(100);
             newIndicationText.FadeIn(100);
+        }
+
+        public void UpdateValue(double value)
+        {
+            Colour4 colour = Value.Value < value ? Colour4.LightYellow : Colour4.LightBlue;
+            Value.Value = value;
+            string percentText = isPercent ? "%" : " ";
+            this.FadeColour(colour, DURATION);
+            nameContainer.ResizeWidthTo(1, DURATION).Then()
+                         .Delay(DURATION * 2).ResizeWidthTo(0.33f, DURATION);
+            additionalValueContainer.ResizeWidthTo(0, DURATION).FadeOut(DURATION).Then()
+                                    .Delay(DURATION * 3).Then().ResizeWidthTo(0.33f, DURATION).FadeIn(DURATION).Then()
+                                    .Finally(_ => additionalValueText.Text = Math.Round(AdditionalValue.Value, 2).ToString());
+            valueContainer.ResizeWidthTo(0, DURATION).FadeOut(DURATION).Then()
+                          .Delay(DURATION * 4).Then().ResizeWidthTo(0.33f, DURATION).FadeIn(DURATION).Then()
+                          .Finally(_ => valueText.Text = Value.Value + percentText);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
                 Anchor = Anchor.BottomLeft,
                 Colour = Colour4.White
             });
-            Add(xpProgress = new ProgressBar(0, 100)
+            Add(xpProgress = new ProgressBar
             {
                 Origin = Anchor.BottomRight,
                 Anchor = Anchor.BottomRight,
@@ -73,18 +73,16 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             {
                 levelTracker.Text = $"Level: {entity.Experience.Level.Current}\n"
                                     + $"Xp: {entity.Experience.Xp.Current}/{entity.Experience.Xp.Requirement}";
-                xpProgress.Max = entity.Experience.Xp.Requirement.Value;
-                xpProgress.Current = entity.Experience.Xp.Current.Value;
-                xpProgress.Min = 0;
+                xpProgress.Max.Value = entity.Experience.Xp.Requirement.Value;
+                xpProgress.Current.Value = entity.Experience.Xp.Current.Value;
                 updateStats();
             };
             entity.OnGainXp += delegate
             {
                 levelTracker.Text = $"Level: {entity.Experience.Level.Current}\n"
                                     + $"Xp: {entity.Experience.Xp.Current}/{entity.Experience.Xp.Requirement}";
-                xpProgress.Max = entity.Experience.Xp.Requirement.Value;
-                xpProgress.Current = entity.Experience.Xp.Current.Value;
-                xpProgress.Min = 0;
+                xpProgress.Max.Value = entity.Experience.Xp.Requirement.Value;
+                xpProgress.Current.Value = entity.Experience.Xp.Current.Value;
             };
         }
 
