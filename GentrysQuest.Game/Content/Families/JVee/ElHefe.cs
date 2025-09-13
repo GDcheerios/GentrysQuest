@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
 
 namespace GentrysQuest.Game.Content.Families.JVee;
 
@@ -12,6 +13,7 @@ public class ElHefe : Artifact
 
     public ElHefe()
     {
+        TextureMapping = new TextureMapping();
         TextureMapping.Add("Icon", "artifacts_elhefe.png");
     }
 }

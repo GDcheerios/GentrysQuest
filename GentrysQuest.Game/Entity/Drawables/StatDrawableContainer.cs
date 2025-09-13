@@ -1,4 +1,5 @@
 using System.Linq;
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -10,6 +11,8 @@ namespace GentrysQuest.Game.Entity.Drawables
     {
         private FillFlowContainer<StatDrawable> statDrawables;
 
+        private const float HEIGHT = 20;
+
         public StatDrawableContainer()
         {
             Masking = true;
@@ -20,7 +23,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     Text = "Stats",
                     Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
+                    Origin = Anchor.BottomCentre,
                     Font = FontUsage.Default.With(size: 36)
                 },
                 new BasicScrollContainer
@@ -37,6 +40,31 @@ namespace GentrysQuest.Game.Entity.Drawables
                         AutoSizeAxes = Axes.Y,
                         RelativeSizeAxes = Axes.X
                     }
+                },
+                new Container
+                {
+                    RelativeSizeAxes = Axes.X,
+                    Height = HEIGHT,
+                    Children =
+                    [
+                        new GqText("Stat")
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            Margin = new MarginPadding { Left = 10 }
+                        },
+                        new GqText("+")
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre
+                        },
+                        new GqText("Total")
+                        {
+                            Anchor = Anchor.CentreRight,
+                            Origin = Anchor.CentreRight,
+                            Margin = new MarginPadding { Right = 10 }
+                        },
+                    ]
                 }
             };
         }
@@ -48,6 +76,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         }
 
         public StatDrawable GetStatDrawable(string identifier) => statDrawables.Children.FirstOrDefault(statDrawable => statDrawable.Identifier == identifier);
+        public StatDrawable[] GetStatDrawables() => statDrawables.Children.ToArray();
 
         public void Clear() => statDrawables.Clear();
     }

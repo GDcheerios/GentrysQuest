@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,6 +17,10 @@ namespace GentrysQuest.Game.Entity.Drawables
         private bool queued = false;
         private readonly List<EntityBase> queuedEntities = new();
         private const int DURATION = 150;
+        private const int DELAY = 50;
+        private const int DELAY_ITEM_LIMIT = 7;
+        private const int DELAY_MAX = DELAY * DELAY_ITEM_LIMIT + 1;
+        private const int SORT_DURATION = 100;
         private readonly SpriteText noItemsDisclaimer;
         private readonly LoadingIndicator loadingIndicator;
         public event EventHandler FinishedLoading;
@@ -51,19 +57,17 @@ namespace GentrysQuest.Game.Entity.Drawables
             entityReferences = new();
         }
 
-        private void addToList(EntityInfoDrawable drawable)
+        private Task addToList(EntityInfoDrawable drawable)
         {
             drawable.Y = 110 * scrollContainer.Count;
             scrollContainer.Add(drawable);
             entityReferences.Add(drawable);
+            return Task.CompletedTask;
         }
 
-        public List<EntityInfoDrawable> GetEntityInfoDrawables()
-        {
-            return entityReferences;
-        }
+        public List<EntityInfoDrawable> GetEntityInfoDrawables() => entityReferences;
 
-        private void addEntity(EntityBase entity, int delay = 0)
+        private async Task addEntity(EntityBase entity, int delay = 0, bool hidden = false)
         {
             EntityInfoDrawable entityInfoDrawable;
 
@@ -86,59 +90,40 @@ namespace GentrysQuest.Game.Entity.Drawables
                     break;
             }
 
-            addToList(entityInfoDrawable);
-            entityInfoDrawable.FadeOut().Then().Delay(delay).Then().FadeIn(DURATION);
+            await addToList(entityInfoDrawable);
+            if (hidden) entityInfoDrawable.FadeOut().Then().ScaleTo(new Vector2(1, 0.001f));
         }
 
-        public void AddFromList<T>(List<T> entityList, bool isNew = false) where T : EntityBase
+        public async Task AddFromList<T>(List<T> entityList) where T : EntityBase
         {
             if (entityList.Count == 0) noItemsDisclaimer.FadeIn(DURATION);
             else noItemsDisclaimer.FadeOut(DURATION);
-
-            if (queued)
-            {
-                queuedEntities.Clear();
-
-                foreach (var entity in entityList)
-                {
-                    queuedEntities.Add(entity);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < entityList.Count; i++)
-                {
-                    addEntity(entityList[i], 35);
-                }
-            }
+            for (int i = 0; i < entityList.Count; i++) await addEntity(entityList[i]);
         }
 
-        private void drawableFadeOut(EntityInfoDrawable drawable)
+        private async Task drawableFadeOut(EntityInfoDrawable drawable)
         {
-            drawable.FadeOut(DURATION).ScaleTo(0, DURATION);
-            Scheduler.AddDelayed(() =>
-            {
-                scrollContainer.Remove(drawable, false);
-            }, DURATION);
+            drawable.FadeOut(DELAY);
+            await Task.Delay(DELAY);
         }
 
-        public void ClearList()
+        private Task removeDrawable(EntityInfoDrawable drawable) => Task.FromResult(scrollContainer.Remove(drawable, false));
+
+        public async Task ClearList()
         {
-            queued = true;
-            loadingIndicator.FadeIn(50);
-            entityReferences.Clear();
+            int index = 0;
 
-            Scheduler.AddDelayed(() =>
+            foreach (EntityInfoDrawable entityInfoDrawable in entityReferences.ToList())
             {
-                loadingIndicator.FadeOut(50);
-                queued = false;
-            }, DURATION);
-
-            foreach (EntityInfoDrawable drawable in scrollContainer)
-            {
-                drawableFadeOut(drawable);
+                entityReferences.Remove(entityInfoDrawable);
+                if (index < DELAY_ITEM_LIMIT)
+                    await drawableFadeOut(entityInfoDrawable);
+                await removeDrawable(entityInfoDrawable);
+                index++;
             }
         }
+
+        public async Task RemoveFromList(EntityInfoDrawable drawable) => await drawableFadeOut(drawable);
 
         protected override void Update()
         {
@@ -152,12 +137,27 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.Update();
         }
 
+        public int GetDelayLimit() => DELAY_ITEM_LIMIT;
+        public int GetSortDuration() => SORT_DURATION;
+        public int GetDelay() => DELAY;
+
+        public void ScrollToTop() => scrollContainer.ScrollToStart();
+
+        public void ScrollToItem(int index)
+        {
+            if (index < 3 || index > entityReferences.Count - 4) return;
+
+            var targetY = (index - 3) * 110;
+            scrollContainer.ScrollTo(targetY);
+        }
+
         public void Sort(string condition, bool reversed)
         {
             List<dynamic[]> newList = new();
 
-            foreach (EntityInfoDrawable entityInfoDrawable in scrollContainer.Children)
+            foreach (var drawable in scrollContainer.Children)
             {
+                var entityInfoDrawable = (EntityInfoDrawable)drawable;
                 newList.Add(new dynamic[] { entityInfoDrawable.entity, entityInfoDrawable });
             }
 
@@ -183,8 +183,13 @@ namespace GentrysQuest.Game.Entity.Drawables
             foreach (var pair in newList)
             {
                 EntityInfoDrawable entityInfoDrawable = pair[1];
-                entityInfoDrawable.MoveToY(yPos, 100, Easing.InOutCirc);
+                entityInfoDrawable.MoveToY(yPos, SORT_DURATION, Easing.InOutCirc);
                 yPos += 110;
+            }
+
+            for (int i = 0; i < newList.Count; i++)
+            {
+                entityReferences[i] = newList[i][1];
             }
         }
     }

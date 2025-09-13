@@ -28,9 +28,10 @@ namespace GentrysQuest.Game.Entity
 
         public override void LevelUp()
         {
-            base.LevelUp();
-            if (Experience.Level.IsMax()) return;
+            if (Experience.Level.Current.Value >= Experience.Level.Limit.Value) return;
 
+            base.LevelUp();
+            Difficulty = (byte)(1 + Experience.Level.Current.Value / 4);
             if (Experience.Level.Current.Value % 4 == 0) AddBuff();
             MainAttribute.Improve();
             Holder?.UpdateStats();

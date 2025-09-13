@@ -101,15 +101,15 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
         public void SetHealth(Stat health)
         {
-            healthBar.Current = (int)health.Current.Value;
-            healthBar.Max = (int)health.Total();
+            healthBar.Current.Value = (int)health.Current.Value;
+            healthBar.Max.Value = (int)health.Total();
         }
 
         public void SetExperience(Experience experience)
         {
             levelText.Text = $"Level {experience.Level.Current}";
-            experienceBar.Current = experience.Xp.Current.Value;
-            experienceBar.Max = experience.Xp.Requirement.Value;
+            experienceBar.Current.Value = experience.Xp.Current.Value;
+            experienceBar.Max.Value = experience.Xp.Requirement.Value;
         }
 
         public void Disappear()

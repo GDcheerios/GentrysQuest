@@ -86,7 +86,7 @@ namespace GentrysQuest.Game.Overlays.Profile
                 RelativeSizeAxes = Axes.X,
                 Children =
                 [
-                    experienceBar = new ProgressBar(0, 1)
+                    experienceBar = new ProgressBar()
                 ]
             });
             Add(selectContainer = new PlayerSelectContainer
@@ -110,8 +110,8 @@ namespace GentrysQuest.Game.Overlays.Profile
                 mainMenuScreen.ExitSelection();
                 nameText.Text = "Select User";
                 levelText.Text = "";
-                experienceBar.Current = 0;
-                experienceBar.Max = 1000000;
+                experienceBar.Current.Value = 0;
+                experienceBar.Max.Value = 1000000;
             }
             else
             {
@@ -121,8 +121,8 @@ namespace GentrysQuest.Game.Overlays.Profile
                 user.Load();
                 nameText.Text = user.Name;
                 levelText.Text = user.Experience.CurrentLevel().ToString();
-                experienceBar.Current = user.Experience.CurrentXp();
-                experienceBar.Max = 1000000;
+                experienceBar.Current.Value = user.Experience.CurrentXp();
+                experienceBar.Max.Value = 1000000;
             }
         }
 

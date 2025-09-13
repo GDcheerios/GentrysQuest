@@ -27,7 +27,6 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
             guestUser.Value = GuestUser.Create("testy");
             profileButton = new ProfileButton(guestUser);
             Add(gameMenuOverlay = new GameMenuOverlay() { Y = -100 });
-            gameMenuOverlay.Disappear();
         }
 
         [Test]

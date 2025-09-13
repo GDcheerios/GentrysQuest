@@ -76,12 +76,11 @@ namespace GentrysQuest.Game.Entity.Drawables
                                                 CornerRadius = 6,
                                                 Origin = Anchor.Centre,
                                                 Size = new Vector2(60, 10),
-                                                Child = percentageDisplay = new ProgressBar(0, 100)
+                                                Child = percentageDisplay = new ProgressBar
                                                 {
                                                     RelativeSizeAxes = Axes.Both,
                                                     BackgroundColour = new Colour4(0, 0, 0, 0),
                                                     ForegroundColour = new Colour4(255, 255, 255, 200),
-                                                    Current = 0
                                                 }
                                             }
                                         }
@@ -115,7 +114,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             base.Update();
 
-            percentageDisplay.Current = skillReference.PercentToDone;
+            percentageDisplay.Current.Value = skillReference.PercentToDone;
             skillStack.Text = skillReference.UsesAvailable.ToString();
         }
     }

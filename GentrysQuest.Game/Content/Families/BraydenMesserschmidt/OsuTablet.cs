@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
 
 namespace GentrysQuest.Game.Content.Families.BraydenMesserschmidt
 {
@@ -12,6 +13,7 @@ namespace GentrysQuest.Game.Content.Families.BraydenMesserschmidt
 
         public OsuTablet()
         {
+            TextureMapping = new TextureMapping();
             TextureMapping.Add("Icon", "artifacts_brayden_messerschmidt_osu_tablet.png");
         }
     }

@@ -42,8 +42,8 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             artifactInfoDrawable = new ArtifactInfoDrawable(artifact);
             Add(artifactInfoDrawable);
             statDrawableContainer.Clear();
-            statDrawableContainer.AddStat(new StatDrawable(artifact.MainAttribute, true));
-            foreach (Buff buff in artifact.Attributes) statDrawableContainer.AddStat(new StatDrawable(buff, false));
+            // statDrawableContainer.AddStat(new StatDrawable(artifact.MainAttribute, true));
+            // foreach (Buff buff in artifact.Attributes) statDrawableContainer.AddStat(new StatDrawable(buff, false));
         }
     }
 }

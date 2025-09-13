@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
 
 namespace GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
 
@@ -10,6 +11,7 @@ public class MadokaChibiPlush : Artifact
 
     public MadokaChibiPlush()
     {
+        TextureMapping = new TextureMapping();
         TextureMapping.Add("Icon", "artifacts_brayden_messerschmidt_madoka_chibi_plush.jpg");
     }
 }

@@ -45,7 +45,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
 
             foreach (Stat stat in player.GetBase().Stats.GetStats())
             {
-                statContainer.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
+                // statContainer.AddStat(new StatDrawable(stat.Name, (float)stat.Total(), false));
             }
         }
 
@@ -60,7 +60,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
         {
             foreach (Stat stat in player.GetBase().Stats.GetStats())
             {
-                statContainer.GetStatDrawable(stat.Name).UpdateValue((float)stat.Current.Value);
+                statContainer.GetStatDrawable(stat.Name).Value.Value = (float)stat.Current.Value;
             }
 
             return base.OnClick(e);
