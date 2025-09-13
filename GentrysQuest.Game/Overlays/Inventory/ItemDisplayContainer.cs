@@ -185,8 +185,8 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                                 Width = 1f,
                                 Height = 0.45f,
                                 Y = 140,
-                                Children = new Drawable[]
-                                {
+                                Children =
+                                [
                                     levelUpBox = new InventoryLevelUpBox()
                                     {
                                         Width = 150
@@ -206,8 +206,8 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                                         Height = 0.3f,
                                         X = 100,
                                         Action = () => { levelUpBox.IncreaseAmount(); }
-                                    },
-                                }
+                                    }
+                                ]
                             },
                             exchangeButton = new InventoryButton("Exchange")
                             {
