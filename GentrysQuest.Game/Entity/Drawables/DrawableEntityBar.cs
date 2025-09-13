@@ -88,7 +88,8 @@ public partial class DrawableEntityBar : CompositeDrawable
 
         entity.OnHealthEvent += delegate
         {
-            HealthProgressBar.Current.Value = (float)entity.Stats.Health.Current.Value;
+            HealthProgressBar.Current.Value = (float)entity.Stats.Health.GetCurrent();
+            HealthProgressBar.Max.Value = (float)entity.Stats.Health.Total();
             HealthText.Text = entity.Stats.Health.Current.Value.ToString();
             TenacityBar.Current.Value = entity.CurrentTenacity;
             TenacityBar.Max.Value = (float)entity.Stats.Tenacity.Total();
