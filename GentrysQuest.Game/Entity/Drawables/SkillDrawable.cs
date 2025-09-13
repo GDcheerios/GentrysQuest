@@ -81,6 +81,8 @@ namespace GentrysQuest.Game.Entity.Drawables
                                                     RelativeSizeAxes = Axes.Both,
                                                     BackgroundColour = new Colour4(0, 0, 0, 0),
                                                     ForegroundColour = new Colour4(255, 255, 255, 200),
+                                                    MaxInit = 100,
+                                                    Animate = false
                                                 }
                                             }
                                         }

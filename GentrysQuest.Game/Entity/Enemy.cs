@@ -9,6 +9,7 @@ public class Enemy : Entity
     public Enemy()
         : base()
     {
+        UpdateStats();
     }
 
     public override void UpdateStats()

@@ -10,6 +10,7 @@ public class Character : Entity
     {
         Artifacts = new ArtifactManager(this);
         Artifacts.OnChangeArtifact += UpdateStats;
+        UpdateStats();
     }
 
     public override void Damage(int amount)

@@ -69,7 +69,7 @@ public partial class DrawableEntityBar : CompositeDrawable
                     },
                     HealthText = new SpriteText
                     {
-                        Text = "0",
+                        Text = $"{entity.Stats.Health.Current.Value}",
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         Font = FontUsage.Default.With(size: 24)

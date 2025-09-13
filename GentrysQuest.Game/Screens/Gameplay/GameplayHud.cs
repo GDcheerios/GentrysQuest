@@ -25,7 +25,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
             InternalChildren = new Drawable[]
             {
-                barsContainer = new Container()
+                barsContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                     RelativePositionAxes = Axes.Both,
@@ -96,6 +96,10 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
             };
             levelText.Text = $"Level {theEntity.Experience.CurrentLevel()}";
+            healthBar.Current.Value = (float)theEntity.Stats.Health.GetCurrent();
+            healthBar.Max.Value = (float)theEntity.Stats.Health.Total();
+            experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;
+            experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
             skillOverlay.ClearSkills();
             skillOverlay.SetUpSkills(theEntity);
         }

@@ -13,17 +13,20 @@ public partial class ProgressBar : CompositeDrawable
     private Box background;
     private Box foreground;
 
-    public Bindable<float> Current = new();
-    public Bindable<float> Max = new(1);
+    public Bindable<float> Current;
+    public Bindable<float> Max;
 
     public Colour4 BackgroundColour { get; set; } = Colour4.DarkGray;
     public Colour4 ForegroundColour { get; set; } = Colour4.White;
+    public bool Animate { get; set; } = true;
+    public float MaxInit { get; set; } = 1;
+    public float CurrentInit { get; set; } = 0;
 
     public ProgressBar()
     {
+        Current = new Bindable<float>(CurrentInit);
+        Max = new Bindable<float>(MaxInit);
         RelativeSizeAxes = Axes.Both;
-        Current.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
-        Max.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
     }
 
     [BackgroundDependencyLoader]
@@ -42,5 +45,16 @@ public partial class ProgressBar : CompositeDrawable
                 RelativeSizeAxes = Axes.Both
             }
         ];
+
+        if (Animate)
+        {
+            Current.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
+            Max.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
+        }
+        else
+        {
+            Current.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), 0, Easing.None);
+            Max.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), 0, Easing.None);
+        }
     }
 }

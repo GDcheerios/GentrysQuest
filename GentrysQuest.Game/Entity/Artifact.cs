@@ -31,7 +31,7 @@ namespace GentrysQuest.Game.Entity
             if (Experience.Level.Current.Value >= Experience.Level.Limit.Value) return;
 
             base.LevelUp();
-            Difficulty = (byte)(1 + Experience.Level.Current.Value / 4);
+            Difficulty = (byte)(Experience.Level.Current.Value / 4);
             if (Experience.Level.Current.Value % 4 == 0) AddBuff();
             MainAttribute.Improve();
             Holder?.UpdateStats();
