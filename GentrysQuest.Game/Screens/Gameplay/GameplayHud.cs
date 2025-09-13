@@ -1,4 +1,3 @@
-using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Overlays.SkillOverlay;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -57,6 +56,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
                             RelativePositionAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
+                            BackgroundColour = Colour4.Gray,
+                            ForegroundColour = Colour4.LightBlue,
                             Size = new Vector2(1, 0.5f)
                         },
                         levelText = new SpriteText
@@ -65,7 +66,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.TopLeft,
                             RelativePositionAxes = Axes.Both,
-                            Font = FontUsage.Default.With(size: 20),
+                            Font = FontUsage.Default.With(size: 24),
+                            Margin = new MarginPadding { Left = 10 },
                             Position = new Vector2(0)
                         }
                     }
@@ -83,33 +85,19 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
         public void SetEntity(Entity.Entity theEntity)
         {
-            entityTracker = theEntity;
-            SetHealth(theEntity.Stats.Health);
-            SetExperience(theEntity.Experience);
-            entityTracker.Stats.Health.Current.ValueChanged += delegate { SetHealth(theEntity.Stats.Health); };
-            entityTracker.Experience.Level.Current.ValueChanged += delegate { SetExperience(theEntity.Experience); };
-            entityTracker.Experience.Xp.Current.ValueChanged += delegate { SetExperience(theEntity.Experience); };
-            entityTracker.OnUpdateStats += delegate
+            theEntity.OnHealthEvent += () =>
             {
-                SetHealth(theEntity.Stats.Health);
-                SetExperience(theEntity.Experience);
+                healthBar.Current.Value = (float)theEntity.Stats.Health.GetCurrent();
+                healthBar.Max.Value = (float)theEntity.Stats.Health.Total();
             };
-
+            theEntity.Experience.Xp.Current.ValueChanged += _ =>
+            {
+                experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;
+                experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
+            };
+            levelText.Text = $"Level {theEntity.Experience.CurrentLevel()}";
             skillOverlay.ClearSkills();
             skillOverlay.SetUpSkills(theEntity);
-        }
-
-        public void SetHealth(Stat health)
-        {
-            healthBar.Current.Value = (int)health.Current.Value;
-            healthBar.Max.Value = (int)health.Total();
-        }
-
-        public void SetExperience(Experience experience)
-        {
-            levelText.Text = $"Level {experience.Level.Current}";
-            experienceBar.Current.Value = experience.Xp.Current.Value;
-            experienceBar.Max.Value = experience.Xp.Requirement.Value;
         }
 
         public void Disappear()
