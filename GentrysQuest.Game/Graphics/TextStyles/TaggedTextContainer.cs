@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Graphics.TextStyles
 {
     public partial class TaggedTextContainer : TextFlowContainer
     {
-        private const int FONT = 16;
+        public int Font { get; set; } = 16;
 
         private static readonly Dictionary<string, Color4> TagColors = new()
         {
@@ -86,7 +86,7 @@ namespace GentrysQuest.Game.Graphics.TextStyles
                 AddText(word + " ", t =>
                 {
                     t.Colour = color;
-                    t.Font = FontUsage.Default.With(size: FONT);
+                    t.Font = FontUsage.Default.With(size: Font);
                 });
             }
         }
