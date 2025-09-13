@@ -506,7 +506,11 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     focusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
                     user!.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
                 }
-                else Notification.Create("Artifact is max level", NotificationType.Informative);
+                else
+                {
+                    Notification.Create("Artifact is max level", NotificationType.Informative);
+                    return;
+                }
             }
         }
 
