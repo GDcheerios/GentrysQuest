@@ -15,7 +15,7 @@ using osuTK;
 
 namespace GentrysQuest.Game.Overlays.Inventory;
 
-public partial class ItemDisplayContainer : Container
+public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
 {
     // main variables
     [CanBeNull]
@@ -50,6 +50,8 @@ public partial class ItemDisplayContainer : Container
     {
         this.textureStore = textureStore;
         RelativeSizeAxes = Axes.Both;
+        FillAspectRatio = 1;
+        FillMode = FillMode.Stretch;
         Children =
         [
             new Container
@@ -139,7 +141,8 @@ public partial class ItemDisplayContainer : Container
             {
                 Anchor = Anchor.TopLeft,
                 Origin = Anchor.TopLeft,
-                Size = new Vector2(250, 100),
+                Size = new Vector2(300, 100),
+                Font = 24,
                 X = 230,
                 Y = 75
             },
