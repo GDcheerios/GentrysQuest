@@ -4,35 +4,44 @@ using Newtonsoft.Json.Linq;
 
 namespace GentrysQuest.Game.Online.API.Requests.Responses
 {
+    // Matches: "gq data": { "items": ..., "metadata": { ... }, "ranking": { ... }, "scores": { } }
     public class UserDataResponse
     {
-        [JsonProperty("experience")]
-        public ExperienceResponse Experience { get; set; }
-
         [JsonProperty("items")]
         public ItemResponse Items { get; set; }
+
+        // "metadata": { id, money, start_amount, stats, xp }
+        [JsonProperty("metadata")]
+        public MetadataResponse Metadata { get; set; }
+
+        // "ranking": { id, placement, rank, tier, unweighted, weighted }
+        [JsonProperty("ranking")]
+        public RankingResponse Ranking { get; set; }
+    }
+
+    public class MetadataResponse
+    {
+        [JsonProperty("id")]
+        public int Id { get; set; }
 
         [JsonProperty("money")]
         public int Money { get; set; }
 
         [JsonProperty("start_amount")]
         public int StartAmount { get; set; }
-    }
 
-    public class ExperienceResponse
-    {
-        [JsonProperty("current xp")]
-        public int CurrentXp { get; set; }
+        // xp is a single number in your sample; if it becomes an object later, adjust accordingly
+        [JsonProperty("xp")]
+        public int Xp { get; set; }
 
-        [JsonProperty("level")]
-        public int Level { get; set; }
-
-        [JsonProperty("required xp")]
-        public int RequiredXp { get; set; }
+        // stats is null in your sample; model it flexibly
+        [JsonProperty("stats")]
+        public JObject Stats { get; set; }
     }
 
     public class ItemResponse
     {
+        // Your sample has "items": null. If/when it becomes structured, keep lists flexible.
         [JsonProperty("characters")]
         public List<JToken> Characters { get; set; }
 

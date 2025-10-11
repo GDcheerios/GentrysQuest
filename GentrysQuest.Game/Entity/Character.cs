@@ -111,7 +111,11 @@ public class Character : Entity
             CurrentWeapon = Weapon?.ToJson()
         };
         JsonArtifact[] artifacts = new JsonArtifact[5];
-        for (int i = 0; i < 5; i++) artifacts[i] = Artifacts.Get()[i].ToJson();
+        for (int i = 0; i < 5; i++)
+        {
+            var slot = Artifacts.Get()[i];
+            artifacts[i] = slot != null ? slot.ToJson() : null;
+        }
         jsonEntity.Artifacts = artifacts;
         return jsonEntity;
     }

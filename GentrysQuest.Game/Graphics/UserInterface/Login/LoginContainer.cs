@@ -1,4 +1,5 @@
 using System;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Users;
@@ -99,6 +100,13 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                             await retrievedUser.Save();
                         }
 
+                        if (loginRequest.Response.Token != null)
+                        {
+                            loadingIndicator.ChangeStatus("Authenticating");
+                            await APIAccess.SetUserToken(loginRequest.Response.Token);
+                            await APIAccess.EnsureApiKeyAsync();
+                        }
+
                         await retrievedUser.Load();
 
                         user.Value = retrievedUser;
@@ -110,7 +118,7 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"An error occurred during login: {ex.Message}", LoggingTarget.Network);
+                    Logger.Log($"An error occurred during login: {ex.StackTrace}", LoggingTarget.Network);
                 }
                 finally
                 {

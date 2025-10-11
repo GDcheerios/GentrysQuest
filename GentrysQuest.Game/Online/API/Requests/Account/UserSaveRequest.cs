@@ -12,13 +12,13 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
         public UserSaveRequest(OnlineUser user)
         {
             this.user = user;
-            Client.DefaultRequestHeaders.Add("Authorization", APIAccess.GetToken());
+            Client.DefaultRequestHeaders.Add("Authorization", APIAccess.GetApiKey());
         }
 
         protected override HttpMethod Method { get; } = HttpMethod.Post;
 
         protected override HttpContent CreateContent() => new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
 
-        public override string Target { get; } = $"gq/save";
+        public override string Target { get; } = $"api/gq/save";
     }
 }

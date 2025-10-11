@@ -21,6 +21,8 @@ namespace GentrysQuest.Game.Overlays.Profile
         private Container experienceContainer;
         private ProgressBar experienceBar;
         private PlayerSelectContainer selectContainer;
+        private SpriteText placementText;
+        private SpriteText weightedGpText;
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
@@ -42,44 +44,64 @@ namespace GentrysQuest.Game.Overlays.Profile
             Add(new Container
             {
                 Depth = -1,
-                RelativeSizeAxes = Axes.X,
-                Height = 70,
-                Child = new FillFlowContainer
-                {
-                    RelativeSizeAxes = Axes.X,
-                    Height = 60,
-                    Direction = FillDirection.Horizontal,
-                    Children =
-                    [
-                        profilePicture = new ProfilePicture(),
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.Y,
-                            Width = 100,
-                            Child = nameText = new SpriteText
+                RelativeSizeAxes = Axes.Both,
+                Children =
+                [
+                    new FillFlowContainer
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        Height = 60,
+                        Direction = FillDirection.Horizontal,
+                        Children =
+                        [
+                            profilePicture = new ProfilePicture(),
+                            new Container
                             {
-                                Text = "Select User",
-                                Colour = Colour4.Black,
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Font = FontUsage.Default.With(size: 24)
-                            }
-                        },
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.Y,
-                            Width = 100,
-                            Child = levelText = new SpriteText
+                                RelativeSizeAxes = Axes.Y,
+                                Width = 100,
+                                Child = nameText = new SpriteText
+                                {
+                                    Text = "Select User",
+                                    Colour = Colour4.Black,
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Font = FontUsage.Default.With(size: 24)
+                                }
+                            },
+                            new Container
                             {
-                                Text = "",
-                                Colour = Colour4.Black,
-                                Anchor = Anchor.CentreRight,
-                                Origin = Anchor.CentreRight,
-                                Font = FontUsage.Default.With(size: 32)
+                                RelativeSizeAxes = Axes.Y,
+                                Width = 100,
+                                Child = levelText = new SpriteText
+                                {
+                                    Text = "",
+                                    Colour = Colour4.Black,
+                                    Anchor = Anchor.CentreRight,
+                                    Origin = Anchor.CentreRight,
+                                    Font = FontUsage.Default.With(size: 32)
+                                }
                             }
-                        }
-                    ]
-                }
+                        ]
+                    },
+                    placementText = new SpriteText
+                    {
+                        Text = "",
+                        Colour = Colour4.Black,
+                        Font = FontUsage.Default.With(size: 32),
+                        Anchor = Anchor.BottomLeft,
+                        Origin = Anchor.BottomLeft,
+                        Margin = new MarginPadding { Left = 10 }
+                    },
+                    weightedGpText = new SpriteText
+                    {
+                        Text = "",
+                        Colour = Colour4.Black,
+                        Font = FontUsage.Default.With(size: 32),
+                        Anchor = Anchor.BottomRight,
+                        Origin = Anchor.BottomRight,
+                        Margin = new MarginPadding { Right = 10 }
+                    }
+                ]
             });
             Add(experienceContainer = new Container
             {
@@ -100,6 +122,47 @@ namespace GentrysQuest.Game.Overlays.Profile
             user.ValueChanged += changedUser => handleNewUser(changedUser.NewValue);
         }
 
+        private void bindUserStats(IUser u)
+        {
+            placementText.Text = $"#{u.Placement.Value}";
+            weightedGpText.Text = $"{u.WeightedGp.Value} GP";
+
+            u.Placement.ValueChanged += e => Schedule(() =>
+            {
+                Inform();
+                placementText.Text = $"#{u.Placement.Value}";
+                placementText.FinishTransforms();
+                placementText.ScaleTo(1f);
+                var placementSequence = placementText.ScaleTo(1.15f, 150, Easing.OutQuint).Then()
+                                                     .Delay(250).Then()
+                                                     .ScaleTo(1f, 250, Easing.InQuint);
+                placementSequence.OnComplete(_ => Hide());
+            });
+
+            u.WeightedGp.ValueChanged += e => Schedule(() =>
+            {
+                Inform();
+                weightedGpText.Text = $"{u.WeightedGp.Value} GP";
+                weightedGpText.FinishTransforms();
+                weightedGpText.ScaleTo(1f);
+                var gpSequence = weightedGpText.ScaleTo(1.1f, 120, Easing.OutQuint).Then()
+                                               .Delay(200).Then()
+                                               .ScaleTo(1f, 220, Easing.InQuint);
+                gpSequence.OnComplete(_ => Hide());
+            });
+        }
+
+        private void unbindUserStats(IUser u)
+        {
+            if (u == null) return;
+
+            u.Placement.ValueChanged -= null;
+            u.Rank.ValueChanged -= null;
+            u.Tier.ValueChanged -= null;
+            u.WeightedGp.ValueChanged -= null;
+            u.UnweightedGp.ValueChanged -= null;
+        }
+
         private void handleNewUser(IUser user)
         {
             MainMenuScreen mainMenuScreen = (MainMenuScreen)screenManager.GetScreen(ScreenState.MainMenu);
@@ -107,15 +170,17 @@ namespace GentrysQuest.Game.Overlays.Profile
 
             if (user == null)
             {
-                mainMenuScreen.ExitSelection();
+                if (mainMenuScreen != null) mainMenuScreen.ExitSelection();
                 nameText.Text = "Select User";
                 levelText.Text = "";
                 experienceBar.Current.Value = 0;
                 experienceBar.Max.Value = 1000000;
+                placementText.Text = "";
+                weightedGpText.Text = "";
             }
             else
             {
-                mainMenuScreen.EnterGame();
+                if (mainMenuScreen != null) mainMenuScreen.EnterGame();
                 selectContainer?.Hide();
                 isShowingSelection = false;
                 user.Load();
@@ -123,6 +188,7 @@ namespace GentrysQuest.Game.Overlays.Profile
                 levelText.Text = user.Experience.CurrentLevel().ToString();
                 experienceBar.Current.Value = user.Experience.CurrentXp();
                 experienceBar.Max.Value = 1000000;
+                bindUserStats(user);
             }
         }
 

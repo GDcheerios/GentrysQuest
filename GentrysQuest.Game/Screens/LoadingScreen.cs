@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Online;
-using GentrysQuest.Game.Online.API;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
@@ -75,17 +74,9 @@ namespace GentrysQuest.Game.Screens
             await Task.Delay(500);
         }
 
-        private async Task setupAPIAccess()
-        {
-            status.Text = "Connecting to server";
-            _ = new APIAccess(); // need to set up API access
-            await APIAccess.GrabToken();
-        }
-
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            await setupAPIAccess();
             await loadGameData();
 
             Scheduler.AddDelayed(() =>
