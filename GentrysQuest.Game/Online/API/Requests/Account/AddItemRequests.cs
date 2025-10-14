@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online.API.Requests.Responses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -34,7 +35,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
             var payload = new
             {
                 type = itemType,
-                item = itemPayload,
+                item = ItemSerializer.SerializeToObject(itemPayload),
                 owner
             };
 

@@ -12,6 +12,9 @@ namespace GentrysQuest.Game.IO
         public int CurrentXp { get; set; }
         public int RequiredXp { get; set; }
 
+        [JsonProperty("$type")]
+        public string Type { get; set; }
+
         /// <summary>
         /// The weapon
         /// </summary>

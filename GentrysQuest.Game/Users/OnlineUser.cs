@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Online.API.Requests.Responses;
 using GentrysQuest.Game.Overlays.Notifications;
@@ -101,8 +102,7 @@ namespace GentrysQuest.Game.Users
                         case "character":
                             try
                             {
-                                var payload = item["item"] ?? item; // support both wrapped and direct schemas
-                                var character = payload.ToObject<Character>();
+                                Character character = ItemSerializer.Deserialize<Character>(item.ToString());
                                 if (character != null) Characters.Add(character);
                             }
                             catch (JsonException ex)
@@ -115,8 +115,7 @@ namespace GentrysQuest.Game.Users
                         case "artifact":
                             try
                             {
-                                var payload = item["item"] ?? item;
-                                var artifact = payload.ToObject<Artifact>();
+                                Artifact artifact = ItemSerializer.Deserialize<Artifact>(item.ToString());
                                 if (artifact != null) Artifacts.Add(artifact);
                             }
                             catch (JsonException ex)
@@ -129,8 +128,7 @@ namespace GentrysQuest.Game.Users
                         case "weapon":
                             try
                             {
-                                var payload = item["item"] ?? item;
-                                var weapon = payload.ToObject<Weapon>();
+                                Weapon weapon = ItemSerializer.Deserialize<Weapon>(item.ToString());
                                 if (weapon != null) Weapons.Add(weapon);
                             }
                             catch (JsonException ex)

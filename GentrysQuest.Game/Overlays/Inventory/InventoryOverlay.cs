@@ -463,7 +463,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedWeapon)
                 {
                     focusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user.Weapons.Remove((Weapon)entityInfoDrawable.entity);
+                    user.RemoveItem((Weapon)entityInfoDrawable.entity);
+                    user.UpdateItem(focusedWeapon);
                 }
             }
         }
@@ -504,7 +505,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (focusedArtifact.Experience.CurrentLevel() < focusedArtifact.StarRating * 4)
                 {
                     focusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user!.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
+                    user!.RemoveItem((Artifact)entityInfoDrawable.entity);
+                    user!.UpdateItem(focusedArtifact);
                 }
                 else
                 {
@@ -545,6 +547,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 user?.MoneyHandler.Spend(amount);
                 item.AddXp(amount * 10);
+                user?.UpdateItem(item);
             }
             else Notification.Create("Can't Afford", NotificationType.Informative);
         }

@@ -145,6 +145,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             JsonWeapon jsonEntity = new JsonWeapon
             {
+                Type = $"{GetType().FullName}, {GetType().Assembly.GetName().Name}",
                 Name = Name,
                 Level = Experience.CurrentLevel(),
                 StarRating = StarRating.Value,

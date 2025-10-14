@@ -104,6 +104,7 @@ public class Character : Entity
         JsonCharacter jsonEntity = new JsonCharacter
         {
             Name = Name,
+            Type = $"{GetType().FullName}, {GetType().Assembly.GetName().Name}",
             Level = Experience.CurrentLevel(),
             StarRating = StarRating.Value,
             ID = ID,

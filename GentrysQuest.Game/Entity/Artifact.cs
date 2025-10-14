@@ -69,6 +69,7 @@ namespace GentrysQuest.Game.Entity
         {
             JsonArtifact jsonEntity = new JsonArtifact
             {
+                Type = $"{GetType().FullName}, {GetType().Assembly.GetName().Name}",
                 Name = Name,
                 Level = Experience.CurrentLevel(),
                 StarRating = StarRating.Value,

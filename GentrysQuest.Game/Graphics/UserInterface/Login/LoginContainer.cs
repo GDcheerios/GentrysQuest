@@ -118,7 +118,7 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"An error occurred during login", LoggingTarget.Network);
+                    Logger.Log($"An error occurred during login {ex.StackTrace}", LoggingTarget.Network);
                 }
                 finally
                 {
