@@ -26,7 +26,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
 
         public override string Target { get; } = "api/gq/update-item/";
 
-        protected override HttpMethod Method => HttpMethod.Patch;
+        protected override HttpMethod Method => HttpMethod.Post;
 
         protected override HttpContent CreateContent()
         {
@@ -43,11 +43,10 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
         public new async Task PerformAsync()
         {
             var apiKey = APIAccess.GetApiKey();
-            if (string.IsNullOrEmpty(apiKey))
-                throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
+            if (apiKey == null) throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
 
             Client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", apiKey);
+                new AuthenticationHeaderValue("Authorization", apiKey.GetHeader());
 
             try
             {

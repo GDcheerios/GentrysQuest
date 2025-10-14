@@ -1,47 +1,29 @@
+using System;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace GentrysQuest.Game.Online.API;
-
-public class APIKeyResponse
+namespace GentrysQuest.Game.Online.API.Requests.Responses
 {
-    [JsonProperty("id")]
-    private string id;
+    public class APIKey
+    {
+        [JsonProperty("key_id")]
+        public string ID;
 
-    [JsonProperty("user_id")]
-    private int uid;
+        [CanBeNull]
+        [JsonProperty("key")]
+        public string CombinedKey;
 
-    [JsonProperty("key_id")]
-    private string keyId;
+        [CanBeNull]
+        [JsonProperty("name")]
+        public string Name;
 
-    [JsonProperty("secret")]
-    private byte[] secret;
+        [JsonProperty("scopes")]
+        public string[] Scopes;
 
-    [CanBeNull]
-    [JsonProperty("name")]
-    private string name;
+        [CanBeNull]
+        [JsonProperty("expires_at")]
+        public DateTimeOffset? ExpiresAt;
 
-    [JsonProperty("scopes")]
-    private string[] scopes;
-
-    [JsonProperty("created_at")]
-    private string createdAt;
-
-    [JsonProperty("last_used_at")]
-    private string lastUsedAt;
-
-    [CanBeNull]
-    [JsonProperty("expires_at")]
-    private string expiresAt;
-
-    [JsonProperty("status")]
-    private string status;
-
-    [JsonProperty("created_by")]
-    private string createdBy;
-
-    [CanBeNull]
-    [JsonProperty("metadata")]
-    private JObject metadata;
+        public string GetHeader() => $"ApiKey {CombinedKey}";
+    }
 }

@@ -7,7 +7,6 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Online.API.Requests.Responses;
-using GentrysQuest.Game.Online.API.Requests.User;
 using GentrysQuest.Game.Overlays.Notifications;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -50,77 +49,117 @@ namespace GentrysQuest.Game.Users
         /// <param name="data">json data implemented</param>
         public OnlineUser(JToken data)
         {
+            if (data == null) return;
+
             ID = data["id"].Value<int>();
             Name = data["username"].Value<string>();
             UserData = data["gq data"]?.ToObject<UserDataResponse>();
+            if (UserData != null && UserData.Metadata == null) create();
+            else Load();
         }
 
         public async Task Load()
         {
-            if (UserData != null)
+            Experience = new Experience();
+            Experience.Level.Current.Value = 1;
+            Experience.Xp.Current.Value = UserData.Metadata?.Xp ?? 0;
+            Experience.Xp.Requirement.Value = 0;
+
+            MoneyHandler = new Money(this)
             {
-                Logger.Log(JsonConvert.SerializeObject(UserData));
-
-                // Experience: server currently provides a single xp value under metadata.xp
-                Experience = new Experience();
-                Experience.Level.Current.Value = 1; // default until server provides level
-                Experience.Xp.Current.Value = UserData.Metadata?.Xp ?? 0;
-                Experience.Xp.Requirement.Value = 0; // set appropriately if you have a formula
-
-                // Money and startup amount from metadata
-                MoneyHandler = new Money(this)
+                Amount =
                 {
-                    Amount =
+                    Value = UserData.Metadata?.Money ?? 0
+                }
+            };
+
+            StartupAmount = UserData.Metadata?.StartAmount ?? 0;
+
+            if (UserData.Ranking != null)
+            {
+                Placement.Value = UserData.Ranking.Placement;
+                WeightedGp.Value = UserData.Ranking.Weighted;
+                UnweightedGp.Value = UserData.Ranking.Unweighted;
+                Rank.Value = UserData.Ranking.Rank;
+                Tier.Value = UserData.Ranking.Tier;
+            }
+
+            Characters = new List<Character>();
+            Artifacts = new List<Artifact>();
+            Weapons = new List<Weapon>();
+
+            if (UserData.Items != null)
+            {
+                foreach (var item in UserData.Items)
+                {
+                    if (item == null || item.Type == JTokenType.Null) continue;
+
+                    var type = item["type"]?.Value<string>()?.ToLowerInvariant();
+
+                    switch (type)
                     {
-                        Value = UserData.Metadata?.Money ?? 0
+                        case "character":
+                            try
+                            {
+                                var payload = item["item"] ?? item; // support both wrapped and direct schemas
+                                var character = payload.ToObject<Character>();
+                                if (character != null) Characters.Add(character);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse character: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        case "artifact":
+                            try
+                            {
+                                var payload = item["item"] ?? item;
+                                var artifact = payload.ToObject<Artifact>();
+                                if (artifact != null) Artifacts.Add(artifact);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse artifact: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        case "weapon":
+                            try
+                            {
+                                var payload = item["item"] ?? item;
+                                var weapon = payload.ToObject<Weapon>();
+                                if (weapon != null) Weapons.Add(weapon);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse weapon: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        default:
+                            Logger.Log($"Unknown item type: '{type ?? "null"}'", LoggingTarget.Network);
+                            break;
                     }
-                };
-
-                StartupAmount = UserData.Metadata?.StartAmount ?? 0;
-
-                // Ranking (optional bindings)
-                if (UserData.Ranking != null)
-                {
-                    Placement.Value = UserData.Ranking.Placement;
-                    WeightedGp.Value = UserData.Ranking.Weighted;
-                    UnweightedGp.Value = UserData.Ranking.Unweighted;
-                    Rank.Value = UserData.Ranking.Rank;
-                    Tier.Value = UserData.Ranking.Tier;
-                }
-
-                // Items: may be null
-                Characters = new List<Character>();
-                if (UserData.Items?.Characters != null)
-                {
-                    foreach (var character in UserData.Items.Characters)
-                        Characters.Add(character.ToObject<Character>());
-                }
-
-                Artifacts = new List<Artifact>();
-                if (UserData.Items?.Artifacts != null)
-                {
-                    foreach (var artifact in UserData.Items.Artifacts)
-                        Artifacts.Add(artifact.ToObject<Artifact>());
-                }
-
-                Weapons = new List<Weapon>();
-                if (UserData.Items?.Weapons != null)
-                {
-                    foreach (var weapon in UserData.Items.Weapons)
-                        Weapons.Add(weapon.ToObject<Weapon>());
                 }
             }
 
-            Logger.Log($"Loaded user {Name} for {StartupAmount}", LoggingTarget.Network, LogLevel.Debug);
+            Logger.Log($"Loaded user {Name} for {StartupAmount}", LoggingTarget.Network);
         }
 
         public async Task Save()
         {
             UserSaveRequest saveRequest = new UserSaveRequest(this);
-            UserDataRequest userRequest = new UserDataRequest(ID);
             await saveRequest.PerformAsync();
-            await userRequest.PerformAsync();
-            UserData = userRequest.Response;
+        }
+
+        private async Task create()
+        {
+            await Save();
+            await Load();
         }
 
         public void Delete() => throw new NotImplementedException();
@@ -129,9 +168,10 @@ namespace GentrysQuest.Game.Users
         {
             Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
 
-            AddItemRequest request = new AddItemRequest(ID, entity);
-            await request.PerformAsync();
-            RankingItemResponse response = request.Response;
+            AddItemRequests requests = new AddItemRequests(ID, entity);
+            await requests.PerformAsync();
+            RankingItemResponse response = requests.Response;
+            updateRanking(response);
 
             switch (entity)
             {
@@ -154,6 +194,7 @@ namespace GentrysQuest.Game.Users
             UpdateItemRequest request = new UpdateItemRequest(entity);
             await request.PerformAsync();
             RankingItemResponse response = request.Response;
+            updateRanking(response);
         }
 
         public async void RemoveItem(EntityBase entity)
@@ -161,6 +202,7 @@ namespace GentrysQuest.Game.Users
             RemoveItemRequest request = new RemoveItemRequest(entity.ID);
             await request.PerformAsync();
             RankingResponse response = request.Response;
+            updateRanking(response);
 
             switch (entity)
             {
@@ -177,5 +219,16 @@ namespace GentrysQuest.Game.Users
                     break;
             }
         }
+
+        private void updateRanking(RankingResponse ranking)
+        {
+            Rank.Value = ranking.Rank;
+            WeightedGp.Value = ranking.Weighted;
+            UnweightedGp.Value = ranking.Unweighted;
+            Tier.Value = ranking.Tier;
+            Placement.Value = ranking.Placement;
+        }
+
+        private void updateRanking(RankingItemResponse ranking) => updateRanking(ranking.Ranking.ToObject<RankingResponse>());
     }
 }

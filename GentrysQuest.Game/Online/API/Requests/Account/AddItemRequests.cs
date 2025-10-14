@@ -11,14 +11,14 @@ using Newtonsoft.Json.Linq;
 
 namespace GentrysQuest.Game.Online.API.Requests.Account
 {
-    public class AddItemRequest : APIRequest<RankingItemResponse>
+    public class AddItemRequests : APIRequest<RankingItemResponse>
     {
         private readonly int owner;
         private readonly EntityBase entity;
         private readonly string itemType;
         private readonly object itemPayload;
 
-        public AddItemRequest(int owner, EntityBase entity)
+        public AddItemRequests(int owner, EntityBase entity)
         {
             this.owner = owner;
             this.entity = entity ?? throw new ArgumentNullException(nameof(entity));
@@ -48,7 +48,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
             if (apiKey == null) throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
 
             Client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", apiKey.GetHeader());
+                new AuthenticationHeaderValue("Authorization", apiKey.GetHeader());
 
             try
             {

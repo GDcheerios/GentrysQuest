@@ -2,14 +2,15 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using GentrysQuest.Game.Online.API.Requests.Responses;
 using Newtonsoft.Json;
 using osu.Framework.Logging; // for quick tracing
 
 namespace GentrysQuest.Game.Online.API.Requests
 {
-    public class GetApiKeyRequest(string userToken) : APIRequest<string>
+    public class GetApiKeyRequest(string userToken) : APIRequest<APIKey>
     {
-        private readonly string _userToken = userToken ?? throw new ArgumentNullException(nameof(userToken));
+        private readonly string userToken = userToken ?? throw new ArgumentNullException(nameof(userToken));
 
         public override string Target => "auth/keys";
 
@@ -40,7 +41,7 @@ namespace GentrysQuest.Game.Online.API.Requests
             if (Client == null)
                 throw new InvalidOperationException("HttpClient not initialized.");
 
-            var token = (_userToken ?? string.Empty)
+            var token = (userToken ?? string.Empty)
                         .Replace("\r", string.Empty)
                         .Replace("\n", string.Empty)
                         .Trim();
@@ -53,15 +54,11 @@ namespace GentrysQuest.Game.Online.API.Requests
             try
             {
                 await base.PerformAsync();
-                Logger.Log($"GetApiKeyRequest: response len={(Response?.Length ?? 0)}", LoggingTarget.Network);
             }
             finally
             {
                 Client.DefaultRequestHeaders.Authorization = null;
             }
         }
-
-        public string ApiKey => Response;
-        public DateTimeOffset? ExpiresAt { get; private set; }
     }
 }

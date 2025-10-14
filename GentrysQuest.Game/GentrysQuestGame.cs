@@ -5,7 +5,6 @@ using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
-using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;

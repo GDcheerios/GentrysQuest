@@ -1,24 +1,38 @@
+using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Users;
 using Newtonsoft.Json;
 
 namespace GentrysQuest.Game.Online.API.Requests.Account
 {
-    public class UserSaveRequest : APIRequest<string>
+    public class UserSaveRequest(OnlineUser user) : APIRequest<string>
     {
-        private OnlineUser user;
-
-        public UserSaveRequest(OnlineUser user)
-        {
-            this.user = user;
-            Client.DefaultRequestHeaders.Add("Authorization", APIAccess.GetApiKey());
-        }
+        public override string Target { get; } = $"api/gq/save/";
 
         protected override HttpMethod Method { get; } = HttpMethod.Post;
 
         protected override HttpContent CreateContent() => new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
 
-        public override string Target { get; } = $"api/gq/save";
+        public new async Task PerformAsync()
+        {
+            var apiKey = APIAccess.GetApiKey();
+            if (apiKey == null)
+                throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
+
+            Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Authorization", apiKey.GetHeader());
+
+            try
+            {
+                await base.PerformAsync();
+            }
+            finally
+            {
+                Client.DefaultRequestHeaders.Authorization = null;
+            }
+        }
     }
 }

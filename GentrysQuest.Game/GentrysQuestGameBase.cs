@@ -32,7 +32,7 @@ namespace GentrysQuest.Game
         /// The Game's current user
         /// </summary>
         [Cached]
-        private readonly Bindable<IUser> user = new();
+        private Bindable<IUser> user { get; set; } = new();
         // Cached so that it can be accessed by other classes
         // Bindable types let us listen for changes to the variable
 

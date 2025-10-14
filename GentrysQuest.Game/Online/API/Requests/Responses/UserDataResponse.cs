@@ -8,7 +8,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Responses
     public class UserDataResponse
     {
         [JsonProperty("items")]
-        public ItemResponse Items { get; set; }
+        public List<JToken> Items { get; set; }
 
         // "metadata": { id, money, start_amount, stats, xp }
         [JsonProperty("metadata")]
@@ -37,18 +37,5 @@ namespace GentrysQuest.Game.Online.API.Requests.Responses
         // stats is null in your sample; model it flexibly
         [JsonProperty("stats")]
         public JObject Stats { get; set; }
-    }
-
-    public class ItemResponse
-    {
-        // Your sample has "items": null. If/when it becomes structured, keep lists flexible.
-        [JsonProperty("characters")]
-        public List<JToken> Characters { get; set; }
-
-        [JsonProperty("artifacts")]
-        public List<JToken> Artifacts { get; set; }
-
-        [JsonProperty("weapons")]
-        public List<JToken> Weapons { get; set; }
     }
 }

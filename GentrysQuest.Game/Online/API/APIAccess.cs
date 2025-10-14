@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using GentrysQuest.Game.Online.API.Requests;
+using GentrysQuest.Game.Online.API.Requests.Responses;
 
 namespace GentrysQuest.Game.Online.API
 {
     public class APIAccess
     {
         private static string userToken;
-        private static string apiKey;
-        private static DateTimeOffset? apiKeyExpiresAt;
+        private static APIKey apiKey;
         public static EndpointConfiguration Endpoint { get; } =
 #if DEBUG
             new LocalhostEndpointConfiguration();
@@ -16,50 +16,33 @@ namespace GentrysQuest.Game.Online.API
             new ProductionEndpointConfiguration();
 #endif
 
-        public APIAccess()
-        {
-            // Keep empty or remove the constructor entirely if not needed.
-        }
-
         public static Task SetUserToken(string token) => Task.FromResult(userToken = token);
 
         public static async Task EnsureApiKeyAsync()
         {
             if (string.IsNullOrEmpty(userToken)) throw new InvalidOperationException("User token not set.");
 
+            var referenceTime = DateTimeOffset.UtcNow;
             var needsNewKey =
-                string.IsNullOrEmpty(apiKey) ||
-                apiKeyExpiresAt == null ||
-                DateTimeOffset.UtcNow >= apiKeyExpiresAt.Value.AddSeconds(-30);
+                apiKey == null ||
+                apiKey.ExpiresAt != null && apiKey.ExpiresAt.Value <= referenceTime;
 
             if (needsNewKey)
             {
                 var req = new GetApiKeyRequest(userToken);
                 await req.PerformAsync();
-                apiKey = req.ApiKey;
-                apiKeyExpiresAt = req.ExpiresAt;
+                apiKey = req.Response;
             }
         }
 
-        public static string GetApiKey() => apiKey;
+        public static APIKey GetApiKey() => apiKey;
 
         public static string GetUserToken() => userToken;
-
-        public static async Task RevokeApiKeyAsync()
-        {
-            if (!string.IsNullOrEmpty(apiKey))
-            {
-                await new RevokeApiKeyRequest(apiKey).PerformAsync();
-                apiKey = null;
-                apiKeyExpiresAt = null;
-            }
-        }
 
         public static void ClearUserSession()
         {
             userToken = null;
             apiKey = null;
-            apiKeyExpiresAt = null;
         }
     }
 }

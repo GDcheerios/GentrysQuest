@@ -1,5 +1,4 @@
 using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Screens;
 using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -23,16 +22,21 @@ namespace GentrysQuest.Game.Overlays.Profile
         private PlayerSelectContainer selectContainer;
         private SpriteText placementText;
         private SpriteText weightedGpText;
+        private int placement;
+        private int weightedGp;
+        private const int DELAY = 500;
 
         [Resolved]
-        private ScreenManager screenManager { get; set; }
-
-        [Resolved]
-        private Bindable<IUser> user { get; }
+        private Bindable<IUser> user { get; set; }
 
         public ProfileButton()
         {
             Depth = -1;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
             Y = -1.05f;
             RelativeSizeAxes = Axes.None;
             Anchor = Anchor.TopRight;
@@ -117,37 +121,33 @@ namespace GentrysQuest.Game.Overlays.Profile
                 Margin = new MarginPadding { Right = 20 },
             });
             selectContainer.Hide();
-
             user.ValueChanged += changedUser => handleNewUser(changedUser.NewValue);
         }
 
         private void bindUserStats(IUser u)
         {
-            placementText.Text = $"#{u.Placement.Value}";
-            weightedGpText.Text = $"{u.WeightedGp.Value} GP";
-
             u.Placement.ValueChanged += e => Schedule(() =>
             {
-                Inform();
-                placementText.Text = $"#{u.Placement.Value}";
-                placementText.FinishTransforms();
-                placementText.ScaleTo(1f);
-                var placementSequence = placementText.ScaleTo(1.15f, 150, Easing.OutQuint).Then()
-                                                     .Delay(250).Then()
-                                                     .ScaleTo(1f, 250, Easing.InQuint);
-                placementSequence.OnComplete(_ => Hide());
+                this.MoveToY(0, 350, Easing.OutCirc)
+                    .Delay(DELAY)
+                    .Then()
+                    .TransformTo(nameof(placement), e.NewValue, DELAY)
+                    .Then()
+                    .Delay(DELAY * 3)
+                    .Then()
+                    .MoveToY(-200f, 350, Easing.InCirc);
             });
 
             u.WeightedGp.ValueChanged += e => Schedule(() =>
             {
-                Inform();
-                weightedGpText.Text = $"{u.WeightedGp.Value} GP";
-                weightedGpText.FinishTransforms();
-                weightedGpText.ScaleTo(1f);
-                var gpSequence = weightedGpText.ScaleTo(1.1f, 120, Easing.OutQuint).Then()
-                                               .Delay(200).Then()
-                                               .ScaleTo(1f, 220, Easing.InQuint);
-                gpSequence.OnComplete(_ => Hide());
+                this.MoveToY(0, 350, Easing.OutCirc)
+                    .Delay(DELAY)
+                    .Then()
+                    .TransformTo(nameof(weightedGp), e.NewValue, DELAY)
+                    .Then()
+                    .Delay(DELAY * 3)
+                    .Then()
+                    .MoveToY(-200f, 350, Easing.InCirc);
             });
         }
 
@@ -164,12 +164,8 @@ namespace GentrysQuest.Game.Overlays.Profile
 
         private void handleNewUser(IUser user)
         {
-            MainMenuScreen mainMenuScreen = (MainMenuScreen)screenManager.GetScreen(ScreenState.MainMenu);
-            if (screenManager.CurrentScreen != mainMenuScreen) screenManager.SetScreen(ScreenState.MainMenu);
-
             if (user == null)
             {
-                if (mainMenuScreen != null) mainMenuScreen.ExitSelection();
                 nameText.Text = "Select User";
                 levelText.Text = "";
                 experienceBar.Current.Value = 0;
@@ -179,15 +175,12 @@ namespace GentrysQuest.Game.Overlays.Profile
             }
             else
             {
-                if (mainMenuScreen != null) mainMenuScreen.EnterGame();
                 selectContainer?.Hide();
                 isShowingSelection = false;
-                user.Load();
                 nameText.Text = user.Name;
-                levelText.Text = user.Experience.CurrentLevel().ToString();
-                experienceBar.Current.Value = user.Experience.CurrentXp();
-                experienceBar.Max.Value = 1000000;
                 bindUserStats(user);
+                user.Placement.TriggerChange();
+                user.WeightedGp.TriggerChange();
             }
         }
 
@@ -245,6 +238,21 @@ namespace GentrysQuest.Game.Overlays.Profile
         {
             GoSelection();
             selectContainer.OpenGuestMenu();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (user.Value == null)
+            {
+                placementText.Text = "";
+                weightedGpText.Text = "";
+                return;
+            }
+
+            placementText.Text = $"#{placement}";
+            weightedGpText.Text = $"{weightedGp} GP";
         }
     }
 }

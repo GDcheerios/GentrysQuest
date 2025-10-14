@@ -19,7 +19,7 @@ namespace GentrysQuest.Game.Users
         /// <summary>
         /// User level
         /// </summary>
-        [JsonProperty("level")]
+        [JsonProperty("experience")]
         Experience Experience { get; set; }
 
         /// <summary>

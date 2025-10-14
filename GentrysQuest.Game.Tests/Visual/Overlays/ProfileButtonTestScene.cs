@@ -16,7 +16,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         private ProfileButton profileButton;
 
         [Resolved]
-        private Bindable<IUser> user { get; }
+        private Bindable<IUser> user { get; set; }
 
         [Cached]
         private ScreenManager screenManager = new ScreenManager(new ScreenStack());

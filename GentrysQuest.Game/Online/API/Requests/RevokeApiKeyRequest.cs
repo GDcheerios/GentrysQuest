@@ -1,12 +1,13 @@
 using System.Net.Http;
 using System.Text;
+using GentrysQuest.Game.Online.API.Requests.Responses;
 using Newtonsoft.Json;
 
 namespace GentrysQuest.Game.Online.API.Requests
 {
-    public class RevokeApiKeyRequest(string apiKey) : APIRequest<string>
+    public class RevokeApiKeyRequest(APIKey apiKey) : APIRequest<string>
     {
-        private readonly string apiKey = string.IsNullOrWhiteSpace(apiKey) ? null : apiKey;
+        private readonly APIKey apiKey = apiKey;
 
         public override string Target => "auth/keys";
 
