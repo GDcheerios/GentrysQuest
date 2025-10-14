@@ -15,8 +15,8 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
     {
         private ProfileButton profileButton;
 
-        [Cached]
-        private Bindable<IUser> guestUser = new Bindable<IUser>();
+        [Resolved]
+        private Bindable<IUser> user { get; }
 
         [Cached]
         private ScreenManager screenManager = new ScreenManager(new ScreenStack());
@@ -34,7 +34,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.DarkGray
             });
-            Add(profileButton = new ProfileButton(guestUser));
+            Add(profileButton = new ProfileButton());
             profileButton.Hide();
         }
 
@@ -44,8 +44,8 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
             AddStep("Show", () => profileButton.Show());
             AddStep("Hide", () => profileButton.Hide());
             AddStep("Inform", () => profileButton.Inform());
-            AddStep("Set user1", () => guestUser.Value = user1);
-            AddStep("Set user2", () => guestUser.Value = user2);
+            AddStep("Set user1", () => user.Value = user1);
+            AddStep("Set user2", () => user.Value = user2);
         }
     }
 }

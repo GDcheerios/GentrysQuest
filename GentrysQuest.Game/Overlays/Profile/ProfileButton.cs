@@ -27,12 +27,11 @@ namespace GentrysQuest.Game.Overlays.Profile
         [Resolved]
         private ScreenManager screenManager { get; set; }
 
-        private readonly Bindable<IUser> user;
+        [Resolved]
+        private Bindable<IUser> user { get; }
 
-        public ProfileButton(Bindable<IUser> user)
+        public ProfileButton()
         {
-            this.user = user;
-
             Depth = -1;
             Y = -1.05f;
             RelativeSizeAxes = Axes.None;

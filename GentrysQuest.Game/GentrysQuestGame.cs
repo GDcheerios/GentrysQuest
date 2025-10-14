@@ -17,15 +17,6 @@ namespace GentrysQuest.Game
 {
     public partial class GentrysQuestGame : GentrysQuestGameBase
     {
-        // Important Variables
-        /// <summary>
-        /// The Game's current user
-        /// </summary>
-        [Cached]
-        private readonly Bindable<IUser> user = new();
-        // Cached so that it can be accessed by other classes
-        // Bindable types let us listen for changes to the variable
-
         /// <summary>
         /// The current equipped character
         /// </summary>
@@ -83,7 +74,7 @@ namespace GentrysQuest.Game
             audioOverlay = new AudioOverlay { Depth = -4 };
             AudioManager.Instance.OnPlayMusic += delegate { audioOverlay.DisplaySong(AudioManager.Instance.CurrentSong); };
 
-            profileButton = new ProfileButton(user);
+            profileButton = new ProfileButton();
             Add(profileButton);
             profileButton.Hide();
 

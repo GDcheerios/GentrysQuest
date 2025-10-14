@@ -2,9 +2,11 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
@@ -25,6 +27,14 @@ namespace GentrysQuest.Game
 
         [Cached]
         private InputHandler inputHandler = new();
+
+        /// <summary>
+        /// The Game's current user
+        /// </summary>
+        [Cached]
+        private readonly Bindable<IUser> user = new();
+        // Cached so that it can be accessed by other classes
+        // Bindable types let us listen for changes to the variable
 
         protected GentrysQuestGameBase()
         {
