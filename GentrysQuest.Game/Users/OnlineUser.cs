@@ -31,7 +31,6 @@ namespace GentrysQuest.Game.Users
         public string Name { get; set; }
         public Experience Experience { get; set; }
         public StatTracker Stats { get; set; }
-        public int StartupAmount { get; set; }
         public int Money { get; set; }
         public Bindable<int> Placement { get; set; } = new();
         public Bindable<int> WeightedGp { get; set; } = new();
@@ -55,15 +54,15 @@ namespace GentrysQuest.Game.Users
             ID = data["id"].Value<int>();
             Name = data["username"].Value<string>();
             UserData = data["gq data"]?.ToObject<UserDataResponse>();
-            if (UserData != null && UserData.Metadata == null) create();
-            else Load();
+            if (UserData != null && UserData.Metadata == null) _ = create();
+            else _ = Load();
         }
 
         public async Task Load()
         {
             Experience = new Experience();
             Experience.Level.Current.Value = 1;
-            Experience.Xp.Current.Value = UserData.Metadata?.Xp ?? 0;
+            Experience.Xp.Current.Value = UserData!.Metadata?.Xp ?? 0;
             Experience.Xp.Requirement.Value = 0;
 
             MoneyHandler = new Money(this)
@@ -73,8 +72,6 @@ namespace GentrysQuest.Game.Users
                     Value = UserData.Metadata?.Money ?? 0
                 }
             };
-
-            StartupAmount = UserData.Metadata?.StartAmount ?? 0;
 
             if (UserData.Ranking != null)
             {
@@ -94,16 +91,18 @@ namespace GentrysQuest.Game.Users
                 foreach (var item in UserData.Items)
                 {
                     if (item == null || item.Type == JTokenType.Null) continue;
+                    Logger.Log($"Loading item: {item}", LoggingTarget.Network);
 
                     var type = item["type"]?.Value<string>()?.ToLowerInvariant();
+                    var metadata = item["metadata"];
 
                     switch (type)
                     {
                         case "character":
                             try
                             {
-                                Character character = ItemSerializer.Deserialize<Character>(item.ToString());
-                                if (character != null) Characters.Add(character);
+                                EntityBase character = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (character != null) Characters.Add((Character)character);
                             }
                             catch (JsonException ex)
                             {
@@ -115,8 +114,8 @@ namespace GentrysQuest.Game.Users
                         case "artifact":
                             try
                             {
-                                Artifact artifact = ItemSerializer.Deserialize<Artifact>(item.ToString());
-                                if (artifact != null) Artifacts.Add(artifact);
+                                EntityBase artifact = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (artifact != null) Artifacts.Add((Artifact)artifact);
                             }
                             catch (JsonException ex)
                             {
@@ -128,8 +127,8 @@ namespace GentrysQuest.Game.Users
                         case "weapon":
                             try
                             {
-                                Weapon weapon = ItemSerializer.Deserialize<Weapon>(item.ToString());
-                                if (weapon != null) Weapons.Add(weapon);
+                                EntityBase weapon = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (weapon != null) Weapons.Add((Weapon)weapon);
                             }
                             catch (JsonException ex)
                             {
@@ -144,8 +143,6 @@ namespace GentrysQuest.Game.Users
                     }
                 }
             }
-
-            Logger.Log($"Loaded user {Name} for {StartupAmount}", LoggingTarget.Network);
         }
 
         public async Task Save()
@@ -162,14 +159,19 @@ namespace GentrysQuest.Game.Users
 
         public void Delete() => throw new NotImplementedException();
 
-        public async void AddItem(EntityBase entity)
+        public async Task AddItem(EntityBase entity)
         {
+            AddItemRequest request = new AddItemRequest(ID, entity);
+            await request.PerformAsync();
+            RankingItemResponse response = request.Response;
+            updateRanking(response);
+
             Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
 
-            AddItemRequests requests = new AddItemRequests(ID, entity);
-            await requests.PerformAsync();
-            RankingItemResponse response = requests.Response;
-            updateRanking(response);
+            if (response == null) return;
+
+            var id = response.Item["id"]!.Value<int>();
+            entity.ID = id;
 
             switch (entity)
             {
@@ -187,7 +189,7 @@ namespace GentrysQuest.Game.Users
             }
         }
 
-        public async void UpdateItem(EntityBase entity)
+        public async Task UpdateItem(EntityBase entity)
         {
             UpdateItemRequest request = new UpdateItemRequest(entity);
             await request.PerformAsync();
@@ -195,13 +197,8 @@ namespace GentrysQuest.Game.Users
             updateRanking(response);
         }
 
-        public async void RemoveItem(EntityBase entity)
+        public async Task RemoveItem(EntityBase entity)
         {
-            RemoveItemRequest request = new RemoveItemRequest(entity.ID);
-            await request.PerformAsync();
-            RankingResponse response = request.Response;
-            updateRanking(response);
-
             switch (entity)
             {
                 case Character character:
@@ -216,10 +213,17 @@ namespace GentrysQuest.Game.Users
                     Weapons.Remove(weapon);
                     break;
             }
+
+            RemoveItemRequest request = new RemoveItemRequest(entity.ID);
+            await request.PerformAsync();
+            RankingResponse response = request.Response;
+            updateRanking(response);
         }
 
         private void updateRanking(RankingResponse ranking)
         {
+            if (ranking == null) return;
+
             Rank.Value = ranking.Rank;
             WeightedGp.Value = ranking.Weighted;
             UnweightedGp.Value = ranking.Unweighted;
@@ -227,6 +231,11 @@ namespace GentrysQuest.Game.Users
             Placement.Value = ranking.Placement;
         }
 
-        private void updateRanking(RankingItemResponse ranking) => updateRanking(ranking.Ranking.ToObject<RankingResponse>());
+        private void updateRanking(RankingItemResponse rankingItem)
+        {
+            if (rankingItem?.Ranking == null) return;
+
+            updateRanking(rankingItem.Ranking.ToObject<RankingResponse>());
+        }
     }
 }

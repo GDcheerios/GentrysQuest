@@ -90,16 +90,6 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
 
                     if (loginRequest.Response != null)
                     {
-                        loadingIndicator.ChangeStatus("Loading data");
-
-                        OnlineUser retrievedUser = new OnlineUser(loginRequest.Response.Data!);
-
-                        if (loginRequest.Response.Data!["gq data"] == null)
-                        {
-                            loadingIndicator.ChangeStatus("Creating data");
-                            await retrievedUser.Save();
-                        }
-
                         if (loginRequest.Response.Token != null)
                         {
                             loadingIndicator.ChangeStatus("Authenticating");
@@ -107,6 +97,8 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                             await APIAccess.EnsureApiKeyAsync();
                         }
 
+                        loadingIndicator.ChangeStatus("Loading data");
+                        OnlineUser retrievedUser = new OnlineUser(loginRequest.Response.Data!);
                         await retrievedUser.Load();
 
                         user.Value = retrievedUser;

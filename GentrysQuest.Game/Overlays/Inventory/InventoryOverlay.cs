@@ -288,7 +288,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     {
                         case Weapon weapon:
                             if (focusedCharacter.Weapon != null) user?.AddItem(focusedCharacter.Weapon);
-                            user?.Weapons.Remove(weapon);
+                            user?.RemoveItem(weapon);
                             focusedCharacter.Weapon = weapon;
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
@@ -296,7 +296,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         case Artifact artifact:
                             Artifact? artifactRef = focusedCharacter.Artifacts.Get(artifactSelectionIndex);
                             if (artifactRef != null) user?.AddItem(artifactRef);
-                            user?.Artifacts.Remove(artifact);
+                            user?.RemoveItem(artifact);
                             focusedCharacter.Artifacts.Equip(artifact, artifactSelectionIndex);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
@@ -463,7 +463,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedWeapon)
                 {
                     focusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user.RemoveItem((Weapon)entityInfoDrawable.entity);
+                    user!.RemoveItem((Weapon)entityInfoDrawable.entity);
                     user.UpdateItem(focusedWeapon);
                 }
             }
@@ -480,6 +480,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public void RemoveWeapon()
         {
             user?.AddItem(focusedCharacter.Weapon);
+            user?.UpdateItem(focusedCharacter);
             focusedCharacter.Weapon = null;
             _ = displayInfo(new EntityInfoDrawable(focusedCharacter));
         }
@@ -538,6 +539,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public void RemoveArtifact(int index)
         {
             user!.AddItem(focusedCharacter.Artifacts.Remove(index));
+            user!.UpdateItem(focusedCharacter);
             _ = displayInfo(new EntityInfoDrawable(focusedCharacter));
         }
 

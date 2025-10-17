@@ -15,7 +15,7 @@ using osu.Framework.Bindables;
 namespace GentrysQuest.Game.Tests.Visual.Online
 {
     [TestFixture]
-    public partial class TestAddItemRequests : GentrysQuestTestScene
+    public partial class TestAddItemRequest : GentrysQuestTestScene
     {
         [Resolved]
         private Bindable<IUser> user { get; set; }

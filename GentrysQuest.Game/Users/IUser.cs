@@ -29,12 +29,6 @@ namespace GentrysQuest.Game.Users
         // public StatTracker Stats { get; set; }
 
         /// <summary>
-        /// How many times this user has started up the game
-        /// </summary>
-        [JsonProperty("startupAmount")]
-        int StartupAmount { get; set; }
-
-        /// <summary>
         /// How much money the user has
         /// </summary>
         [JsonProperty("money")]
@@ -109,18 +103,18 @@ namespace GentrysQuest.Game.Users
         /// Add an item to this user's data.
         /// </summary>
         /// <param name="entity">The entity to be added</param>
-        void AddItem(EntityBase entity);
+        Task AddItem(EntityBase entity);
 
         /// <summary>
         /// Update the item. Only functional with online users.
         /// </summary>
         /// <param name="entity">the entity to update</param>
-        void UpdateItem(EntityBase entity);
+        Task UpdateItem(EntityBase entity);
 
         /// <summary>
         /// Remove the item from the inventory.
         /// </summary>
         /// <param name="entity">The entity to be removed</param>
-        void RemoveItem(EntityBase entity);
+        Task RemoveItem(EntityBase entity);
     }
 }

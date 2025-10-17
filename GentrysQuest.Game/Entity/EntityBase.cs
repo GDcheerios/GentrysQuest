@@ -55,6 +55,8 @@ namespace GentrysQuest.Game.Entity
             Experience.Xp.Current.Value = jsonEntity.CurrentXp;
         }
 
+        public virtual void LoadJson(IJsonEntity jsonEntity) { }
+
         public virtual void CalculateXpRequirement() => Experience.Xp.Requirement.Value = CalculateRequirement(Experience.CurrentLevel(), StarRating.Value);
     }
 }

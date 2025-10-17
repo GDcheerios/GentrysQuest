@@ -70,7 +70,7 @@ namespace GentrysQuest.Game.Users
             return Task.CompletedTask;
         }
 
-        public void AddItem(EntityBase entity)
+        public Task AddItem(EntityBase entity)
         {
             Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
 
@@ -88,11 +88,13 @@ namespace GentrysQuest.Game.Users
                     Weapons.Add(weapon);
                     break;
             }
+
+            return null;
         }
 
-        public void UpdateItem(EntityBase entity) { }
+        public Task UpdateItem(EntityBase entity) { return null; }
 
-        public void RemoveItem(EntityBase entity)
+        public Task RemoveItem(EntityBase entity)
         {
             switch (entity)
             {
@@ -108,6 +110,8 @@ namespace GentrysQuest.Game.Users
                     Weapons.Remove(weapon);
                     break;
             }
+
+            return null;
         }
 
         public void Delete()

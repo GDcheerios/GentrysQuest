@@ -69,7 +69,6 @@ namespace GentrysQuest.Game.Entity
         {
             JsonArtifact jsonEntity = new JsonArtifact
             {
-                Type = $"{GetType().FullName}, {GetType().Assembly.GetName().Name}",
                 Name = Name,
                 Level = Experience.CurrentLevel(),
                 StarRating = StarRating.Value,
@@ -78,8 +77,7 @@ namespace GentrysQuest.Game.Entity
                 MainBuff = MainAttribute.ToJson(),
                 FamilyName = family.Name
             };
-            List<JsonBuff> buffs = new List<JsonBuff>();
-            foreach (Buff buff in Attributes) buffs.Add(buff.ToJson());
+            List<JsonBuff> buffs = Attributes.Select(buff => buff.ToJson()).ToList();
             jsonEntity.Buffs = buffs;
 
             return jsonEntity;

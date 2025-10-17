@@ -12,14 +12,14 @@ using Newtonsoft.Json.Linq;
 
 namespace GentrysQuest.Game.Online.API.Requests.Account
 {
-    public class AddItemRequests : APIRequest<RankingItemResponse>
+    public class AddItemRequest : APIRequest<RankingItemResponse>
     {
         private readonly int owner;
         private readonly EntityBase entity;
         private readonly string itemType;
         private readonly object itemPayload;
 
-        public AddItemRequests(int owner, EntityBase entity)
+        public AddItemRequest(int owner, EntityBase entity)
         {
             this.owner = owner;
             this.entity = entity ?? throw new ArgumentNullException(nameof(entity));

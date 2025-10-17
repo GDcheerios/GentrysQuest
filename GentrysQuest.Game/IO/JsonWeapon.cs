@@ -25,9 +25,6 @@ public class JsonWeapon : IJsonEntity
     public int CurrentXp { get; set; }
     public int RequiredXp { get; set; }
 
-    [JsonProperty("$type")]
-    public string Type { get; set; }
-
     [JsonProperty]
     public JsonBuff Buff { get; set; }
 }
