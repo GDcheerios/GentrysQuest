@@ -20,19 +20,18 @@ namespace GentrysQuest.Game.Overlays.Profile
         private Container experienceContainer;
         private ProgressBar experienceBar;
         private PlayerSelectContainer selectContainer;
-        private SpriteText placementText;
-        private SpriteText weightedGpText;
-        private int placement;
-        private int weightedGp;
+        private TextFlowContainer placementContainer;
+        private TextFlowContainer weightedGpContainer;
+        private AnimatedProfileNumber placementNumber = new() { Duration = DELAY };
+        private AnimatedProfileNumber weightedGpNumber = new() { Duration = DELAY };
+        private int placement = 0;
+        private int weightedGp = 0;
         private const int DELAY = 500;
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
 
-        public ProfileButton()
-        {
-            Depth = -1;
-        }
+        public ProfileButton() => Depth = -1;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -86,22 +85,22 @@ namespace GentrysQuest.Game.Overlays.Profile
                             }
                         ]
                     },
-                    placementText = new SpriteText
+                    placementContainer = new TextFlowContainer
                     {
-                        Text = "",
                         Colour = Colour4.Black,
-                        Font = FontUsage.Default.With(size: 32),
                         Anchor = Anchor.BottomLeft,
                         Origin = Anchor.BottomLeft,
+                        AutoSizeAxes = Axes.X,
+                        Height = 32,
                         Margin = new MarginPadding { Left = 10 }
                     },
-                    weightedGpText = new SpriteText
+                    weightedGpContainer = new TextFlowContainer
                     {
-                        Text = "",
                         Colour = Colour4.Black,
-                        Font = FontUsage.Default.With(size: 32),
                         Anchor = Anchor.BottomRight,
                         Origin = Anchor.BottomRight,
+                        AutoSizeAxes = Axes.X,
+                        Height = 32,
                         Margin = new MarginPadding { Right = 10 }
                     }
                 ]
@@ -121,45 +120,17 @@ namespace GentrysQuest.Game.Overlays.Profile
                 Margin = new MarginPadding { Right = 20 },
             });
             selectContainer.Hide();
+            placementContainer.AddText("#");
+            placementContainer.AddText(placementNumber = new AnimatedProfileNumber());
+            weightedGpContainer.AddText(weightedGpNumber = new AnimatedProfileNumber());
+            weightedGpContainer.AddText("GP");
             user.ValueChanged += changedUser => handleNewUser(changedUser.NewValue);
         }
 
         private void bindUserStats(IUser u)
         {
-            u.Placement.ValueChanged += e => Schedule(() =>
-            {
-                this.MoveToY(0, 350, Easing.OutCirc)
-                    .Delay(DELAY)
-                    .Then()
-                    .TransformTo(nameof(placement), e.NewValue, DELAY)
-                    .Then()
-                    .Delay(DELAY * 3)
-                    .Then()
-                    .MoveToY(-200f, 350, Easing.InCirc);
-            });
-
-            u.WeightedGp.ValueChanged += e => Schedule(() =>
-            {
-                this.MoveToY(0, 350, Easing.OutCirc)
-                    .Delay(DELAY)
-                    .Then()
-                    .TransformTo(nameof(weightedGp), e.NewValue, DELAY)
-                    .Then()
-                    .Delay(DELAY * 3)
-                    .Then()
-                    .MoveToY(-200f, 350, Easing.InCirc);
-            });
-        }
-
-        private void unbindUserStats(IUser u)
-        {
-            if (u == null) return;
-
-            u.Placement.ValueChanged -= null;
-            u.Rank.ValueChanged -= null;
-            u.Tier.ValueChanged -= null;
-            u.WeightedGp.ValueChanged -= null;
-            u.UnweightedGp.ValueChanged -= null;
+            u.Placement.ValueChanged += e => placementNumber.SetNumber(e.NewValue);
+            u.WeightedGp.ValueChanged += e => weightedGpNumber.SetNumber(e.NewValue);
         }
 
         private void handleNewUser(IUser user)
@@ -170,8 +141,6 @@ namespace GentrysQuest.Game.Overlays.Profile
                 levelText.Text = "";
                 experienceBar.Current.Value = 0;
                 experienceBar.Max.Value = 1000000;
-                placementText.Text = "";
-                weightedGpText.Text = "";
             }
             else
             {
@@ -238,21 +207,6 @@ namespace GentrysQuest.Game.Overlays.Profile
         {
             GoSelection();
             selectContainer.OpenGuestMenu();
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-
-            if (user.Value == null)
-            {
-                placementText.Text = "";
-                weightedGpText.Text = "";
-                return;
-            }
-
-            placementText.Text = $"#{placement}";
-            weightedGpText.Text = $"{weightedGp} GP";
         }
     }
 }
