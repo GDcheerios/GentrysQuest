@@ -7,6 +7,7 @@ using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Overlays.Notifications;
 using Newtonsoft.Json;
+using osu.Framework.Bindables;
 
 namespace GentrysQuest.Game.Users
 {
@@ -21,6 +22,11 @@ namespace GentrysQuest.Game.Users
         // public StatTracker Stats { get; set; } = new StatTracker();
         public int StartupAmount { get; set; }
         public int Money { get; set; } = 0;
+        public Bindable<int> Placement { get; set; } = new();
+        public Bindable<int> WeightedGp { get; set; } = new();
+        public Bindable<int> UnweightedGp { get; set; } = new();
+        public Bindable<string> Rank { get; set; } = new();
+        public Bindable<int> Tier { get; set; } = new();
         public Money MoneyHandler { get; set; }
         public List<Character> Characters { get; set; } = [];
         public List<Artifact> Artifacts { get; set; } = [];
@@ -64,7 +70,7 @@ namespace GentrysQuest.Game.Users
             return Task.CompletedTask;
         }
 
-        public void AddItem(EntityBase entity)
+        public Task AddItem(EntityBase entity)
         {
             Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
 
@@ -82,6 +88,30 @@ namespace GentrysQuest.Game.Users
                     Weapons.Add(weapon);
                     break;
             }
+
+            return null;
+        }
+
+        public Task UpdateItem(EntityBase entity) { return null; }
+
+        public Task RemoveItem(EntityBase entity)
+        {
+            switch (entity)
+            {
+                case Character character:
+                    Characters.Remove(character);
+                    break;
+
+                case Artifact artifact:
+                    Artifacts.Remove(artifact);
+                    break;
+
+                case Weapon weapon:
+                    Weapons.Remove(weapon);
+                    break;
+            }
+
+            return null;
         }
 
         public void Delete()

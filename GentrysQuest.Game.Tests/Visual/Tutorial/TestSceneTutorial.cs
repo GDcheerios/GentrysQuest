@@ -31,7 +31,7 @@ namespace GentrysQuest.Game.Tests.Visual.Tutorial
         public TestSceneTutorial()
         {
             user = new Bindable<IUser>();
-            profileButton = new ProfileButton(user);
+            profileButton = new ProfileButton();
             Add(gameMenuOverlay = new GameMenuOverlay());
             gameMenuOverlay.Disappear();
             profileButton.Hide();

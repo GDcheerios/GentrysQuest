@@ -155,10 +155,11 @@ namespace GentrysQuest.Game.Entity.Weapon
             return jsonEntity;
         }
 
-        public void LoadJson(JsonWeapon jsonEntity)
+        public override void LoadJson(IJsonEntity jsonEntity)
         {
-            LoadJsonBase(jsonEntity);
-            Buff = new Buff(jsonEntity.Buff);
+            JsonWeapon jsonWeapon = (JsonWeapon)jsonEntity;
+            LoadJsonBase(jsonWeapon);
+            Buff = new Buff(jsonWeapon.Buff);
         }
 
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);

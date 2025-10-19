@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Online.API.Requests.Responses;
-using GentrysQuest.Game.Online.API.Requests.User;
+using GentrysQuest.Game.Overlays.Notifications;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using osu.Framework.Bindables;
 using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Users
@@ -24,13 +26,17 @@ namespace GentrysQuest.Game.Users
         public int ID { get; set; }
 
         [CanBeNull]
-        public UserDataResponse userData { get; set; }
+        public UserDataResponse UserData { get; set; }
 
         public string Name { get; set; }
         public Experience Experience { get; set; }
         public StatTracker Stats { get; set; }
-        public int StartupAmount { get; set; }
         public int Money { get; set; }
+        public Bindable<int> Placement { get; set; } = new();
+        public Bindable<int> WeightedGp { get; set; } = new();
+        public Bindable<int> UnweightedGp { get; set; } = new();
+        public Bindable<string> Rank { get; set; } = new();
+        public Bindable<int> Tier { get; set; } = new();
         public Money MoneyHandler { get; set; }
         public List<Character> Characters { get; set; }
         public List<Artifact> Artifacts { get; set; }
@@ -43,61 +49,194 @@ namespace GentrysQuest.Game.Users
         /// <param name="data">json data implemented</param>
         public OnlineUser(JToken data)
         {
+            if (data == null) return;
+
             ID = data["id"].Value<int>();
             Name = data["username"].Value<string>();
-            userData = data["gq data"].ToObject<UserDataResponse>();
+            UserData = data["gq data"]?.ToObject<UserDataResponse>();
+            if (UserData != null && UserData.Metadata == null) _ = create();
+            else _ = Load();
         }
 
         public async Task Load()
         {
-            if (userData != null)
+            Experience = new Experience();
+            Experience.Level.Current.Value = 1;
+            Experience.Xp.Current.Value = UserData!.Metadata?.Xp ?? 0;
+            Experience.Xp.Requirement.Value = 0;
+
+            MoneyHandler = new Money(this)
             {
-                Logger.Log(JsonConvert.SerializeObject(userData));
-                Experience = new Experience();
-                Experience.Level.Current.Value = userData.Experience.Level;
-                Experience.Xp.Current.Value = userData.Experience.CurrentXp;
-                Experience.Xp.Requirement.Value = userData.Experience.RequiredXp;
-
-                MoneyHandler = new Money(this)
+                Amount =
                 {
-                    Amount =
-                    {
-                        Value = userData.Money
-                    }
-                };
+                    Value = UserData.Metadata?.Money ?? 0
+                }
+            };
 
-                StartupAmount = userData.StartAmount;
-
-                Characters = new List<Character>();
-                foreach (var character in userData.Items.Characters) Characters.Add(character.ToObject<Character>());
-
-                Artifacts = new List<Artifact>();
-                foreach (var artifact in userData.Items.Artifacts) Artifacts.Add(artifact.ToObject<Artifact>());
-
-                Weapons = new List<Weapon>();
-                foreach (var weapon in userData.Items.Weapons) Weapons.Add(weapon.ToObject<Weapon>());
+            if (UserData.Ranking != null)
+            {
+                Placement.Value = UserData.Ranking.Placement;
+                WeightedGp.Value = UserData.Ranking.Weighted;
+                UnweightedGp.Value = UserData.Ranking.Unweighted;
+                Rank.Value = UserData.Ranking.Rank;
+                Tier.Value = UserData.Ranking.Tier;
             }
 
-            Logger.Log($"Loaded user {Name} for {StartupAmount}", LoggingTarget.Network, LogLevel.Debug);
+            Characters = new List<Character>();
+            Artifacts = new List<Artifact>();
+            Weapons = new List<Weapon>();
+
+            if (UserData.Items != null)
+            {
+                foreach (var item in UserData.Items)
+                {
+                    if (item == null || item.Type == JTokenType.Null) continue;
+                    Logger.Log($"Loading item: {item}", LoggingTarget.Network);
+
+                    var type = item["type"]?.Value<string>()?.ToLowerInvariant();
+                    var metadata = item["metadata"];
+
+                    switch (type)
+                    {
+                        case "character":
+                            try
+                            {
+                                EntityBase character = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (character != null) Characters.Add((Character)character);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse character: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        case "artifact":
+                            try
+                            {
+                                EntityBase artifact = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (artifact != null) Artifacts.Add((Artifact)artifact);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse artifact: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        case "weapon":
+                            try
+                            {
+                                EntityBase weapon = ItemSerializer.DeserializeItem(type, metadata!.ToString());
+                                if (weapon != null) Weapons.Add((Weapon)weapon);
+                            }
+                            catch (JsonException ex)
+                            {
+                                Logger.Log($"Failed to parse weapon: {ex.Message}", LoggingTarget.Network, LogLevel.Error);
+                            }
+
+                            break;
+
+                        default:
+                            Logger.Log($"Unknown item type: '{type ?? "null"}'", LoggingTarget.Network);
+                            break;
+                    }
+                }
+            }
         }
 
         public async Task Save()
         {
-            UserSaveRequest saveRequest = new UserSaveRequest(this);
-            UserDataRequest userRequest = new UserDataRequest(this.ID);
-            await saveRequest.PerformAsync();
-            await userRequest.PerformAsync();
-            userData = userRequest.Response;
+            UserCreateRequest createRequest = new UserCreateRequest(this);
+            await createRequest.PerformAsync();
         }
 
-        public void Delete()
+        private async Task create()
         {
-            throw new NotImplementedException();
+            await Save();
+            await Load();
         }
 
-        public void AddItem(EntityBase entity)
+        public void Delete() => throw new NotImplementedException();
+
+        public async Task AddItem(EntityBase entity)
         {
-            throw new NotImplementedException();
+            AddItemRequest request = new AddItemRequest(ID, entity);
+            await request.PerformAsync();
+            RankingItemResponse response = request.Response;
+            updateRanking(response);
+
+            Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
+
+            if (response == null) return;
+
+            var id = response.Item["id"]!.Value<int>();
+            entity.ID = id;
+
+            switch (entity)
+            {
+                case Character character:
+                    Characters.Add(character);
+                    break;
+
+                case Artifact artifact:
+                    Artifacts.Add(artifact);
+                    break;
+
+                case Weapon weapon:
+                    Weapons.Add(weapon);
+                    break;
+            }
+        }
+
+        public async Task UpdateItem(EntityBase entity)
+        {
+            UpdateItemRequest request = new UpdateItemRequest(entity);
+            await request.PerformAsync();
+            RankingItemResponse response = request.Response;
+            updateRanking(response);
+        }
+
+        public async Task RemoveItem(EntityBase entity)
+        {
+            switch (entity)
+            {
+                case Character character:
+                    Characters.Remove(character);
+                    break;
+
+                case Artifact artifact:
+                    Artifacts.Remove(artifact);
+                    break;
+
+                case Weapon weapon:
+                    Weapons.Remove(weapon);
+                    break;
+            }
+
+            RemoveItemRequest request = new RemoveItemRequest(entity.ID);
+            await request.PerformAsync();
+            RankingResponse response = request.Response;
+            updateRanking(response);
+        }
+
+        private void updateRanking(RankingResponse ranking)
+        {
+            if (ranking == null) return;
+
+            Logger.Log($"Updating ranking: #{ranking.Placement} {ranking.Weighted} GP", LoggingTarget.Network);
+            Rank.Value = ranking.Rank;
+            WeightedGp.Value = ranking.Weighted;
+            UnweightedGp.Value = ranking.Unweighted;
+            Tier.Value = ranking.Tier;
+            Placement.Value = ranking.Placement;
+        }
+
+        private void updateRanking(RankingItemResponse rankingItem)
+        {
+            if (rankingItem?.Ranking == null) return;
+
+            updateRanking(rankingItem.Ranking.ToObject<RankingResponse>());
         }
     }
 }

@@ -294,6 +294,15 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
             Margin = new MarginPadding { Right = 10 }
         });
 
+#if DEBUG
+        nameContainer.AddText(new SpriteText
+        {
+            Text = $"#{entity.ID}",
+            Colour = Colour4.DarkGray,
+            Font = new FontUsage(size: 48),
+            Alpha = 0.5f
+        });
+#endif
         setDifficulty();
 
         icon.Texture = textureStore.Get(entity.TextureMapping!.Get("Icon"));

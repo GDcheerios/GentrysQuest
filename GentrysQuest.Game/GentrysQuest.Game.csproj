@@ -24,7 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Locations\" />
-    <Folder Include="Graphics\UserInterface\" />
     <Folder Include="Screens\Tutorial\" />
   </ItemGroup>
 </Project>

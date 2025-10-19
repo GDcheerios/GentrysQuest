@@ -13,8 +13,8 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
     {
         private GameMenuOverlay gameMenuOverlay;
 
-        [Cached]
-        private Bindable<IUser> guestUser = new Bindable<IUser>();
+        [Resolved]
+        private Bindable<IUser> user { get; }
 
         [Cached]
         private ProfileButton profileButton;
@@ -24,9 +24,9 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
 
         public GameMenuOverlayTestScene()
         {
-            guestUser.Value = GuestUser.Create("testy");
-            profileButton = new ProfileButton(guestUser);
-            Add(gameMenuOverlay = new GameMenuOverlay() { Y = -100 });
+            user.Value = GuestUser.Create("testy");
+            profileButton = new ProfileButton();
+            Add(gameMenuOverlay = new GameMenuOverlay { Y = -100 });
         }
 
         [Test]

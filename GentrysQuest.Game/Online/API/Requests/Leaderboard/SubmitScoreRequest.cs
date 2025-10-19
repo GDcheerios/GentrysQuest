@@ -9,6 +9,6 @@ namespace GentrysQuest.Game.Online.API.Requests.Leaderboard
         private long score;
 
         protected override HttpMethod Method { get; } = HttpMethod.Post;
-        public override string Target { get; } = $"gq/submit-leaderboard/{leaderboardID}/{userID}+{score}";
+        public override string Target { get; } = $"api/gq/submit-leaderboard/{leaderboardID}/{userID}+{score}";
     }
 }

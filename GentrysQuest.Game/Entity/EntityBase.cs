@@ -6,7 +6,7 @@ namespace GentrysQuest.Game.Entity
 {
     public abstract class EntityBase
     {
-        public int ID { get; protected set; }
+        public int ID { get; set; }
         public virtual string Name { get; set; } = "Entity";
         public virtual StarRating StarRating { get; protected set; } = new StarRating(1);
         public virtual string Description { get; protected set; } = "This is a description";
@@ -48,14 +48,14 @@ namespace GentrysQuest.Game.Entity
             return level * difficulty * difficulty * 100 + levelExperience + starRatingExperience;
         }
 
-        public void LinkOnlineItem(int idLink) => ID = idLink;
-
         public void LoadJsonBase(IJsonEntity jsonEntity)
         {
             ID = jsonEntity.ID;
             Experience.Level.Current.Value = jsonEntity.Level;
             Experience.Xp.Current.Value = jsonEntity.CurrentXp;
         }
+
+        public virtual void LoadJson(IJsonEntity jsonEntity) { }
 
         public virtual void CalculateXpRequirement() => Experience.Xp.Requirement.Value = CalculateRequirement(Experience.CurrentLevel(), StarRating.Value);
     }

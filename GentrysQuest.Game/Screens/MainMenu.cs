@@ -3,7 +3,6 @@ using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online;
-using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Users;
@@ -82,7 +81,6 @@ namespace GentrysQuest.Game.Screens
             playButton.SetAction(PressPlay);
             quitButton.SetAction(delegate
             {
-                _ = APIAccess.DeleteToken();
                 Game.Exit();
             });
         }
@@ -131,7 +129,7 @@ namespace GentrysQuest.Game.Screens
             playButton.FadeOut(200);
             quitButton.FadeOut(200);
 
-            if (user.Value.StartupAmount == 0)
+            if (user.Value.Characters.Count == 0)
             {
                 background.FadeColour(Colour4.Black, 3000);
                 profileButton.Hide();
@@ -155,8 +153,6 @@ namespace GentrysQuest.Game.Screens
                     }, 200
                 );
             }
-
-            user.Value.StartupAmount++;
         }
 
         public override void OnEntering(ScreenTransitionEvent e)

@@ -288,16 +288,18 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     {
                         case Weapon weapon:
                             if (focusedCharacter.Weapon != null) user?.AddItem(focusedCharacter.Weapon);
-                            user?.Weapons.Remove(weapon);
+                            user?.RemoveItem(weapon);
                             focusedCharacter.Weapon = weapon;
+                            user?.UpdateItem(focusedCharacter);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
 
                         case Artifact artifact:
                             Artifact? artifactRef = focusedCharacter.Artifacts.Get(artifactSelectionIndex);
                             if (artifactRef != null) user?.AddItem(artifactRef);
-                            user?.Artifacts.Remove(artifact);
+                            user?.RemoveItem(artifact);
                             focusedCharacter.Artifacts.Equip(artifact, artifactSelectionIndex);
+                            user?.UpdateItem(focusedCharacter);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
                     }
@@ -463,7 +465,10 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (entityInfoDrawable.IsSelected && entityInfoDrawable.entity != focusedWeapon)
                 {
                     focusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user.Weapons.Remove((Weapon)entityInfoDrawable.entity);
+                    user!.RemoveItem((Weapon)entityInfoDrawable.entity);
+
+                    if (focusedWeapon.Holder != null) user.UpdateItem(focusedWeapon.Holder);
+                    else user.UpdateItem(focusedWeapon);
                 }
             }
         }
@@ -479,6 +484,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public void RemoveWeapon()
         {
             user?.AddItem(focusedCharacter.Weapon);
+            user?.UpdateItem(focusedCharacter);
             focusedCharacter.Weapon = null;
             _ = displayInfo(new EntityInfoDrawable(focusedCharacter));
         }
@@ -504,7 +510,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 if (focusedArtifact.Experience.CurrentLevel() < focusedArtifact.StarRating * 4)
                 {
                     focusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
-                    user!.Artifacts.Remove((Artifact)entityInfoDrawable.entity);
+                    user!.RemoveItem((Artifact)entityInfoDrawable.entity);
+                    if (focusedArtifact.Holder != null) user.UpdateItem(focusedArtifact.Holder);
+                    else user!.UpdateItem(focusedArtifact);
                 }
                 else
                 {
@@ -536,6 +544,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public void RemoveArtifact(int index)
         {
             user!.AddItem(focusedCharacter.Artifacts.Remove(index));
+            user!.UpdateItem(focusedCharacter);
             _ = displayInfo(new EntityInfoDrawable(focusedCharacter));
         }
 
@@ -545,6 +554,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 user?.MoneyHandler.Spend(amount);
                 item.AddXp(amount * 10);
+                user?.UpdateItem(item);
             }
             else Notification.Create("Can't Afford", NotificationType.Informative);
         }
