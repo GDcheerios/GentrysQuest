@@ -19,7 +19,7 @@ public partial class AnimatedNumberText : GqText
 
     public readonly Bindable<int> CurrentNumber = new();
 
-    public int Duration { get; set; } = 300;
+    public int Duration { get; set; } = 1000;
 
     public AnimatedNumberText()
         : base("")

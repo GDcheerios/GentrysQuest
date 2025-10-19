@@ -129,8 +129,22 @@ namespace GentrysQuest.Game.Overlays.Profile
 
         private void bindUserStats(IUser u)
         {
-            u.Placement.ValueChanged += e => placementNumber.SetNumber(e.NewValue);
-            u.WeightedGp.ValueChanged += e => weightedGpNumber.SetNumber(e.NewValue);
+            u.Placement.ValueChanged += e => updatePlacement(e.NewValue);
+            u.WeightedGp.ValueChanged += e => updateGp(e.NewValue);
+        }
+
+        private void updatePlacement(int placement)
+        {
+            Show();
+            Scheduler.AddDelayed(() => placementNumber.SetNumber(placement), DELAY);
+            Scheduler.AddDelayed(Hide, DELAY * 3);
+        }
+
+        private void updateGp(int gp)
+        {
+            Show();
+            Scheduler.AddDelayed(() => weightedGpNumber.SetNumber(gp), DELAY);
+            Scheduler.AddDelayed(Hide, DELAY * 3);
         }
 
         private void handleNewUser(IUser user)
