@@ -59,9 +59,9 @@ namespace GentrysQuest.Game.IO
                 removeItemRequest = new RemoveItemRequest(data.ID);
                 _ = removeItemRequest.PerformAsync();
             }
-            else if (entity != null)
+            else
             {
-                entity.ID = data.ID;
+                entity?.LoadJson(data);
             }
 
             return entity;

@@ -147,8 +147,8 @@ namespace GentrysQuest.Game.Users
 
         public async Task Save()
         {
-            UserSaveRequest saveRequest = new UserSaveRequest(this);
-            await saveRequest.PerformAsync();
+            UserCreateRequest createRequest = new UserCreateRequest(this);
+            await createRequest.PerformAsync();
         }
 
         private async Task create()
@@ -224,6 +224,7 @@ namespace GentrysQuest.Game.Users
         {
             if (ranking == null) return;
 
+            Logger.Log($"Updating ranking: #{ranking.Placement} {ranking.Weighted} GP", LoggingTarget.Network);
             Rank.Value = ranking.Rank;
             WeightedGp.Value = ranking.Weighted;
             UnweightedGp.Value = ranking.Unweighted;

@@ -290,6 +290,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                             if (focusedCharacter.Weapon != null) user?.AddItem(focusedCharacter.Weapon);
                             user?.RemoveItem(weapon);
                             focusedCharacter.Weapon = weapon;
+                            user?.UpdateItem(focusedCharacter);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
 
@@ -298,6 +299,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                             if (artifactRef != null) user?.AddItem(artifactRef);
                             user?.RemoveItem(artifact);
                             focusedCharacter.Artifacts.Equip(artifact, artifactSelectionIndex);
+                            user?.UpdateItem(focusedCharacter);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
                     }
@@ -464,7 +466,9 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 {
                     focusedWeapon.AddXp(getItemXp(entityInfoDrawable.entity));
                     user!.RemoveItem((Weapon)entityInfoDrawable.entity);
-                    user.UpdateItem(focusedWeapon);
+
+                    if (focusedWeapon.Holder != null) user.UpdateItem(focusedWeapon.Holder);
+                    else user.UpdateItem(focusedWeapon);
                 }
             }
         }
@@ -507,7 +511,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 {
                     focusedArtifact.AddXp(getItemXp(entityInfoDrawable.entity));
                     user!.RemoveItem((Artifact)entityInfoDrawable.entity);
-                    user!.UpdateItem(focusedArtifact);
+                    if (focusedArtifact.Holder != null) user.UpdateItem(focusedArtifact.Holder);
+                    else user!.UpdateItem(focusedArtifact);
                 }
                 else
                 {

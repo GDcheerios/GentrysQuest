@@ -1,4 +1,5 @@
 using GentrysQuest.Game.IO;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Entity;
 
@@ -122,8 +123,10 @@ public class Character : Entity
         return jsonEntity;
     }
 
-    public void LoadJson(JsonCharacter data)
+    public override void LoadJson(IJsonEntity jsonEntity)
     {
+        JsonCharacter data = (JsonCharacter)jsonEntity;
+        Logger.Log($"Loading character {data.Name}");
         Name = data.Name;
         ID = data.ID;
         StarRating.Value = data.StarRating;

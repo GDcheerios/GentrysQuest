@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 
 namespace GentrysQuest.Game.Online.API.Requests.Account
 {
-    public class UserSaveRequest(OnlineUser user) : APIRequest<string>
+    public class UserCreateRequest(OnlineUser user) : APIRequest<string>
     {
-        public override string Target { get; } = $"api/gq/save/";
+        public override string Target { get; } = $"api/gq/create/";
 
         protected override HttpMethod Method { get; } = HttpMethod.Post;
 

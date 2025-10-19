@@ -83,8 +83,9 @@ namespace GentrysQuest.Game.Entity
             return jsonEntity;
         }
 
-        public void LoadJson(JsonArtifact jsonArtifact)
+        public override void LoadJson(IJsonEntity jsonEntity)
         {
+            JsonArtifact jsonArtifact = (JsonArtifact)jsonEntity;
             LoadJsonBase(jsonArtifact);
             MainAttribute = new Buff(jsonArtifact.MainBuff);
             foreach (JsonBuff jsonBuff in jsonArtifact.Buffs) Attributes.Add(new Buff(jsonBuff));
