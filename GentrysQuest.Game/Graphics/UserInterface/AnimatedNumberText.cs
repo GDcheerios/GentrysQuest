@@ -27,8 +27,5 @@ public partial class AnimatedNumberText : GqText
         CurrentNumber.BindValueChanged(e => Text = e.NewValue.ToString(), true);
     }
 
-    public void SetNumber(int target)
-    {
-        this.TransformTo(nameof(DisplayNumber), target, Duration, Easing.OutQuad);
-    }
+    public void SetNumber(int target) => this.TransformTo(nameof(DisplayNumber), target, Duration, Easing.OutQuad);
 }
