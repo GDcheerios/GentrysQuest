@@ -72,6 +72,9 @@ namespace GentrysQuest.Game.Users
                     Value = UserData.Metadata?.Money ?? 0
                 }
             };
+#if DEBUG
+            MoneyHandler.InfiniteMoney = true;
+#endif
 
             if (UserData.Ranking != null)
             {

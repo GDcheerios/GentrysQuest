@@ -2,6 +2,6 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)polysharp\1.10.0\buildTransitive\PolySharp.targets" Condition="Exists('$(NuGetPackageRoot)polysharp\1.10.0\buildTransitive\PolySharp.targets')" />
-    <Import Project="$(NuGetPackageRoot)ppy.osu.framework.ios\2025.625.0\build\ppy.osu.Framework.iOS.targets" Condition="Exists('$(NuGetPackageRoot)ppy.osu.framework.ios\2025.625.0\build\ppy.osu.Framework.iOS.targets')" />
+    <Import Project="$(NuGetPackageRoot)ppy.osu.framework.ios\2025.1021.0\build\ppy.osu.Framework.iOS.targets" Condition="Exists('$(NuGetPackageRoot)ppy.osu.framework.ios\2025.1021.0\build\ppy.osu.Framework.iOS.targets')" />
   </ImportGroup>
 </Project>

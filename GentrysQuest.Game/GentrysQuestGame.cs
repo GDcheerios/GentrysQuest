@@ -5,7 +5,6 @@ using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
-using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -90,23 +89,7 @@ namespace GentrysQuest.Game
             gameMenuOverlay.Disappear();
             dependencies.CacheAs(gameMenuOverlay);
 
-            //  Set up the screens
-            bool isBandits = MathBase.RandomBool(); // we got a bandits
-
-            dependencies.CacheAs(mainMenuScreen = new MainMenuScreen(isBandits));
-            introScreenScreen = new IntroScreen(mainMenuScreen, isBandits);
-            loadingScreen = new LoadingScreen(introScreenScreen);
-            gameplayScreenScreen = new GameplayScreen();
-
-            screenManager.ProvideScreens(
-                loadingScreen,
-                introScreenScreen,
-                mainMenuScreen,
-                gameplayScreenScreen
-            );
-
-            screenManager.SetScreen(ScreenState.Loading);
-            // screenStack.Push(new CombatTutorial());
+            screenManager.SetScreen(new LoadingScreen(new IntroScreen(true)));
         }
     }
 }

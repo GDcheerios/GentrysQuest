@@ -44,6 +44,9 @@ namespace GentrysQuest.Game.Users
                 string jsonData = File.ReadAllText(filePath);
                 JsonConvert.PopulateObject(jsonData, this);
                 MoneyHandler = new Money(this);
+#if DEBUG
+                MoneyHandler.InfiniteMoney = true;
+#endif
             }
             catch (JsonException ex)
             {

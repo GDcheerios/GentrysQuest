@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         private GameMenuOverlay gameMenuOverlay;
 
         [Resolved]
-        private Bindable<IUser> user { get; }
+        private Bindable<IUser> user { get; set; }
 
         [Cached]
         private ProfileButton profileButton;

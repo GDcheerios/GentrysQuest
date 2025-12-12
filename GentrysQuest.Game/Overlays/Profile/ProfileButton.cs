@@ -153,11 +153,15 @@ namespace GentrysQuest.Game.Overlays.Profile
             {
                 nameText.Text = "Select User";
                 levelText.Text = "";
-                experienceBar.Current.Value = 0;
-                experienceBar.Max.Value = 1000000;
+                placementContainer.Hide();
+                weightedGpContainer.Hide();
+                //experienceBar.Current.Value = 0;
+                //experienceBar.Max.Value = 0;
             }
             else
             {
+                placementContainer.FadeIn(100);
+                weightedGpContainer.FadeIn(100);
                 selectContainer?.Hide();
                 isShowingSelection = false;
                 nameText.Text = user.Name;

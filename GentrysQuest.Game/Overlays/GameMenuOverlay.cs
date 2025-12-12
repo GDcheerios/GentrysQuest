@@ -115,6 +115,7 @@ namespace GentrysQuest.Game.Overlays
             {
                 user.Value.Save();
                 user.Value = null;
+                screenManager.SetScreen(new MainMenuScreen());
             });
             weeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
             inventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
@@ -204,7 +205,7 @@ namespace GentrysQuest.Game.Overlays
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
-            title?.MoveToY(0, 150, Easing.In);
+            title?.MoveToY(0, 150, Easing.In).FadeOut(150, Easing.In);
         }
 
         public void Toggle()

@@ -317,6 +317,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
         {
             string category;
 
+            moneyText.Text = $"${user?.MoneyHandler.Amount}";
+
             switch (selectionMode)
             {
                 case SelectionModes.Equipping:
@@ -557,6 +559,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                 user?.UpdateItem(item);
             }
             else Notification.Create("Can't Afford", NotificationType.Informative);
+
+            moneyText.Text = $"${user?.MoneyHandler.Amount}";
         }
 
         public void ToggleDisplay()

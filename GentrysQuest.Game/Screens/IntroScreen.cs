@@ -27,9 +27,9 @@ namespace GentrysQuest.Game.Screens
         private readonly MainMenuScreen mainMenu;
         private readonly bool isBandits;
 
-        public IntroScreen(MainMenuScreen mainMenu, bool isBandits)
+        public IntroScreen(bool isBandits)
         {
-            this.mainMenu = mainMenu;
+            mainMenu = new MainMenuScreen(isBandits);
             this.isBandits = isBandits;
         }
 

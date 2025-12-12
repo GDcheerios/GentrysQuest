@@ -72,6 +72,10 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public int GetAmount() => amount.Value;
         public void SetAmount(int amount) => this.amount.Value = amount;
         public void IncreaseAmount() => amount.Value++;
-        public void DecreaseAmount() => amount.Value--;
+
+        public void DecreaseAmount()
+        {
+            if (amount.Value > 0) amount.Value--;
+        }
     }
 }
