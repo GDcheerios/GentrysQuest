@@ -20,7 +20,7 @@ namespace GentrysQuest.Game.Online.API.Requests
         {
             var payload = new
             {
-                name = "GentrysQuest",
+                name = "GentrysQuestClient",
                 expires_at = DateTimeOffset.UtcNow.AddHours(1).ToString("O"),
                 scopes = new[]
                 {

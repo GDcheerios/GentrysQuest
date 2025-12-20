@@ -47,7 +47,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Account
             if (apiKey == null) throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
 
             Client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Authorization", apiKey.GetHeader());
+                new AuthenticationHeaderValue(apiKey.GetHeader());
 
             try
             {
