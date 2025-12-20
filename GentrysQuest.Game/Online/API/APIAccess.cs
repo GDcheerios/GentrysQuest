@@ -11,8 +11,8 @@ namespace GentrysQuest.Game.Online.API
         private static APIKey apiKey;
         public static EndpointConfiguration Endpoint { get; } =
 #if DEBUG
-            // new LocalhostEndpointConfiguration();
-            new DevelopmentEndpointConfiguration();
+            new LocalhostEndpointConfiguration();
+            // new DevelopmentEndpointConfiguration();
 #else
             new ProductionEndpointConfiguration();
 #endif
