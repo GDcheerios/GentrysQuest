@@ -90,7 +90,7 @@ namespace GentrysQuest.Game.Graphics.Dialogue
                                         Anchor = Anchor.TopCentre,
                                         Origin = Anchor.TopCentre,
                                         Colour = Colour4.White,
-                                        Y = 20
+                                        Y = 20,
                                     }
                                 }
                             ]

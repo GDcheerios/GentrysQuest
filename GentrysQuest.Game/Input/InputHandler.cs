@@ -39,7 +39,7 @@ public partial class InputHandler : CompositeComponent
 
     protected override bool OnKeyDown(KeyDownEvent e)
     {
-        foreach (var keyDownEvent in keyDownEvents.Where(keyDownEvent => e.Key == keyDownEvent.Key && keyDownEvent.Enabled))
+        foreach (var keyDownEvent in keyDownEvents.Where(keyDownEvent => e.Key == keyDownEvent.Key && keyDownEvent.Enabled).ToList())
         {
             Logger.Log($"[{keyDownEvent.Category}](down) {keyDownEvent.Name}: {keyDownEvent.Key}");
             keyDownEvent.Action?.Invoke();
@@ -50,7 +50,7 @@ public partial class InputHandler : CompositeComponent
 
     protected override void OnKeyUp(KeyUpEvent e)
     {
-        foreach (var keyUpEvent in keyUpEvents.Where(keyUpEvent => keyUpEvent.Key == e.Key && keyUpEvent.Enabled))
+        foreach (var keyUpEvent in keyUpEvents.Where(keyUpEvent => keyUpEvent.Key == e.Key && keyUpEvent.Enabled).ToList())
         {
             Logger.Log($"[{keyUpEvent.Category}](up) {keyUpEvent.Name}: {keyUpEvent.Key}");
             keyUpEvent.Action?.Invoke();

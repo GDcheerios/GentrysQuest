@@ -96,7 +96,7 @@ namespace GentrysQuest.Game.Screens
 #if DEBUG
             Scheduler.AddDelayed(() => { screenManager.SetScreen(new MainMenuScreen()); }, 3000);
 #else
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(ScreenState.Intro); }, 3000);
+            Scheduler.AddDelayed(() => { screenManager.SetScreen(new IntroScreen(false)); }, 3000);
 #endif
         }
     }

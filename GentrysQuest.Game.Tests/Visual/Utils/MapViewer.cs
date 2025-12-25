@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
     {
         private readonly MapScene mapScene;
         private readonly MapContainer mapContainer;
-        private readonly Map map = new EvilGentrysVoid();
+        private readonly Map map = new GentrysClassroom();
         protected override string TestName { get; init; } = "Map Viewer";
 
         public MapViewer()

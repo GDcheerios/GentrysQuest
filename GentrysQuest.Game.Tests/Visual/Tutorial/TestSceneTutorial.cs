@@ -41,7 +41,6 @@ namespace GentrysQuest.Game.Tests.Visual.Tutorial
                 Add(screenStack = new ScreenStack());
                 screenStack.Push(tutorial = new Game.Screens.Tutorial());
             });
-            AddStep("Teleport enemy", () => tutorial.TeleportEnemy());
         }
     }
 }

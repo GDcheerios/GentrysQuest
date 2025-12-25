@@ -135,13 +135,13 @@ namespace GentrysQuest.Game.Screens
             {
                 background.FadeColour(Colour4.Black, 3000);
                 profileButton.Hide();
+                AudioManager.Instance.FadeOutMusic(3000);
                 Scheduler.AddDelayed(() =>
                 {
-                    AudioManager.Instance.FadeOutMusic(3000);
                     screenManager.SetCustomScreen(new Tutorial());
                 }, 5000);
                 title.MoveToY(400, 2000, Easing.Out);
-                title.ScaleTo(5, 3000, Easing.In);
+                title.ScaleTo(5, 3000, Easing.In).Then().FadeOut(3000);
             }
             else
             {

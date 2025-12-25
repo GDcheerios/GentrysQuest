@@ -2,6 +2,7 @@ using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Location;
+using GentrysQuest.Game.Quests;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -9,6 +10,11 @@ namespace GentrysQuest.Game.Content.Maps
 {
     public class GentrysClassroom : Map
     {
+        /// <summary>
+        /// Is this being used in tutorial context?
+        /// </summary>
+        public bool IsTutorial { get; private set; }
+
         // classroom layout
         public const int CLASSROOM_WIDTH = 750;
         public const int CLASSROOM_HEIGHT = 850;
@@ -24,17 +30,21 @@ namespace GentrysQuest.Game.Content.Maps
         private const float DESK_WIDTH = 350;
         private const float DESK_HEIGHT = 100;
 
+        // event objects
+        private MapZone gradingQuestPlate;
+
         private DrawableEntity mrGentryNpc;
 
         private readonly Character[] seatedCharacters =
         [
-            new BraydenMesserschmidt(),
-            new PhilipMcClure(),
-            new MekhiElliot()
+            // new BraydenMesserschmidt(),
+            // new PhilipMcClure(),
+            // new MekhiElliot()
         ];
 
-        public GentrysClassroom()
+        public GentrysClassroom(bool isTutorial = false)
         {
+            IsTutorial = isTutorial;
             Name = "Gentry's Classroom";
             DifficultyScales = false;
             Size = new Vector2(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
@@ -197,6 +207,33 @@ namespace GentrysQuest.Game.Content.Maps
 
             #endregion
 
+            #region EventSpaces
+
+            if (IsTutorial)
+            {
+                Objects.Add(gradingQuestPlate = new MapZone
+                {
+                    Name = "gradingQuestPlate",
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
+                    Position = new Vector2(50, 50),
+                    Size = new Vector2(200),
+                    Filled = true,
+                    Alpha = 0,
+                    Colour = Colour4.Green,
+                    Flashes = true,
+                });
+                gradingQuestPlate.OnTouched += entity =>
+                {
+                    if (entity is not DrawablePlayableEntity) return;
+
+                    QuestManager.SignalComplete("Finish grading the Quizzes");
+                    gradingQuestPlate.FadeOut(200);
+                };
+            }
+
+            #endregion
+
             #region Decoration
 
             // Projector
@@ -210,11 +247,14 @@ namespace GentrysQuest.Game.Content.Maps
                 Position = new Vector2(0, 60)
             });
 
-            Npcs.Add(mrGentryNpc = new DrawableEntity(new GMoney())
+            if (IsTutorial)
             {
-                Position = new Vector2(0, -600),
-            });
-            mrGentryNpc.EntityBar.OnlyShowName();
+                Npcs.Add(mrGentryNpc = new DrawableEntity(new GMoney())
+                {
+                    Position = new Vector2(0, -600),
+                });
+                mrGentryNpc.EntityBar.OnlyShowName();
+            }
 
             #endregion
         }
