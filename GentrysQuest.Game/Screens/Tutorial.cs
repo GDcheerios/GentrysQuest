@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
 using GentrysQuest.Game.Input;
@@ -18,8 +20,10 @@ using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Screens;
+using osuTK;
 using osuTK.Input;
 using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
+using Keyboard = GentrysQuest.Game.Content.Families.Intro.Keyboard;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -38,6 +42,7 @@ namespace GentrysQuest.Game.Screens
         private InputHandler inputHandler { get; set; }
 
         private DrawablePlayableEntity player;
+        private DrawableEnemyEntity clone;
         private GameplayHud gameplayHud;
 
         private readonly MapScene scene = new();
@@ -59,6 +64,7 @@ namespace GentrysQuest.Game.Screens
         public Tutorial()
         {
             gameplayHud = new GameplayHud();
+            gameplayHud.Hide();
 
             introScript = new SceneScript();
 
@@ -255,7 +261,7 @@ namespace GentrysQuest.Game.Screens
             {
                 Event = () =>
                 {
-                    scene.GetMap().Unload();
+                    // scene.GetMap().Unload();
                     scene.LoadMap(new GentrysClassroom(true));
                     scene.GetMap().FadeOut().Then().FadeIn(500);
                     foreach (DrawableEntity npc in scene.GetMap().Npcs.ToList()) scene.RemoveNpc(npc);
@@ -339,6 +345,31 @@ namespace GentrysQuest.Game.Screens
                             "Where did the quizzes go?"
                         ));
                         dialogueBox.Delay(2000).FadeOut(50);
+                        clone = new DrawableEnemyEntity(new GMoney());
+                        scene.AddEnemy(clone);
+                        clone.X = 700;
+                        clone.Y = 1200;
+                        clone.GetBase().CanMove = false;
+                        scene.GetMap().Objects.FirstOrDefault(x => x.Name == "findQuizPlate")!.Alpha = 0.25f;
+                        Quest findQuizQuest = new Quest
+                        {
+                            Title = "Find the Quizzes"
+                        };
+                        findQuizQuest.AddObjective(new Objective
+                        {
+                            Name = "Find the Quizzes",
+                            TargetValue = 1
+                        });
+                        QuestManager.PushQuest(findQuizQuest);
+                        findQuizQuest.QuestCompleted += quest =>
+                        {
+                            player.GetBase().CanMove = false;
+                            Vector2 oldPos = scene.GetMap().Position;
+                            Vector2 newPos = new Vector2(-500, -1400);
+                            scene.GetMap().MoveTo(newPos, 1000);
+                            clone.MoveTo(clone.Position + newPos - oldPos, 1000);
+                            startEvilGentryScene();
+                        };
                     };
                 },
                 Delay = 1000,
@@ -348,11 +379,146 @@ namespace GentrysQuest.Game.Screens
             # endregion
         }
 
+        private void startEvilGentryScene()
+        {
+            AudioManager.Instance.StopMusic();
+            SceneScript evilGentryScene = new SceneScript();
+            evilGentryScene.AddEvent("Gentry D1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "It's... [p:1000] Me...",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 2000,
+                Duration = 3000
+            });
+            evilGentryScene.AddEvent("Clone D1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Hey, [p:500] you’re in front of my basket!",
+                    Author = "Gentry Clone"
+                },
+                Delay = 2000,
+                Duration = 3000
+            });
+            evilGentryScene.AddEvent("Gentry D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "You mean my basket...",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 1000,
+                Duration = 1000
+            });
+            evilGentryScene.AddEvent("Clone D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "No no no... [p:500] My basket.",
+                    Author = "Gentry Clone"
+                },
+                Delay = 500,
+                Duration = 2000
+            });
+            evilGentryScene.AddEvent("Gentry D3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "This is my classroom, [p:300] I have no idea what you mean by this is your basket.",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 500,
+                Duration = 4000
+            });
+            evilGentryScene.AddEvent("Clone D3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Now [p:100] I'm getting really mad!",
+                    Author = "Gentry Clone"
+                },
+                Delay = 1000,
+                Duration = 2000
+            });
+            evilGentryScene.AddEvent("Start Fight", new SceneEvent
+            {
+                Event = () =>
+                {
+                    AudioManager.Instance.ChangeMusic(new Anguish());
+                    clone.GetBase().CanMove = true;
+                    clone.GetBase().Stats.Speed.SetDefaultValue(0.5);
+                    clone.GetBase().OnDeath += () => { user.Value?.AddItem(new Keyboard()); };
+
+                    const int limit = 1000;
+                    const int delay = 3600;
+
+                    for (int i = 0; i < limit; i++)
+                    {
+                        Scheduler.AddDelayed(() => clone.QueuedProjectiles.Add(new Projectile(
+                            new ProjectileParameters
+                            {
+                                Damage = 10,
+                                Speed = 10,
+                                Direction = MathBase.GetAngle(clone.Position, Vector2.Zero)
+                            }
+                        )), i * delay);
+                    }
+
+                    player.GetBase().CanMove = true;
+                    player.EntityBar.ShowAll();
+                    gameplayHud.Show();
+                    gameplayHud.SetEntity(player.GetBase());
+
+                    Quest combatQuest = new Quest { Title = "Combat Training" };
+                    combatQuest.AddObjective(new Objective { Name = "Use your Secondary (Mouse Left)", TargetValue = 1 });
+                    // combatQuest.AddObjective(new Objective { Name = "Use your Utility (Space)", TargetValue = 1 });
+                    // combatQuest.AddObjective(new Objective { Name = "Use your Ultimate (R)", TargetValue = 1 });
+                    combatQuest.AddObjective(new Objective { Name = "Dodge (Shift)", TargetValue = 5 });
+
+                    int dodgeCount = 0;
+                    Action secondaryAction = () => QuestManager.SignalComplete("Use your Secondary (Mouse Left)");
+                    // Action utilityAction = () => QuestManager.SignalComplete("Use your Utility (Space)");
+                    // Action ultimateAction = () => QuestManager.SignalComplete("Use your Ultimate (R)");
+
+                    player.GetBase().Secondary.OnAct += secondaryAction;
+                    // player.GetBase().Utility.OnAct += utilityAction;
+                    // player.GetBase().Ultimate.OnAct += ultimateAction;
+
+                    InputEvent dodge = new InputEvent
+                    {
+                        Key = Key.ShiftLeft, Action = () =>
+                        {
+                            QuestManager.SignalSet("Dodge (Shift)", dodgeCount + 1);
+                            dodgeCount++;
+                        }
+                    };
+
+                    inputHandler.AddKeyDownEvent(dodge);
+
+                    combatQuest.QuestCompleted += _ =>
+                    {
+                        player.GetBase().Secondary.OnAct -= secondaryAction;
+                        // player.GetBase().Utility.OnAct -= utilityAction;
+                        // player.GetBase().Ultimate.OnAct -= ultimateAction;
+                        inputHandler.RemoveKeyDownEvent(dodge);
+                    };
+
+                    QuestManager.PushQuest(combatQuest);
+                }
+            });
+
+            evilGentryScene.Start(Overlay, Scheduler);
+        }
+
         [BackgroundDependencyLoader]
         private void load(ISampleStore samples)
         {
             AddInternal(scene);
             AddInternal(questOverlay);
+            AddInternal(gameplayHud);
             questOverlay.Load();
         }
 

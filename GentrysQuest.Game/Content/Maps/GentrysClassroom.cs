@@ -30,9 +30,6 @@ namespace GentrysQuest.Game.Content.Maps
         private const float DESK_WIDTH = 350;
         private const float DESK_HEIGHT = 100;
 
-        // event objects
-        private MapZone gradingQuestPlate;
-
         private DrawableEntity mrGentryNpc;
 
         private readonly Character[] seatedCharacters =
@@ -211,6 +208,7 @@ namespace GentrysQuest.Game.Content.Maps
 
             if (IsTutorial)
             {
+                MapZone gradingQuestPlate;
                 Objects.Add(gradingQuestPlate = new MapZone
                 {
                     Name = "gradingQuestPlate",
@@ -230,6 +228,28 @@ namespace GentrysQuest.Game.Content.Maps
                     QuestManager.SignalComplete("Finish grading the Quizzes");
                     gradingQuestPlate.FadeOut(200);
                 };
+
+                MapZone findQuizPlate;
+                Objects.Add(findQuizPlate = new MapZone
+                    {
+                        Name = "findQuizPlate",
+                        Anchor = Anchor.BottomCentre,
+                        Origin = Anchor.BottomCentre,
+                        RelativeSizeAxes = Axes.Both,
+                        Size = new Vector2(1, 0.3f),
+                        Filled = true,
+                        Alpha = 0,
+                        Flashes = true,
+                        Colour = Colour4.Green
+                    }
+                );
+                findQuizPlate.OnTouched += entity =>
+                {
+                    if (entity is not DrawablePlayableEntity) return;
+
+                    QuestManager.SignalComplete("Find the Quizzes");
+                    findQuizPlate.FadeOut(200);
+                };
             }
 
             #endregion
@@ -245,6 +265,19 @@ namespace GentrysQuest.Game.Content.Maps
                 RelativeSizeAxes = Axes.X,
                 Size = new Vector2(0.3f, 10),
                 Position = new Vector2(0, 60)
+            });
+
+            // Frisbee basket
+            Objects.Add(new MapObject
+            {
+                Name = "Basket",
+                Colour = Colour4.Gray,
+                Filled = true,
+                Anchor = Anchor.BottomLeft,
+                Origin = Anchor.BottomLeft,
+                HasCollider = true,
+                Size = new Vector2(120),
+                Position = new Vector2(100, -200)
             });
 
             if (IsTutorial)
