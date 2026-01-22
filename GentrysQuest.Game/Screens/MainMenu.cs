@@ -3,6 +3,7 @@ using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Users;

@@ -16,6 +16,7 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
         private DrawablePlayableEntity player;
         private MapScene mapScene;
         private GameplayHud gameplayHud;
+        private StatDrawableContainer statContainer;
         protected override string TestName { get; init; } = "Test Fight";
 
         public TestSceneFight()

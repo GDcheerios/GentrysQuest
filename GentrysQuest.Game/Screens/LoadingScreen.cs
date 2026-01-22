@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
