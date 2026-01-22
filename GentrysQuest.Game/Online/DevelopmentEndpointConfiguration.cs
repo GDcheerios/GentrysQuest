@@ -4,7 +4,7 @@ namespace GentrysQuest.Game.Online
     {
         public DevelopmentEndpointConfiguration()
         {
-            ServerUrl = APIEndpointUrl = "https://dev.gdcheerios.com";
+            ServerUrl = APIEndpointUrl = "http://127.0.0.1";
             GQEndpointUrl = $@"{APIEndpointUrl}/api/gq";
         }
     }
