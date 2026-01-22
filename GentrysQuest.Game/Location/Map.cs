@@ -82,13 +82,5 @@ namespace GentrysQuest.Game.Location
         /// <param name="y">Y percentage</param>
         /// <returns>Vector2 coordinates</returns>
         public Vector2 GetCoordinatePercent(float x, float y) => new(x * (Size.X * 2), y * (Size.Y * 2));
-
-        /// <summary>
-        /// Code that runs every frame
-        /// </summary>
-        /// <param name="x">X percentage</param>
-        /// <param name="y">Y percentage</param>
-        /// <returns>Vector2 coordinates</returns>
-        public Vector2 GetCoordinatePercent(float x, float y) => new(x * (Size.X * 2), y * (Size.Y * 2));
     }
 }

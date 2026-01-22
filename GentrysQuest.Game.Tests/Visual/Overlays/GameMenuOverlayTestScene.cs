@@ -17,12 +17,13 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         private Bindable<IUser> user { get; set; }
 
         [Cached]
-        private ProfileButton profileButton;
+        private ProfileButton profileButton = new();
 
         [Cached]
         private ScreenManager screenManager = new ScreenManager(new ScreenStack());
 
-        public GameMenuOverlayTestScene()
+        [BackgroundDependencyLoader]
+        private void load()
         {
             user.Value = GuestUser.Create("testy");
             profileButton = new ProfileButton();
