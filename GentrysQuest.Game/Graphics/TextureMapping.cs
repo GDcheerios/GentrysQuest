@@ -39,7 +39,7 @@ namespace GentrysQuest.Game.Graphics
         }
 
         /// <summary>
-        /// Gets the cooresponding value from the key.
+        /// Gets the corresponding value from the key.
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns>The texture file name</returns>

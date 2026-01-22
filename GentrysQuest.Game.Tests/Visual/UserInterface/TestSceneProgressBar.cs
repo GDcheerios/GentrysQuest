@@ -18,7 +18,7 @@ public partial class TestSceneProgressBar : GentrysQuestTestScene
         {
             Children = new Drawable[]
             {
-                testProgressBar = new ProgressBar(0, 1)
+                testProgressBar = new ProgressBar()
             },
             RelativeSizeAxes = Axes.Both,
             RelativePositionAxes = Axes.Both,
@@ -32,6 +32,6 @@ public partial class TestSceneProgressBar : GentrysQuestTestScene
     [Test]
     public void ChangeProgress()
     {
-        AddSliderStep("progress", 0, 1, 0.5, _ => testProgressBar.Current = _);
+        AddSliderStep("progress", 0, 1, 0.5, _ => testProgressBar.Current.Value = (float)_);
     }
 }

@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -20,6 +21,7 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public Sword()
         {
+            TextureMapping = new TextureMapping();
             TextureMapping.Add("Icon", "weapons_sword.png");
             TextureMapping.Add("Base", "weapons_sword.png");
 

@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
 
 namespace GentrysQuest.Game.Content.Families
 {
@@ -18,6 +19,7 @@ namespace GentrysQuest.Game.Content.Families
             : base()
         {
             Name = "Test Artifact";
+            TextureMapping = new TextureMapping();
         }
 
         public override Family family { get; protected set; } = new TestFamily();

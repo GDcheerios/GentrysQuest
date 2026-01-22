@@ -1,6 +1,7 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using NUnit.Framework;
+using osu.Framework.Graphics;
 using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Tests.Visual.Entity
@@ -11,7 +12,11 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         private int level = 1;
         private int rating = 1;
         private bool isPercent = false;
-        private StatDrawableContainer statContainer = new StatDrawableContainer();
+
+        private StatDrawableContainer statContainer = new StatDrawableContainer
+        {
+            RelativeSizeAxes = Axes.Both
+        };
 
         public TestSceneArtifactStats()
         {
@@ -25,30 +30,24 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             AddSliderStep("Star Rating", 1, 5, 1, setStarRating);
             AddSliderStep("Level", 1, 20, 1, setLevel);
 
-            statContainer.AddStat(new StatDrawable("Health", (float)getBuff(StatType.Health).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("Attack", (float)getBuff(StatType.Attack).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("Defense", (float)getBuff(StatType.Defense).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("CritRate", (float)getBuff(StatType.CritRate).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("CritDamage", (float)getBuff(StatType.CritDamage).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("Speed", (float)getBuff(StatType.Speed).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("AttackSpeed", (float)getBuff(StatType.AttackSpeed).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("RegenSpeed", (float)getBuff(StatType.RegenSpeed).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("RegenStrength", (float)getBuff(StatType.RegenStrength).Value.Value, true));
-            statContainer.AddStat(new StatDrawable("Tenacity", (float)getBuff(StatType.Tenacity).Value.Value, true));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.Health)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.Attack)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.Defense)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.CritRate)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.CritDamage)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.Speed)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.AttackSpeed)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.RegenSpeed)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.RegenStrength)));
+            statContainer.AddStat(new StatDrawable(getBuff(StatType.Tenacity)));
         }
 
         private void resetDisplay()
         {
-            statContainer.GetStatDrawable("Health").UpdateValue((float)getBuff(StatType.Health).Value.Value);
-            statContainer.GetStatDrawable("Attack").UpdateValue((float)getBuff(StatType.Attack).Value.Value);
-            statContainer.GetStatDrawable("Defense").UpdateValue((float)getBuff(StatType.Defense).Value.Value);
-            statContainer.GetStatDrawable("CritRate").UpdateValue((float)getBuff(StatType.CritRate).Value.Value);
-            statContainer.GetStatDrawable("CritDamage").UpdateValue((float)getBuff(StatType.CritDamage).Value.Value);
-            statContainer.GetStatDrawable("Speed").UpdateValue((float)getBuff(StatType.Speed).Value.Value);
-            statContainer.GetStatDrawable("AttackSpeed").UpdateValue((float)getBuff(StatType.AttackSpeed).Value.Value);
-            statContainer.GetStatDrawable("RegenSpeed").UpdateValue((float)getBuff(StatType.RegenSpeed).Value.Value);
-            statContainer.GetStatDrawable("RegenStrength").UpdateValue((float)getBuff(StatType.RegenStrength).Value.Value);
-            statContainer.GetStatDrawable("Tenacity").UpdateValue((float)getBuff(StatType.Tenacity).Value.Value);
+            foreach (StatDrawable statDrawable in statContainer.GetStatDrawables())
+            {
+                statContainer.GetStatDrawable(statDrawable.Identifier).Value.Value = 0;
+            }
         }
 
         private Buff getBuff(StatType buffType)

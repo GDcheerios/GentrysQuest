@@ -3,12 +3,14 @@ using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Enemies;
 using GentrysQuest.Game.Content.Families;
 using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
+using GentrysQuest.Game.Content.Families.Intro;
 using GentrysQuest.Game.Content.Families.JVee;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Location;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Content;
 
@@ -33,6 +35,7 @@ public static class ContentManager
         FAMILIES.Add(new TestFamily());
         FAMILIES.Add(new BraydenMesserschmidtFamily());
         FAMILIES.Add(new JVeeFamily());
+        FAMILIES.Add(new IntroFamily());
 
         #endregion
 
@@ -41,12 +44,17 @@ public static class ContentManager
         ENEMIES.Add(new TestEnemy());
         ENEMIES.Add(new AngryPedestrian());
         ENEMIES.Add(new AngryChineseMan());
+        ENEMIES.Add(new LostSpirit());
+        ENEMIES.Add(new EvilGentry());
 
         #endregion
 
         #region Characters
 
         CHARACTERS.Add(new BraydenMesserschmidt());
+        CHARACTERS.Add(new GMoney());
+        CHARACTERS.Add(new PhilipMcClure());
+        CHARACTERS.Add(new MekhiElliot());
 
         #endregion
 
@@ -81,6 +89,16 @@ public static class ContentManager
         }
 
         return null;
+    }
+
+    public static Artifact GetArtifact(string familyName, string artifactName)
+    {
+        Logger.Log("poop: " + familyName + " " + artifactName, LoggingTarget.Runtime, LogLevel.Debug);
+        Family family = GetFamily(familyName);
+        if (family == null || string.IsNullOrWhiteSpace(artifactName)) return null;
+
+        Artifact artifact = family.GetArtifact(artifactName);
+        return artifact;
     }
 
     public static Enemy GetEnemy(string enemyName)

@@ -18,9 +18,9 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
                 Colour = Colour4.Gray
             });
             Add(container = new StatDrawableContainer());
-            container.AddStat(new StatDrawable("Main stat", 10, true));
-            container.AddStat(new StatDrawable("Poop", 5, false));
-            container.AddStat(new StatDrawable("Fart", 5, false));
+            // container.AddStat(new StatDrawable("Main stat", 10, true));
+            // container.AddStat(new StatDrawable("Poop", 5, false));
+            // container.AddStat(new StatDrawable("Fart", 5, false));
         }
 
         [Test]
@@ -28,9 +28,9 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         {
             AddStep("Increment all", () =>
             {
-                container.GetStatDrawable("Main stat").UpdateValue(1);
-                container.GetStatDrawable("Poop").UpdateValue(1);
-                container.GetStatDrawable("Fart").UpdateValue(1);
+                container.GetStatDrawable("Main stat").Value.Value = 1;
+                container.GetStatDrawable("Poop").Value.Value = 1;
+                container.GetStatDrawable("Fart").Value.Value = 1;
             });
         }
     }

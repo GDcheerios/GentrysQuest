@@ -36,7 +36,6 @@ namespace GentrysQuest.Game.Screens
         private readonly List<DrawableEntity> enemies = new();
         private readonly List<Projectile> projectiles = new();
 
-
         private bool showingInventory = false;
 
         /// <summary>

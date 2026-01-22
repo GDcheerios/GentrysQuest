@@ -9,6 +9,8 @@ namespace GentrysQuest.Game.Content.Enemies
         {
             Name = "Test Enemy";
 
+            TextureMapping = new();
+
             WeaponChoices.AddChoice(new Bow(), 33);
             WeaponChoices.AddChoice(new Knife(), 33);
             WeaponChoices.AddChoice(new Sword(), 33);

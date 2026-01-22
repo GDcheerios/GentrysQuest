@@ -1,13 +1,20 @@
+using osu.Framework.Bindables;
 using osu.Framework.Input.Events;
 using osuTK.Input;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
-    public partial class InventoryLevelUpBox() : InventoryButton("$0")
+    public partial class InventoryLevelUpBox : InventoryButton
     {
-        private int amount;
+        private Bindable<int> amount = new();
         private bool multiplyTen = false;
         private bool multiplyHundred = false;
+
+        public InventoryLevelUpBox()
+            : base("$0")
+        {
+            amount.BindValueChanged(_ => { SetText($"${amount.ToString()}"); });
+        }
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
@@ -25,9 +32,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                     break;
             }
 
-            if (amount + actionAmount >= 0) amount += actionAmount;
-            else amount = 0;
-            SetText($"${amount.ToString()}");
+            if (amount.Value + actionAmount >= 0) amount.Value += actionAmount;
+            else amount.Value = 0;
             return base.OnMouseDown(e);
         }
 
@@ -63,6 +69,13 @@ namespace GentrysQuest.Game.Overlays.Inventory
             base.OnKeyUp(e);
         }
 
-        public int GetAmount() => amount;
+        public int GetAmount() => amount.Value;
+        public void SetAmount(int amount) => this.amount.Value = amount;
+        public void IncreaseAmount() => amount.Value++;
+
+        public void DecreaseAmount()
+        {
+            if (amount.Value > 0) amount.Value--;
+        }
     }
 }

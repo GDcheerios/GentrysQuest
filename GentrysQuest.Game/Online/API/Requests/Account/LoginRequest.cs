@@ -5,19 +5,10 @@ using Newtonsoft.Json;
 
 namespace GentrysQuest.Game.Online.API.Requests.Account
 {
-    public class LoginRequest : APIRequest<LoginResponse>
+    public class LoginRequest(string username, string password) : APIRequest<LoginResponse>
     {
-        private readonly string username;
-        private readonly string password;
-
-        public override string Target { get; } = "account/login-json";
+        public override string Target { get; } = "api/account/login-json";
         protected override HttpMethod Method { get; } = HttpMethod.Post;
-
-        public LoginRequest(string username, string password)
-        {
-            this.username = username;
-            this.password = password;
-        }
 
         protected override HttpContent CreateContent()
         {

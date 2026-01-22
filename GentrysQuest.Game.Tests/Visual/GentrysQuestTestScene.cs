@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online;
 using osu.Framework.Allocation;
 using osu.Framework.Testing;
@@ -12,6 +13,9 @@ namespace GentrysQuest.Game.Tests.Visual
 
         [Resolved]
         private DiscordRpc discordRpc { get; set; }
+
+        [Cached]
+        private TitleText title = new TitleText("Gentry's Quest") { Y = 300 };
 
         protected virtual string TestName { get; init; }
 

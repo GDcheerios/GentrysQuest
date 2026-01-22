@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
@@ -13,6 +14,8 @@ namespace GentrysQuest.Game.Location.Drawables
         public List<MapObject> Objects { get; private set; }
         public List<DrawableEntity> Npcs { get; private set; } = new();
 
+        public Action<Vector2> OnMove { get; set; }
+
         public DrawableMap()
         {
             Anchor = Anchor.Centre;
@@ -25,9 +28,16 @@ namespace GentrysQuest.Game.Location.Drawables
             RemoveInternal(entity, true);
         }
 
+        public void Move(Vector2 vector)
+        {
+            OnMove?.Invoke(vector);
+            Position += vector;
+        }
+
         public void Load(Map map)
         {
             MapReference = map;
+            MapReference.SetDrawable(this);
             Objects = new();
 
             map.Load();
@@ -72,12 +82,6 @@ namespace GentrysQuest.Game.Location.Drawables
                 HitBoxScene.Remove(entity.HitBox);
                 RemoveInternal(entity, true);
             }
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            MapReference.Update();
         }
     }
 }

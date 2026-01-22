@@ -22,6 +22,8 @@ namespace GentrysQuest.Game.Content.Weapons
 
         public Bow()
         {
+            TextureMapping = new();
+
             animationRegistry.RegisterAnimation("aim1");
             animationRegistry.AddKeyframe(new AttackKeyframe(200) { Distance = 80 });
 

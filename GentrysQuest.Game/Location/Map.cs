@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
+using GentrysQuest.Game.Location.Drawables;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -14,6 +15,7 @@ namespace GentrysQuest.Game.Location
         public List<DrawableEntity> Npcs { get; } = new();
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
+        private DrawableMap drawableInstance = null;
 
         /// <summary>
         /// Loads map objects.
@@ -67,6 +69,9 @@ namespace GentrysQuest.Game.Location
             });
         }
 
+        public void SetDrawable(DrawableMap drawable) => drawableInstance = drawable;
+        public DrawableMap GetDrawable() => drawableInstance;
+
         public int Difficulty { get; protected set; } = 0;
         public bool DifficultyScales { get; protected set; } = false;
 
@@ -81,9 +86,9 @@ namespace GentrysQuest.Game.Location
         /// <summary>
         /// Code that runs every frame
         /// </summary>
-        public virtual void Update()
-        {
-            // implement map update logic
-        }
+        /// <param name="x">X percentage</param>
+        /// <param name="y">Y percentage</param>
+        /// <returns>Vector2 coordinates</returns>
+        public Vector2 GetCoordinatePercent(float x, float y) => new(x * (Size.X * 2), y * (Size.Y * 2));
     }
 }

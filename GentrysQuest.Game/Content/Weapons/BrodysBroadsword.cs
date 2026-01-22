@@ -13,11 +13,11 @@ namespace GentrysQuest.Game.Content.Weapons
         public override string Type => "Broadsword";
 
         public override string Description { get; protected set; } =
-            "Brody the mighty warrior's broadsword. The weapon was wielded for centuries by Brody himself, but was lost when the great calamity struck and he lost his life to the invading Waifu's. "
-            + "The first hit on an enemy deals an extra 1% + 2.5 each difficulty of their health. "
-            + "Moves: "
-            + "Slash - normal attack. "
-            + "Hilt attack - stuns enemies for 0.5 seconds. ";
+            "Brody the mighty warrior's broadsword. The weapon was wielded for centuries by Brody himself, but was lost when the great calamity struck and he lost his life to the invading Waifu's."
+            + "\nThe [condition]first hit[/condition] on an [type]enemy[/type] deals an extra [unit]1%[/unit] [details]+ 2.5 each difficulty[/details] of their health. "
+            + "\nMoves: "
+            + "\nSlash - normal attack. "
+            + "\nHilt attack - stuns enemies for [unit]0.5 seconds[/unit]. ";
 
         public override StarRating StarRating { get; protected set; } = new StarRating(1);
 
@@ -78,6 +78,7 @@ namespace GentrysQuest.Game.Content.Weapons
 
             #region TextureMapping
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "weapons_brodys_broadsword.png");
             TextureMapping.Add("Base", "weapons_brodys_broadsword.png");
 

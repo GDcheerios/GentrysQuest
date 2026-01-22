@@ -12,6 +12,7 @@ namespace GentrysQuest.Game.Content.Characters
             Stats.Speed.Point = 2;
             Stats.Tenacity.Point = 10;
 
+            TextureMapping = new();
             TextureMapping.Add("Idle", "enemies_gmoney_idle.png");
         }
     }

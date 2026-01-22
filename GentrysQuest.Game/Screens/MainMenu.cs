@@ -16,7 +16,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
-using osuTK.Graphics;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -53,7 +52,10 @@ namespace GentrysQuest.Game.Screens
             {
                 background = new Box
                 {
-                    Colour = Color4.Black,
+                    Colour = ColourInfo.GradientVertical(
+                        new Colour4(72, 72, 72, 255),
+                        new Colour4(58, 58, 58, 255)
+                    ),
                     RelativeSizeAxes = Axes.Both,
                 },
                 new FillFlowContainer
@@ -82,7 +84,6 @@ namespace GentrysQuest.Game.Screens
             playButton.SetAction(PressPlay);
             quitButton.SetAction(delegate
             {
-                _ = APIAccess.DeleteToken();
                 Game.Exit();
             });
         }
@@ -131,18 +132,17 @@ namespace GentrysQuest.Game.Screens
             playButton.FadeOut(200);
             quitButton.FadeOut(200);
 
-            if (user.Value.StartupAmount == 0)
+            if (user.Value.Characters.Count == 0)
             {
                 background.FadeColour(Colour4.Black, 3000);
                 profileButton.Hide();
+                AudioManager.Instance.FadeOutMusic(3000);
                 Scheduler.AddDelayed(() =>
                 {
-                    AudioManager.Instance.FadeOutMusic(3000);
-                    this.Push(new CombatTutorial());
-                    title.FadeOut();
+                    screenManager.SetCustomScreen(new Tutorial());
                 }, 5000);
                 title.MoveToY(400, 2000, Easing.Out);
-                title.ScaleTo(5, 3000, Easing.In);
+                title.ScaleTo(5, 3000, Easing.In).Then().FadeOut(3000);
             }
             else
             {
@@ -152,11 +152,10 @@ namespace GentrysQuest.Game.Screens
                     {
                         title.MoveToY(100, 200, Easing.In);
                         title.ScaleTo(0.5f, 200, Easing.Out);
+                        title.FadeOut(200);
                     }, 200
                 );
             }
-
-            user.Value.StartupAmount++;
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
@@ -165,18 +164,14 @@ namespace GentrysQuest.Game.Screens
             base.OnEntering(e);
             profileButton.Show();
             gameMenuOverlay.Disappear();
-            background.FadeColour(ColourInfo.GradientVertical(
-                new Colour4(72, 72, 72, 255),
-                new Colour4(58, 58, 58, 255)
-            ), 500);
-            title.Delay(120).Then().FadeIn(120);
+            title.Delay(120).Then().FadeIn(120).MoveToY(300);
             discordRpc.UpdatePresence("Main Menu", "");
         }
 
-        public override void OnResuming(ScreenTransitionEvent e)
+        public override void OnSuspending(ScreenTransitionEvent e)
         {
-            PressBack();
-            EnterSelection();
+            base.OnSuspending(e);
+            this.FadeOut(500, Easing.OutQuint);
         }
 
         private void resetTitle()

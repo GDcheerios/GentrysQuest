@@ -16,6 +16,7 @@ namespace GentrysQuest.Game.Content.Weapons
         {
             Damage.SetDefaultValue(23);
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "weapons_spear.png");
             TextureMapping.Add("Base", "weapons_spear.png");
 

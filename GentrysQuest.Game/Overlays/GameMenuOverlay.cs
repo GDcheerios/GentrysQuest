@@ -1,4 +1,6 @@
 using System;
+using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Overlays.Notifications;
@@ -11,6 +13,8 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
+using osuTK.Input;
+using InputHandler = GentrysQuest.Game.Input.InputHandler;
 
 namespace GentrysQuest.Game.Overlays
 {
@@ -35,7 +39,7 @@ namespace GentrysQuest.Game.Overlays
         /// <summary>
         /// The inventory overlay
         /// </summary>
-        private readonly InventoryOverlay inventoryOverlay = new();
+        public readonly InventoryOverlay InventoryOverlay = new();
 
         /// <summary>
         /// The weekly event overlay
@@ -52,6 +56,12 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private InputHandler inputHandler { get; set; }
+
+        [Resolved]
+        private TitleText title { get; set; }
 
         public GameMenuOverlay()
         {
@@ -93,7 +103,7 @@ namespace GentrysQuest.Game.Overlays
                             Origin = Anchor.TopCentre,
                             Children =
                             [
-                                inventoryOverlay,
+                                InventoryOverlay,
                                 weeklyEventOverlay
                             ]
                         }
@@ -105,6 +115,7 @@ namespace GentrysQuest.Game.Overlays
             {
                 user.Value.Save();
                 user.Value = null;
+                screenManager.SetScreen(new MainMenuScreen());
             });
             weeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
             inventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
@@ -117,14 +128,69 @@ namespace GentrysQuest.Game.Overlays
         [BackgroundDependencyLoader]
         private void load()
         {
-            user.ValueChanged += delegate { inventoryOverlay.ProvideUser(user.Value); };
-            inventoryOverlay.ProvideUser(user.Value);
+            user.ValueChanged += delegate { InventoryOverlay.ProvideUser(user.Value); };
+            InventoryOverlay.ProvideUser(user.Value);
+
+            InputEvent gameOverlayToggle = new InputEvent
+            {
+                Name = "Game Overlay Toggle",
+                Category = "GameOverlay",
+                Key = Key.Escape,
+                Action = () =>
+                {
+                    if (isVisible)
+                    {
+                        Disappear();
+                        isVisible = false;
+                    }
+                    else
+                    {
+                        Appear();
+                        isVisible = true;
+                    }
+                }
+            };
+            InputEvent gameInventory = new InputEvent
+            {
+                Name = "Game Inventory",
+                Category = "GameOverlay",
+                Key = Key.C,
+                Action = () =>
+                {
+                    switch (isVisible)
+                    {
+                        case true when state.Value != SelectionState.Inventory:
+                            state.Value = SelectionState.Inventory;
+                            break;
+
+                        case true when state.Value == SelectionState.Inventory:
+                            Disappear();
+                            isVisible = false;
+                            break;
+
+                        default:
+                            Appear();
+                            isVisible = true;
+                            state.Value = SelectionState.Inventory;
+                            break;
+                    }
+                }
+            };
+
+            inputHandler.AddKeyDownEvent(gameOverlayToggle);
+            inputHandler.AddKeyDownEvent(gameInventory);
         }
 
         public void Appear()
         {
             if (user.Value == null) return;
 
+            title.FadeIn();
+            title.Scale = Vector2.One;
+            title.Origin = Anchor.BottomCentre;
+            title.Anchor = Anchor.TopCentre;
+            title.Y = 0;
+            title.MoveToY(150, 150, Easing.Out);
             state.TriggerChange();
             this.FadeIn();
             navBar.X = -2;
@@ -135,10 +201,11 @@ namespace GentrysQuest.Game.Overlays
 
         public void Disappear()
         {
-            inventoryOverlay.Hide();
+            InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
             navBar.MoveToX(1, 150, Easing.In);
+            title?.MoveToY(0, 150, Easing.In).FadeOut(150, Easing.In);
         }
 
         public void Toggle()
@@ -150,14 +217,14 @@ namespace GentrysQuest.Game.Overlays
 
         private void handleState(ValueChangedEvent<SelectionState> stateChange)
         {
-            inventoryOverlay.Hide();
+            InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
 
             switch (state.Value)
             {
                 case SelectionState.Inventory:
-                    inventoryOverlay.Show();
+                    InventoryOverlay.Show();
                     break;
 
                 case SelectionState.WeeklyEvent:

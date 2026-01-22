@@ -12,6 +12,7 @@ namespace GentrysQuest.Game.Content.Enemies
         {
             Stats.Speed.Point = 2;
 
+            TextureMapping = new();
             TextureMapping.Add("Idle", "enemies_angry_chinese_man_idle.gif");
 
             AudioMapping.Add("Spawn", "enemies_angry_chinese_man_spawn.m4a");

@@ -1,10 +1,15 @@
 using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Families;
+using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
+using GentrysQuest.Game.Content.Families.Intro;
+using GentrysQuest.Game.Content.Families.JVee;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Users;
 using NUnit.Framework;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Shapes;
@@ -15,7 +20,9 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
     public partial class InventoryOverlayTestScene : GentrysQuestTestScene
     {
         private InventoryOverlay inventoryOverlay;
-        private GuestUser user;
+
+        [Cached]
+        private Bindable<IUser> user = new();
 
         public InventoryOverlayTestScene()
         {
@@ -30,13 +37,13 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         public void Initialize()
         {
             AddStep("Load Content", ContentManager.LoadContent);
-            AddStep("Create user", () => { user = GuestUser.Create("test", true); });
+            AddStep("Create user", () => { user.Value = GuestUser.Create("test", true); });
             AddStep("Give infinite money", () =>
             {
-                user.MoneyHandler.InfiniteMoney = true;
+                user.Value.MoneyHandler.InfiniteMoney = true;
             });
             AddStep("Create Inventory", () => { Add(inventoryOverlay = new InventoryOverlay()); });
-            AddStep("Link User", () => inventoryOverlay.ProvideUser(user));
+            AddStep("Link User", () => inventoryOverlay.ProvideUser(user.Value));
         }
 
         [Test]
@@ -49,9 +56,39 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [Test]
         public void Collection()
         {
-            AddStep("Add Artifact", () => user.AddItem(new TestArtifact()));
-            AddStep("Add Weapon", () => user.AddItem(new Sword()));
-            AddStep("Add Character", () => user.AddItem(new TestCharacter(1)));
+            AddStep("Add Artifacts", () =>
+            {
+                user.Value.AddItem(new TestArtifact());
+                user.Value.AddItem(new TestArtifact());
+                user.Value.AddItem(new TestArtifact());
+                user.Value.AddItem(new TestArtifact());
+                user.Value.AddItem(new TestArtifact());
+                user.Value.AddItem(new ElHefe());
+                user.Value.AddItem(new Keyboard());
+                user.Value.AddItem(new MadokaChibiPlush());
+                user.Value.AddItem(new OsuTablet());
+            });
+            AddStep("Add Weapons", () =>
+            {
+                user.Value.AddItem(new Sword());
+                user.Value.AddItem(new Bow());
+                user.Value.AddItem(new BraydensOsuPen());
+                user.Value.AddItem(new BrodysBroadsword());
+                user.Value.AddItem(new Spear());
+                user.Value.AddItem(new Hammer());
+            });
+            AddStep("Add Characters", () =>
+            {
+                user.Value.AddItem(new TestCharacter(1));
+                user.Value.AddItem(new TestCharacter(2));
+                user.Value.AddItem(new TestCharacter(3));
+                user.Value.AddItem(new TestCharacter(4));
+                user.Value.AddItem(new TestCharacter(5));
+                user.Value.AddItem(new BraydenMesserschmidt());
+                user.Value.AddItem(new MekhiElliot());
+                user.Value.AddItem(new GMoney());
+                user.Value.AddItem(new PhilipMcClure());
+            });
         }
     }
 }

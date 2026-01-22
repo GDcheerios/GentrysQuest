@@ -23,7 +23,7 @@ namespace GentrysQuest.Game.Location
         private void moveCamera(Vector2 direction, double speed)
         {
             var value = (float)(GameClock.FrameTime * speed);
-            map.Position += -direction * value;
+            map.Move(-direction * value);
             enemies.ForEach(e =>
             {
                 e.Position += -direction * value;
@@ -104,7 +104,6 @@ namespace GentrysQuest.Game.Location
             {
                 foreach (Projectile projectile in player.QueuedProjectiles.ToList())
                 {
-                    // projectile.Position = new Vector2(500, -500);
                     projectile.ShootFrom(player);
                     player.QueuedProjectiles.Remove(projectile);
                     projectiles.Add(projectile);

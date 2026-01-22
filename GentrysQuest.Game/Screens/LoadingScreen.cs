@@ -75,17 +75,9 @@ namespace GentrysQuest.Game.Screens
             await Task.Delay(500);
         }
 
-        private async Task setupAPIAccess()
-        {
-            status.Text = "Connecting to server";
-            _ = new APIAccess(); // need to set up API access
-            await APIAccess.GrabToken();
-        }
-
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            await setupAPIAccess();
             await loadGameData();
 
             Scheduler.AddDelayed(() =>
@@ -103,9 +95,9 @@ namespace GentrysQuest.Game.Screens
             }, 1500);
             Scheduler.AddDelayed(() => status.FadeOut(250), 2700);
 #if DEBUG
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(ScreenState.MainMenu); }, 3000);
+            Scheduler.AddDelayed(() => { screenManager.SetScreen(new MainMenuScreen()); }, 3000);
 #else
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(ScreenState.Intro); }, 3000);
+            Scheduler.AddDelayed(() => { screenManager.SetScreen(new IntroScreen(false)); }, 3000);
 #endif
         }
     }

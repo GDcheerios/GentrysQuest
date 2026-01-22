@@ -1,13 +1,15 @@
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Database;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
-using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game
@@ -23,28 +25,33 @@ namespace GentrysQuest.Game
         [Cached]
         private DiscordRpc discordRpc = new("1115885237910634587");
 
+        [Cached]
+        private InputHandler inputHandler = new();
+
+        /// <summary>
+        /// The Game's current user
+        /// </summary>
+        [Cached]
+        private Bindable<IUser> user { get; set; } = new();
+        // Cached so that it can be accessed by other classes
+        // Bindable types let us listen for changes to the variable
+
         protected GentrysQuestGameBase()
         {
             base.Content.Add(Content = new DrawSizePreservingFillContainer
             {
-                TargetDrawSize = new Vector2(1920, 1080)
+                TargetDrawSize = new Vector2(1000, 1000)
             });
+            base.Content.Add(inputHandler);
             DatabaseManager.CheckDatabase();
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            Logger.Log("Loading GentrysQuest base resources");
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
             _ = new GameClock(Clock);
             Add(AudioManager.Instance);
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
-            Logger.Log("Loading GentrysQuest base resources complete");
         }
     }
 }

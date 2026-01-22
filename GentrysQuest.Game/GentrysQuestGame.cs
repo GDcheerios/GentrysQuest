@@ -5,29 +5,16 @@ using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
-using GentrysQuest.Game.Users;
-using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Input.Events;
 using osu.Framework.Screens;
-using osuTK.Input;
 using Character = SharpFNT.Character;
 
 namespace GentrysQuest.Game
 {
     public partial class GentrysQuestGame : GentrysQuestGameBase
     {
-        // Important Variables
-        /// <summary>
-        /// The Game's current user
-        /// </summary>
-        [Cached]
-        private readonly Bindable<IUser> user = new();
-        // Cached so that it can be accessed by other classes
-        // Bindable types let us listen for changes to the variable
-
         /// <summary>
         /// The current equipped character
         /// </summary>
@@ -85,7 +72,7 @@ namespace GentrysQuest.Game
             audioOverlay = new AudioOverlay { Depth = -4 };
             AudioManager.Instance.OnPlayMusic += delegate { audioOverlay.DisplaySong(AudioManager.Instance.CurrentSong); };
 
-            profileButton = new ProfileButton(user);
+            profileButton = new ProfileButton();
             Add(profileButton);
             profileButton.Hide();
 
@@ -102,35 +89,7 @@ namespace GentrysQuest.Game
             gameMenuOverlay.Disappear();
             dependencies.CacheAs(gameMenuOverlay);
 
-            //  Set up the screens
-            bool isBandits = MathBase.RandomBool(); // we got a bandits
-
-            dependencies.CacheAs(mainMenuScreen = new MainMenuScreen(isBandits));
-            introScreenScreen = new IntroScreen(mainMenuScreen, isBandits);
-            loadingScreen = new LoadingScreen(introScreenScreen);
-            gameplayScreenScreen = new GameplayScreen();
-
-            screenManager.ProvideScreens(
-                loadingScreen,
-                introScreenScreen,
-                mainMenuScreen,
-                gameplayScreenScreen
-            );
-
-            screenManager.SetScreen(ScreenState.Loading);
-            // screenStack.Push(new CombatTutorial());
-        }
-
-        protected override bool OnKeyDown(KeyDownEvent e)
-        {
-            switch (e.Key)
-            {
-                case Key.Escape:
-                    gameMenuOverlay.Toggle();
-                    break;
-            }
-
-            return base.OnKeyDown(e);
+            screenManager.SetScreen(new LoadingScreen(new IntroScreen(true)));
         }
     }
 }

@@ -24,6 +24,7 @@ namespace GentrysQuest.Game.Content.Characters
 
             OnUpdateStats += checkWeapon;
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "characters_brayden_idle.png");
             TextureMapping.Add("Idle", "characters_brayden_idle.png");
 
@@ -33,7 +34,7 @@ namespace GentrysQuest.Game.Content.Characters
 
         private void checkWeapon()
         {
-            Logger.Log("I'm checking the waepon");
+            Logger.Log("I'm checking the weapon");
             RemoveEffect("Chosen One");
 
             if (Weapon != null && Weapon.GetType() == typeof(BraydensOsuPen))

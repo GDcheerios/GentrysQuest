@@ -28,9 +28,10 @@ namespace GentrysQuest.Game.Entity
 
         public override void LevelUp()
         {
-            base.LevelUp();
-            if (Experience.Level.IsMax()) return;
+            if (Experience.Level.Current.Value >= Experience.Level.Limit.Value) return;
 
+            base.LevelUp();
+            Difficulty = (byte)(Experience.Level.Current.Value / 4);
             if (Experience.Level.Current.Value % 4 == 0) AddBuff();
             MainAttribute.Improve();
             Holder?.UpdateStats();
@@ -76,15 +77,15 @@ namespace GentrysQuest.Game.Entity
                 MainBuff = MainAttribute.ToJson(),
                 FamilyName = family.Name
             };
-            List<JsonBuff> buffs = new List<JsonBuff>();
-            foreach (Buff buff in Attributes) buffs.Add(buff.ToJson());
+            List<JsonBuff> buffs = Attributes.Select(buff => buff.ToJson()).ToList();
             jsonEntity.Buffs = buffs;
 
             return jsonEntity;
         }
 
-        public void LoadJson(JsonArtifact jsonArtifact)
+        public override void LoadJson(IJsonEntity jsonEntity)
         {
+            JsonArtifact jsonArtifact = (JsonArtifact)jsonEntity;
             LoadJsonBase(jsonArtifact);
             MainAttribute = new Buff(jsonArtifact.MainBuff);
             foreach (JsonBuff jsonBuff in jsonArtifact.Buffs) Attributes.Add(new Buff(jsonBuff));
