@@ -130,31 +130,15 @@ namespace GentrysQuest.Game.Screens
             title.FadeIn(200);
             playButton.FadeOut(200);
             quitButton.FadeOut(200);
-
-            if (user.Value.Characters.Count == 0)
-            {
-                background.FadeColour(Colour4.Black, 3000);
-                profileButton.Hide();
-                AudioManager.Instance.FadeOutMusic(3000);
-                Scheduler.AddDelayed(() =>
+            Scheduler.AddDelayed(gameMenuOverlay.Appear, 450);
+            Scheduler.AddDelayed(
+                delegate
                 {
-                    screenManager.SetCustomScreen(new Tutorial());
-                }, 5000);
-                title.MoveToY(400, 2000, Easing.Out);
-                title.ScaleTo(5, 3000, Easing.In).Then().FadeOut(3000);
-            }
-            else
-            {
-                Scheduler.AddDelayed(gameMenuOverlay.Appear, 450);
-                Scheduler.AddDelayed(
-                    delegate
-                    {
-                        title.MoveToY(100, 200, Easing.In);
-                        title.ScaleTo(0.5f, 200, Easing.Out);
-                        title.FadeOut(200);
-                    }, 200
-                );
-            }
+                    title.MoveToY(100, 200, Easing.In);
+                    title.ScaleTo(0.5f, 200, Easing.Out);
+                    title.FadeOut(200);
+                }, 200
+            );
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
