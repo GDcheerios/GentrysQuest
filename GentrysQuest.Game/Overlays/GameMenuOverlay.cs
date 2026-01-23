@@ -2,11 +2,11 @@ using System;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.GameMenu;
+using GentrysQuest.Game.Overlays.GameMenu.GachaTab;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
-using GentrysQuest.Game.Screens.MainMenu;
 using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -28,6 +28,7 @@ namespace GentrysQuest.Game.Overlays
         private readonly GqMenuButton weeklyEvent;
         private readonly GqMenuButton travelButton;
         private readonly GqMenuButton inventoryButton;
+        private readonly GqMenuButton gachaButton;
         private readonly GqMenuButton profileButton;
 
         /// <summary>
@@ -45,6 +46,8 @@ namespace GentrysQuest.Game.Overlays
         /// The weekly event overlay
         /// </summary>
         private readonly WeeklyEventOverlay weeklyEventOverlay = new();
+
+        private readonly GachaContainer gachaContainer = new();
 
         private bool isVisible;
 
@@ -83,14 +86,15 @@ namespace GentrysQuest.Game.Overlays
                             RelativePositionAxes = Axes.X,
                             Height = 1,
                             AutoSizeAxes = Axes.Both,
-                            Spacing = new Vector2(45, 0),
-                            Y = 200,
+                            Spacing = new Vector2(24, 0),
+                            Y = 220,
                             Children =
                             [
                                 backButton = new GqMenuButton("Quit"),
                                 weeklyEvent = new GqMenuButton("Weekly Event"),
                                 travelButton = new GqMenuButton("Travel"),
                                 inventoryButton = new GqMenuButton("Inventory"),
+                                gachaButton = new GqMenuButton("Gacha"),
                                 profileButton = new GqMenuButton("Profile")
                             ]
                         },
@@ -104,7 +108,8 @@ namespace GentrysQuest.Game.Overlays
                             Children =
                             [
                                 InventoryOverlay,
-                                weeklyEventOverlay
+                                weeklyEventOverlay,
+                                gachaContainer
                             ]
                         }
                     ]
@@ -119,6 +124,7 @@ namespace GentrysQuest.Game.Overlays
             });
             weeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
             inventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
+            gachaButton.SetAction(delegate { state.Value = SelectionState.Gacha; });
             travelButton.SetAction(delegate { state.Value = SelectionState.Travel; });
             profileButton.SetAction(delegate { state.Value = SelectionState.Profile; });
 
@@ -130,6 +136,7 @@ namespace GentrysQuest.Game.Overlays
         {
             user.ValueChanged += delegate { InventoryOverlay.ProvideUser(user.Value); };
             InventoryOverlay.ProvideUser(user.Value);
+            state.Value = SelectionState.Inventory;
 
             InputEvent gameOverlayToggle = new InputEvent
             {
@@ -220,6 +227,7 @@ namespace GentrysQuest.Game.Overlays
             InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
+            gachaContainer.Hide();
 
             switch (state.Value)
             {
@@ -243,6 +251,10 @@ namespace GentrysQuest.Game.Overlays
                     break;
 
                 case SelectionState.Profile:
+                    break;
+
+                case SelectionState.Gacha:
+                    gachaContainer.Show();
                     break;
 
                 default:

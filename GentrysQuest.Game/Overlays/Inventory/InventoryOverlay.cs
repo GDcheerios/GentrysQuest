@@ -317,7 +317,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         {
             string category;
 
-            moneyText.Text = $"${user?.MoneyHandler.Amount}";
+            moneyText.Text = $"${user?.MoneyHandler?.Amount}";
 
             switch (selectionMode)
             {
