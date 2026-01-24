@@ -5,6 +5,7 @@ using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Graphics.UserInterface;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -38,8 +39,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
     private InventoryButton exchangeButton;
     private Container equipContainer;
     private Container equipsContainer;
-    private InventoryLevelUpBox levelUpBox;
-    private Container moneyControl;
+    private AmountSelectionBox levelUpBox;
 
     private const int DELAY = 25;
 
@@ -176,44 +176,21 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                             levelUpButton = new InventoryButton("Level Up")
                             {
                                 RelativeSizeAxes = Axes.Both,
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
                                 Width = 0.8f,
                                 Height = 0.45f
                             },
-                            moneyControl = new Container
+                            levelUpBox = new AmountSelectionBox
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Width = 1f,
-                                Height = 0.45f,
-                                Y = 140,
-                                Children =
-                                [
-                                    levelUpBox = new InventoryLevelUpBox()
-                                    {
-                                        Width = 150
-                                    },
-                                    new InventoryButton("-")
-                                    {
-                                        RelativeSizeAxes = Axes.Both,
-                                        Width = 0.2f,
-                                        Height = 0.3f,
-                                        X = -100,
-                                        Action = () => { levelUpBox.DecreaseAmount(); }
-                                    },
-                                    new InventoryButton("+")
-                                    {
-                                        RelativeSizeAxes = Axes.Both,
-                                        Width = 0.2f,
-                                        Height = 0.3f,
-                                        X = 100,
-                                        Action = () => { levelUpBox.IncreaseAmount(); }
-                                    }
-                                ]
+                                Prefix = "$",
+                                RelativeSizeAxes = Axes.X,
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Y = 40
                             },
                             exchangeButton = new InventoryButton("Exchange")
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Width = 0.8f,
-                                Height = 0.3f,
                                 Y = 150
                             },
                         ]
@@ -399,13 +376,13 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
 
         if (entity is Artifact)
         {
-            moneyControl.FadeOut();
             levelUpButton.FadeOut();
             exchangeButton.SetAction(inventoryReference.StartArtifactExchange);
+            levelUpBox.FadeOut();
         }
         else
         {
-            moneyControl.FadeIn();
+            levelUpBox.FadeIn();
             levelUpButton.FadeIn();
             levelUpButton.SetAction(handleLevelUp);
             exchangeButton.SetAction(inventoryReference.StartWeaponExchange);

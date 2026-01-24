@@ -7,8 +7,8 @@ namespace GentrysQuest.Game.Content.Gachas
     {
         public StarterGacha()
         {
-            Name = "Starter";
-            Price = 1000;
+            Name = "Starter Gacha";
+            Price = 100;
             Weapons =
             [
                 new Bow(),

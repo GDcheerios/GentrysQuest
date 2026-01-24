@@ -151,6 +151,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             scrollContainer.ScrollTo(targetY);
         }
 
+        public BasicScrollContainer GetScrollContainer() => scrollContainer;
+
         public void Sort(string condition, bool reversed)
         {
             List<dynamic[]> newList = new();

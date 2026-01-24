@@ -19,10 +19,14 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
         private Container leftContainer;
         private Container rightContainer;
 
+        /// <summary>
+        /// The button used to start the roll process
+        /// </summary>
+        private GachaRollButton rollButton;
+
         private readonly BasicScrollContainer<GachaButton> gachaButtonList = new()
         {
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y
+            RelativeSizeAxes = Axes.Both
         };
 
         private readonly List<Gacha> gachas =
@@ -32,7 +36,17 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 
         public GachaContainer()
         {
-            foreach (Gacha gacha in gachas) gachaButtonList.Add(new GachaButton(gacha.Name, () => LoadGacha(gacha)));
+            foreach (Gacha gacha in gachas)
+            {
+                gachaButtonList.Add(new GachaButton(gacha, () => LoadGacha(gacha))
+                {
+                    RelativeSizeAxes = Axes.X,
+                    Origin = Anchor.Centre,
+                    Anchor = Anchor.Centre,
+                    Width = 0.95f,
+                    Height = 50
+                });
+            }
         }
 
         public void LoadGacha(Gacha gacha)
@@ -90,6 +104,13 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                         {
                             RelativeSizeAxes = Axes.Both,
                             Colour = Colour4.Gray,
+                        },
+                        rollButton = new GachaRollButton
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.BottomCentre,
+                            Size = new Vector2(200, 50),
+                            Margin = new MarginPadding { Bottom = 25 }
                         }
                     ]
                 }
