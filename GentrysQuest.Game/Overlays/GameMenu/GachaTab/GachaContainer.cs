@@ -16,6 +16,9 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
         [Resolved]
         private Bindable<IUser> user { get; set; }
 
+        private Container leftContainer;
+        private Container rightContainer;
+
         private readonly BasicScrollContainer<GachaButton> gachaButtonList = new()
         {
             RelativeSizeAxes = Axes.X,
@@ -36,6 +39,18 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
         {
         }
 
+        public void AnimateShow()
+        {
+            leftContainer.ResizeHeightTo(0.8f, 200, Easing.OutQuint);
+            rightContainer.ResizeHeightTo(0.8f, 200, Easing.OutQuint);
+        }
+
+        public void AnimateHide()
+        {
+            leftContainer.ResizeHeightTo(0, 200, Easing.OutQuint);
+            rightContainer.ResizeHeightTo(0, 200, Easing.OutQuint);
+        }
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -43,7 +58,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             RelativeSizeAxes = Axes.Both;
             Children =
             [
-                new Container
+                leftContainer = new Container
                 {
                     Masking = true,
                     CornerRadius = 10,
@@ -60,7 +75,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                         gachaButtonList
                     ]
                 },
-                new Container
+                rightContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                     Masking = true,

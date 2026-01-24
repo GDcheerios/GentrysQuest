@@ -184,7 +184,7 @@ namespace GentrysQuest.Game.Overlays
                 }
             };
 
-            inputHandler.AddKeyDownEvent(gameOverlayToggle);
+            inputHandler.AddKeyDownEvent(gameOverlayToggle );
             inputHandler.AddKeyDownEvent(gameInventory);
         }
 
@@ -211,6 +211,7 @@ namespace GentrysQuest.Game.Overlays
             InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
+            gachaContainer.AnimateHide();
             navBar.MoveToX(1, 150, Easing.In);
             title?.MoveToY(0, 150, Easing.In).FadeOut(150, Easing.In);
         }
@@ -227,7 +228,7 @@ namespace GentrysQuest.Game.Overlays
             InventoryOverlay.Hide();
             weeklyEventOverlay.Hide();
             weeklyEventOverlay.EndLeaderboard();
-            gachaContainer.Hide();
+            gachaContainer.AnimateHide();
 
             switch (state.Value)
             {
@@ -254,7 +255,7 @@ namespace GentrysQuest.Game.Overlays
                     break;
 
                 case SelectionState.Gacha:
-                    gachaContainer.Show();
+                    gachaContainer.AnimateShow();
                     break;
 
                 default:
