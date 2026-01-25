@@ -19,11 +19,11 @@ namespace GentrysQuest.Game.Gachas
         /// <summary>
         /// The list of characters you can receive in a gacha roll
         /// </summary>
-        public List<Character> Characters { get; set; }
+        public List<Character> Characters { get; set; } = [];
 
         /// <summary>
         /// The list of weapons you can receive in a gacha roll
         /// </summary>
-        public List<Weapon> Weapons { get; set; }
+        public List<Weapon> Weapons { get; set; } = [];
     }
 }

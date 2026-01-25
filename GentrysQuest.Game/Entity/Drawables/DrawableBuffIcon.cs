@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -5,38 +7,40 @@ using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
-    public partial class DrawableBuffIcon : CompositeDrawable
+    public partial class DrawableBuffIcon : Container
     {
-        private SpriteIcon icon;
-        private SpriteText stats;
-        private SpriteText name;
+        [CanBeNull]
+        private readonly Buff buff;
 
-        public DrawableBuffIcon(Buff buff, bool sideView = false)
+        private SpriteIcon icon = new SpriteIcon
+        {
+            RelativePositionAxes = Axes.Both,
+            RelativeSizeAxes = Axes.Both,
+            Icon = FontAwesome.Solid.Circle
+        };
+
+        private SpriteText stats = new SpriteText
+        {
+            Text = $"",
+            Position = new Vector2(12, 0),
+            Anchor = Anchor.CentreRight,
+            Origin = Anchor.CentreLeft,
+            Font = FontUsage.Default.With(size: 32)
+        };
+
+        private SpriteText name = new SpriteText
+        {
+            Text = $"Empty",
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.BottomCentre,
+            Font = FontUsage.Default.With(size: 24)
+        };
+
+        public DrawableBuffIcon([CanBeNull] Buff buff, bool sideView = false)
         {
             Size = new Vector2(48);
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
-            AddInternal(icon = new SpriteIcon
-            {
-                RelativePositionAxes = Axes.Both,
-                RelativeSizeAxes = Axes.Both,
-                Icon = FontAwesome.Solid.Circle
-            });
-            AddInternal(stats = new SpriteText
-            {
-                Text = $"{buff.Value.Value:0.##}{(buff.IsPercent ? "%" : "")}",
-                Position = new Vector2(12, 0),
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreLeft,
-                Font = FontUsage.Default.With(size: 32)
-            });
-            AddInternal(name = new SpriteText
-            {
-                Text = $"{buff.StatType.ToString()}",
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.BottomCentre,
-                Font = FontUsage.Default.With(size: 24)
-            });
 
             if (sideView)
             {
@@ -49,48 +53,39 @@ namespace GentrysQuest.Game.Entity.Drawables
                 Padding = new MarginPadding { Top = 2, Bottom = 2 };
             }
 
-            switch (buff.StatType)
+            if (buff == null) return;
+
+            this.buff = buff;
+
+            icon.Icon = buff.StatType switch
             {
-                case StatType.Health:
-                    icon.Icon = FontAwesome.Solid.Plus;
-                    break;
+                StatType.Health => FontAwesome.Solid.Plus,
+                StatType.Attack => FontAwesome.Solid.FistRaised,
+                StatType.Defense => FontAwesome.Solid.ShieldAlt,
+                StatType.CritRate => FontAwesome.Solid.ArrowCircleUp,
+                StatType.CritDamage => FontAwesome.Solid.ArrowUp,
+                StatType.Speed => FontAwesome.Solid.ShoePrints,
+                StatType.AttackSpeed => FontAwesome.Solid.Wind,
+                StatType.RegenSpeed => FontAwesome.Solid.Recycle,
+                StatType.RegenStrength => FontAwesome.Solid.Vial,
+                StatType.Tenacity => FontAwesome.Solid.LayerGroup,
+                _ => icon.Icon
+            };
+        }
 
-                case StatType.Attack:
-                    icon.Icon = FontAwesome.Solid.FistRaised;
-                    break;
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Children =
+            [
+                icon,
+                stats,
+                name
+            ];
 
-                case StatType.Defense:
-                    icon.Icon = FontAwesome.Solid.ShieldAlt;
-                    break;
-
-                case StatType.CritRate:
-                    icon.Icon = FontAwesome.Solid.ArrowCircleUp;
-                    break;
-
-                case StatType.CritDamage:
-                    icon.Icon = FontAwesome.Solid.ArrowUp;
-                    break;
-
-                case StatType.Speed:
-                    icon.Icon = FontAwesome.Solid.ShoePrints;
-                    break;
-
-                case StatType.AttackSpeed:
-                    icon.Icon = FontAwesome.Solid.Wind;
-                    break;
-
-                case StatType.RegenSpeed:
-                    icon.Icon = FontAwesome.Solid.Recycle;
-                    break;
-
-                case StatType.RegenStrength:
-                    icon.Icon = FontAwesome.Solid.Vial;
-                    break;
-
-                case StatType.Tenacity:
-                    icon.Icon = FontAwesome.Solid.LayerGroup;
-                    break;
-            }
+            if (buff == null) return;
+            stats.Text = $"{buff.Value.Value:0.##}{(buff.IsPercent ? "%" : "")}";
+            name.Text = buff.StatType.ToString();
         }
     }
 }

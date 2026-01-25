@@ -8,30 +8,26 @@ using osu.Framework.Input.Events;
 
 namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 {
-    public partial class ItemShowcaseContainer : Container
+    public partial class ItemShowcaseContainer(List<EntityBase> entities) : Container
     {
-        private EntityInfoListContainer entityInfoListContainer;
+        private readonly EntityInfoListContainer entityInfoListContainer = new()
+        {
+            RelativeSizeAxes = Axes.Both
+        };
 
         private double lastInput;
         private bool isReversed;
         private const float scroll_speed = 0.5f;
         private const float interval = 3000;
 
-        public ItemShowcaseContainer(List<EntityBase> entities)
-        {
-            entityInfoListContainer = new EntityInfoListContainer();
-
-            foreach (var entity in entities) entityInfoListContainer.Add(new EntityInfoDrawable(entity));
-        }
-
         [BackgroundDependencyLoader]
         private void load()
         {
             RelativeSizeAxes = Axes.Both;
-            Child = entityInfoListContainer = new EntityInfoListContainer
-            {
-                RelativeSizeAxes = Axes.Both
-            };
+            Child = entityInfoListContainer;
+            _ = entityInfoListContainer.AddFromList(entities);
+            entityInfoListContainer.Sort("Name", false);
+            entityInfoListContainer.Sort("Star Rating", false);
         }
 
         protected override void OnDrag(DragEvent e)
@@ -50,15 +46,15 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
         {
             base.Update();
 
-            if (!(Time.Current - lastInput > interval)) return;
-
-            BasicScrollContainer scrollContainer = entityInfoListContainer.GetScrollContainer();
-            scrollContainer.Y += isReversed ? scroll_speed : -scroll_speed * (float)Time.Elapsed;
-
-            if (scrollContainer.Y <= 0 || scrollContainer.Y >= scrollContainer.Height)
-            {
-                isReversed = !isReversed;
-            }
+            // if (!(Time.Current - lastInput > interval)) return;
+            //
+            // BasicScrollContainer scrollContainer = entityInfoListContainer.GetScrollContainer();
+            // scrollContainer.Y += isReversed ? scroll_speed : -scroll_speed * (float)Time.Elapsed;
+            //
+            // if (scrollContainer.Y <= 0 || scrollContainer.Y >= scrollContainer.Height)
+            // {
+            //     isReversed = !isReversed;
+            // }
         }
     }
 }

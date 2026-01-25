@@ -7,6 +7,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osuTK;
 
 namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
@@ -18,6 +19,22 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 
         private Container leftContainer;
         private Container rightContainer;
+
+        private readonly Container characterContainer = new Container
+        {
+            Anchor = Anchor.CentreRight,
+            Origin = Anchor.CentreRight,
+            RelativeSizeAxes = Axes.Both,
+            Size = new Vector2(0.45f, 1)
+        };
+
+        private readonly Container weaponContainer = new Container
+        {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
+            RelativeSizeAxes = Axes.Both,
+            Size = new Vector2(0.45f, 1)
+        };
 
         /// <summary>
         /// The button used to start the roll process
@@ -51,6 +68,9 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 
         public void LoadGacha(Gacha gacha)
         {
+            Logger.Log($"Loading gacha {gacha.Name} {gacha.Price} {gacha.Weapons.Count} {gacha.Characters.Count}");
+            weaponContainer.Child = new ItemShowcaseContainer([..gacha.Weapons]);
+            characterContainer.Child = new ItemShowcaseContainer([..gacha.Characters]);
         }
 
         public void AnimateShow()
@@ -105,6 +125,8 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                             RelativeSizeAxes = Axes.Both,
                             Colour = Colour4.Gray,
                         },
+                        weaponContainer,
+                        characterContainer,
                         rollButton = new GachaRollButton
                         {
                             Anchor = Anchor.BottomCentre,

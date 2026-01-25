@@ -36,21 +36,15 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Scale = new Vector2(0.175f)
                 },
             };
-
-            Hide();
-
-            if (entityReference != null)
+            AddInternal(buffIcon = new DrawableBuffIcon(entity.MainAttribute, true)
             {
-                AddInternal(buffIcon = new DrawableBuffIcon(entity.MainAttribute, true)
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.7f),
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre
-                });
-                starRatingContainer.starRating.Value = entity.StarRating.Value;
-                Show();
-            }
+                RelativeSizeAxes = Axes.Both,
+                Size = new Vector2(0.7f),
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre
+            });
+            starRatingContainer.starRating.Value = entity.StarRating.Value;
+            Show();
         }
 
         [BackgroundDependencyLoader]

@@ -53,14 +53,16 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     Direction = FillDirection.Horizontal,
                     AutoSizeAxes = Axes.Both,
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
                     Children = new Drawable[]
                     {
-                        icon = new EntityIconDrawable
+                        new Container
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Margin = new MarginPadding(35),
-                            Size = new Vector2(250)
+                            Size = new Vector2(60),
+                            Child = icon = new EntityIconDrawable()
                         },
                         new FillFlowContainer
                         {
@@ -93,6 +95,11 @@ namespace GentrysQuest.Game.Entity.Drawables
                             Origin = Anchor.CentreLeft,
                             Font = FontUsage.Default.With(size: 24),
                             AllowMultiline = false
+                        },
+                        BuffContainer = new Container
+                        {
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 64,
                         }
                     }
                 },
@@ -104,22 +111,6 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Colour = ColourInfo.GradientHorizontal(new Colour4(0, 0, 0, 0), Colour4.White),
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
-                },
-                new Container
-                {
-                    Masking = true,
-                    CornerExponent = 2,
-                    CornerRadius = 15,
-                    Child = new Box
-                    {
-                    }
-                },
-                BuffContainer = new Container
-                {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
-                    Position = new Vector2(-100, 5),
-                    Size = new Vector2(100, 80)
                 }
             };
             starRatingContainer.starRating.BindValueChanged(updateColorWithStarRating, true);

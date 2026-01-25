@@ -12,6 +12,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             AddInternal(ArtifactContainer = new FillFlowContainer
             {
+                Name = "ArtifactContainer",
                 Direction = FillDirection.Horizontal,
                 AutoSizeAxes = Axes.Both,
                 Anchor = Anchor.CentreRight,
@@ -19,8 +20,11 @@ namespace GentrysQuest.Game.Entity.Drawables
                 Margin = new MarginPadding { Right = 30 }
             });
 
-            foreach (Artifact artifact in entity.Artifacts.Get())
+            var artifacts = entity.Artifacts.Get();
+
+            for (var index = 0; index < 5; index++)
             {
+                var artifact = artifacts[index];
                 ArtifactIcon anIcon = new ArtifactIcon(artifact);
                 ArtifactContainer.Add(anIcon);
             }
