@@ -32,7 +32,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             Add(weaponInfoDrawable = new WeaponInfoDrawable(testWeapon = new Knife()));
             AddSliderStep("Change the star rating", 1, 5, 1, i =>
             {
-                entityInfoDrawable.starRatingContainer.starRating.Value = i;
+                entityInfoDrawable.StarRatingContainer.starRating.Value = i;
             });
         }
     }

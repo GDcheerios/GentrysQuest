@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GentrysQuest.Game.Graphics;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
@@ -25,18 +27,22 @@ namespace GentrysQuest.Game.Entity.Drawables
         private readonly LoadingIndicator loadingIndicator;
         public event EventHandler FinishedLoading;
 
+        public Bindable<int> Spacing { get; } = new Bindable<int>(20);
+
         public EntityInfoListContainer()
         {
+            Name = "Entity Info List";
             RelativeSizeAxes = Axes.Both;
             Origin = Anchor.TopCentre;
             Anchor = Anchor.TopCentre;
             Padding = new MarginPadding(3f);
-            Children = new Drawable[]
-            {
+            Children =
+            [
                 scrollContainer = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(1, 0.9f)
+                    Size = new Vector2(1, 0.9f),
+                    Padding = new MarginPadding { Bottom = 10 },
                 },
                 noItemsDisclaimer = new SpriteText
                 {
@@ -52,14 +58,29 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
                 }
-            };
+            ];
             loadingIndicator.FadeOut(0);
             entityReferences = new();
+            Spacing.ValueChanged += _ => RepositionItems();
         }
 
         private Task addToList(EntityInfoDrawable drawable)
         {
-            drawable.Y = 110 * scrollContainer.Count;
+            drawable.Y = drawable.Height * scrollContainer.Count;
+
+            drawable.GetViewportScreenSpaceRect = () =>
+            {
+                var topLeft = scrollContainer.ToScreenSpace(scrollContainer.DrawRectangle.TopLeft);
+                var bottomRight = scrollContainer.ToScreenSpace(scrollContainer.DrawRectangle.BottomRight);
+
+                return new RectangleF(
+                    topLeft.X,
+                    topLeft.Y,
+                    bottomRight.X - topLeft.X,
+                    bottomRight.Y - topLeft.Y
+                );
+            };
+
             scrollContainer.Add(drawable);
             entityReferences.Add(drawable);
             return Task.CompletedTask;
@@ -153,6 +174,14 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public BasicScrollContainer GetScrollContainer() => scrollContainer;
 
+        public void RepositionItems()
+        {
+            for (int i = 0; i < entityReferences.Count; i++)
+            {
+                entityReferences[i].MoveToY(i * entityReferences[i].Height + Spacing.Value, SORT_DURATION, Easing.InOutCirc);
+            }
+        }
+
         public void Sort(string condition, bool reversed)
         {
             List<dynamic[]> newList = new();
@@ -186,7 +215,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             {
                 EntityInfoDrawable entityInfoDrawable = pair[1];
                 entityInfoDrawable.MoveToY(yPos, SORT_DURATION, Easing.InOutCirc);
-                yPos += 110;
+                yPos += (int)entityInfoDrawable.Height + Spacing.Value;
             }
 
             for (int i = 0; i < newList.Count; i++)

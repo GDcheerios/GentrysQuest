@@ -1,16 +1,21 @@
+using System.Linq;
+using GentrysQuest.Game.Overlays.Inventory;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
     public partial class CharacterInfoDrawable : EntityInfoDrawable
     {
-        public FillFlowContainer ArtifactContainer { get; private set; }
+        public FillFlowContainer EquippedItemContainer { get; private set; }
+
+        private readonly Vector2 size = new(64);
 
         public CharacterInfoDrawable(Character entity)
             : base(entity)
         {
-            AddInternal(ArtifactContainer = new FillFlowContainer
+            AddInternal(EquippedItemContainer = new FillFlowContainer
             {
                 Name = "ArtifactContainer",
                 Direction = FillDirection.Horizontal,
@@ -22,11 +27,16 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             var artifacts = entity.Artifacts.Get();
 
+            EquippedItemContainer.Add(new EquipPanel(entity.Weapon)
+            {
+                Size = size,
+                Margin = new MarginPadding { Right = 20 }
+            });
+
             for (var index = 0; index < 5; index++)
             {
-                var artifact = artifacts[index];
-                ArtifactIcon anIcon = new ArtifactIcon(artifact);
-                ArtifactContainer.Add(anIcon);
+                var artifact = artifacts.ElementAtOrDefault(index);
+                EquippedItemContainer.Add(new EquipPanel(artifact) { Size = size });
             }
         }
     }

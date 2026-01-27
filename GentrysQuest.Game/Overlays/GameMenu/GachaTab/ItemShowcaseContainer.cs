@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
+using osuTK;
 
 namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 {
@@ -15,46 +16,116 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             RelativeSizeAxes = Axes.Both
         };
 
-        private double lastInput;
-        private bool isReversed;
-        private const float scroll_speed = 0.5f;
-        private const float interval = 3000;
+        private double lastInputTime;
+        private double lastEdgeHitTime;
+        private bool towardsEnd = true;
+
+        private const double pause_after_input_ms = 3000;
+        private const double pause_on_edge_ms = 2000;
+        private const float auto_scroll_speed = 3500;
+        private const float extra_padding = 50;
 
         [BackgroundDependencyLoader]
         private void load()
         {
+            Name = "Item Showcase Container";
             RelativeSizeAxes = Axes.Both;
             Child = entityInfoListContainer;
             _ = entityInfoListContainer.AddFromList(entities);
+            entityInfoListContainer.GetScrollContainer().ScrollbarVisible = false;
+            entityInfoListContainer.GetEntityInfoDrawables().ForEach(drawable =>
+            {
+                drawable.Level.Hide();
+                drawable.BuffContainer.Hide();
+
+                drawable.EdgeFadeStart = 50f;
+                drawable.MinAlphaAwayFromCentre = 0.01f;
+                drawable.MinScaleAwayFromCentre = 0.01f;
+
+                drawable.Width = 1;
+                drawable.NameText.Scale = new Vector2(0.8f);
+                drawable.StarRatingContainer.Scale = new Vector2(0.8f);
+                drawable.Height = 80;
+
+                switch (drawable)
+                {
+                    case CharacterInfoDrawable characterDrawable:
+                        characterDrawable.EquippedItemContainer.Hide();
+                        break;
+
+                    case ArtifactInfoDrawable artifactDrawable:
+                        artifactDrawable.BuffContainer.Hide();
+                        break;
+
+                    case WeaponInfoDrawable weaponDrawable:
+                        weaponDrawable.BuffContainer.Hide();
+                        break;
+                }
+            });
             entityInfoListContainer.Sort("Name", false);
             entityInfoListContainer.Sort("Star Rating", false);
+        }
+
+        private void registerInput()
+        {
+            lastInputTime = Time.Current;
         }
 
         protected override void OnDrag(DragEvent e)
         {
             base.OnDrag(e);
-            lastInput = Time.Current;
+            registerInput();
         }
 
         protected override bool OnScroll(ScrollEvent e)
         {
-            lastInput = Time.Current;
+            registerInput();
             return base.OnScroll(e);
+        }
+
+        protected override bool OnMouseDown(MouseDownEvent e)
+        {
+            registerInput();
+            return base.OnMouseDown(e);
         }
 
         protected override void Update()
         {
             base.Update();
 
-            // if (!(Time.Current - lastInput > interval)) return;
-            //
-            // BasicScrollContainer scrollContainer = entityInfoListContainer.GetScrollContainer();
-            // scrollContainer.Y += isReversed ? scroll_speed : -scroll_speed * (float)Time.Elapsed;
-            //
-            // if (scrollContainer.Y <= 0 || scrollContainer.Y >= scrollContainer.Height)
-            // {
-            //     isReversed = !isReversed;
-            // }
+            if (Time.Current - lastInputTime < pause_after_input_ms)
+                return;
+
+            if (Time.Current - lastEdgeHitTime < pause_on_edge_ms)
+                return;
+
+            BasicScrollContainer scrollContainer = entityInfoListContainer.GetScrollContainer();
+
+            const double min = 0 + -extra_padding;
+            double max = scrollContainer.ScrollableExtent + extra_padding;
+
+            double dt = Time.Elapsed / 1000.0;
+            double direction = towardsEnd ? 1 : -1;
+
+            double target = scrollContainer.Current + direction * auto_scroll_speed * dt;
+
+            if (target <= min)
+            {
+                scrollContainer.ScrollTo(min);
+                towardsEnd = true;
+                lastEdgeHitTime = Time.Current;
+                return;
+            }
+
+            if (target >= max)
+            {
+                scrollContainer.ScrollTo(max);
+                towardsEnd = false;
+                lastEdgeHitTime = Time.Current;
+                return;
+            }
+
+            scrollContainer.ScrollTo(target);
         }
     }
 }

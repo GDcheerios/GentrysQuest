@@ -47,7 +47,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 name.Hide();
                 stats.Anchor = Anchor.CentreLeft;
                 stats.Origin = Anchor.CentreRight;
-                stats.Text = buff.Level + (buff.IsPercent ? "%" : "");
+                if (buff != null) stats.Text = buff.Level + (buff.IsPercent ? "%" : "");
                 stats.Font = FontUsage.Default.With(size: 12);
                 stats.Position = new Vector2(-6, 0);
                 Padding = new MarginPadding { Top = 2, Bottom = 2 };

@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Content.Gachas;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
@@ -28,6 +29,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
             user.Value = GuestUser.Create("testy");
             profileButton = new ProfileButton();
             Add(gameMenuOverlay = new GameMenuOverlay { Y = -100 });
+            gameMenuOverlay.GachaContainer.LoadGacha(new GameGacha());
             gameMenuOverlay.Disappear();
         }
 

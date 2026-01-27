@@ -6,26 +6,34 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Utils;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
     public partial class EntityInfoDrawable : GqButton
     {
-        protected EntityIconDrawable icon;
-        protected SpriteText name;
-        protected SpriteText level;
-        protected TextFlowContainer mainInfoContainer;
-        public StarRatingContainer starRatingContainer;
+        public EntityIconDrawable Icon;
+        public SpriteText NameText;
+        public SpriteText Level;
+        public TextFlowContainer MainInfoContainer;
+        public StarRatingContainer StarRatingContainer;
         public EntityBase entity;
-        protected Container BuffContainer;
+        public Container BuffContainer;
         protected Box ColourBox;
         public bool IsSelected { get; private set; }
         public event EventHandler OnClickEvent;
+        public Func<RectangleF>? GetViewportScreenSpaceRect { get; set; }
+
+        public float EdgeFadeStart { get; set; } = 0;
+
+        public float MinAlphaAwayFromCentre { get; set; } = 1;
+        public float MinScaleAwayFromCentre { get; set; } = 1;
 
         public EntityInfoDrawable(EntityBase entity)
         {
@@ -62,7 +70,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                             Size = new Vector2(60),
-                            Child = icon = new EntityIconDrawable()
+                            Child = Icon = new EntityIconDrawable()
                         },
                         new FillFlowContainer
                         {
@@ -73,7 +81,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                             Padding = new MarginPadding { Left = 5, Right = 20 },
                             Children = new Drawable[]
                             {
-                                name = new SpriteText
+                                NameText = new SpriteText
                                 {
                                     Text = entity.Name,
                                     Size = new Vector2(200, 35),
@@ -81,13 +89,13 @@ namespace GentrysQuest.Game.Entity.Drawables
                                     Truncate = true,
                                     AllowMultiline = false
                                 },
-                                starRatingContainer = new StarRatingContainer(entity.StarRating.Value)
+                                StarRatingContainer = new StarRatingContainer(entity.StarRating.Value)
                                 {
                                     Size = new Vector2(200, 40)
                                 }
                             }
                         },
-                        level = new SpriteText
+                        Level = new SpriteText
                         {
                             Text = entity.Experience.Level.ToString(),
                             Size = new Vector2(120, 35),
@@ -113,21 +121,21 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Origin = Anchor.CentreRight,
                 }
             };
-            starRatingContainer.starRating.BindValueChanged(updateColorWithStarRating, true);
-            entity.Experience.Level.Current.ValueChanged += delegate { level.Text = entity.Experience.Level.ToString(); };
+            StarRatingContainer.starRating.BindValueChanged(updateColorWithStarRating, true);
+            entity.Experience.Level.Current.ValueChanged += delegate { Level.Text = entity.Experience.Level.ToString(); };
         }
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            if (entity.TextureMapping != null) icon.Texture = textures.Get(entity.TextureMapping.Get("Icon"));
+            if (entity.TextureMapping != null) Icon.Texture = textures.Get(entity.TextureMapping.Get("Icon"));
         }
 
         protected override bool OnHover(HoverEvent e)
         {
             this.ScaleTo(new Vector2(1.05f, 1f), 30);
-            name.FadeColour(StarRatingContainer.GetColor(entity.StarRating.Value));
-            name.ScaleTo(1.1f, 30);
+            NameText.FadeColour(StarRatingContainer.GetColor(entity.StarRating.Value));
+            NameText.ScaleTo(1.1f, 30);
 
             BorderColour = StarRatingContainer.GetColor(entity.StarRating.Value);
             return base.OnHover(e);
@@ -139,8 +147,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             {
                 BorderColour = Colour4.Black;
                 this.ScaleTo(new Vector2(1f, 1f), 30);
-                name.FadeColour(Colour4.White, 30);
-                name.ScaleTo(1f, 30);
+                NameText.FadeColour(Colour4.White, 30);
+                NameText.ScaleTo(1f, 30);
             }
 
             base.OnHoverLost(e);
@@ -185,8 +193,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             BorderColour = Colour4.Black;
             EdgeEffect = new EdgeEffectParameters();
             this.ScaleTo(new Vector2(1f, 1f), 30);
-            name.FadeColour(Colour4.White, 30);
-            name.ScaleTo(1f, 30);
+            NameText.FadeColour(Colour4.White, 30);
+            NameText.ScaleTo(1f, 30);
         }
 
         private void updateColorWithStarRating(ValueChangedEvent<int> valueChangedEvent)
@@ -218,6 +226,33 @@ namespace GentrysQuest.Game.Entity.Drawables
                     ColourBox.Colour = ColourInfo.GradientHorizontal(new Colour4(0, 0, 0, 0), Colour4.Gold);
                     break;
             }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (GetViewportScreenSpaceRect == null)
+                return;
+
+            RectangleF viewport = GetViewportScreenSpaceRect();
+            float myY = ToScreenSpace(DrawRectangle.Centre).Y;
+            float distToTop = myY - viewport.Top;
+            float distToBottom = viewport.Bottom - myY;
+            float distToNearestEdge = Math.Min(distToTop, distToBottom);
+            float t = Math.Clamp(distToNearestEdge / EdgeFadeStart, 0f, 1f);
+
+            float targetAlpha = MinAlphaAwayFromCentre + (1f - MinAlphaAwayFromCentre) * t;
+            float targetScale = MinScaleAwayFromCentre + (1f - MinScaleAwayFromCentre) * t;
+
+            float dt = (float)(Time.Elapsed / 1000.0);
+
+            const float speed = 18f;
+            float s = 1f - (float)Math.Exp(-speed * dt);
+
+            Alpha = (float)Interpolation.Lerp(Alpha, targetAlpha, s);
+            double newScale = Interpolation.Lerp(Scale.X, targetScale, s);
+            Scale = new Vector2((float)newScale);
         }
     }
 }

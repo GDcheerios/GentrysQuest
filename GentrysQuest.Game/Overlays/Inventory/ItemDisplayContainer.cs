@@ -341,6 +341,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
+                    Size = new Vector2(84),
                     Margin = new MarginPadding { Left = 50 },
                     Name = "Weapon",
                     Action = () => { inventoryReference.ClickWeapon(); }
@@ -358,6 +359,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                         Origin = Anchor.CentreLeft,
                         Name = $"Artifact{i}",
                         X = 175 + (i * 85),
+                        Size = new Vector2(84),
                         Action = () => { inventoryReference.ClickArtifact(i1); }
                     };
                     artifactPanel.SetRemoveAction(() => inventoryReference.RemoveArtifact(i1));
