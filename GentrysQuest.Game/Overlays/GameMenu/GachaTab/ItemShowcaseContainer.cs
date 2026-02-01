@@ -38,7 +38,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                 drawable.Level.Hide();
                 drawable.BuffContainer.Hide();
 
-                drawable.EdgeFadeStart = 50f;
+                drawable.EdgeFadeStart = 80f;
                 drawable.MinAlphaAwayFromCentre = 0.01f;
                 drawable.MinScaleAwayFromCentre = 0.01f;
 
@@ -64,6 +64,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             });
             entityInfoListContainer.Sort("Name", false);
             entityInfoListContainer.Sort("Star Rating", false);
+            entityInfoListContainer.AddPadding((int)extra_padding);
         }
 
         private void registerInput()
@@ -101,8 +102,8 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 
             BasicScrollContainer scrollContainer = entityInfoListContainer.GetScrollContainer();
 
-            const double min = 0 + -extra_padding;
-            double max = scrollContainer.ScrollableExtent + extra_padding;
+            const double min = 0;
+            double max = scrollContainer.ScrollableExtent;
 
             double dt = Time.Elapsed / 1000.0;
             double direction = towardsEnd ? 1 : -1;

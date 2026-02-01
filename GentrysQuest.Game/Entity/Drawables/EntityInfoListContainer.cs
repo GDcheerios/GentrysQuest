@@ -122,6 +122,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             for (int i = 0; i < entityList.Count; i++) await addEntity(entityList[i]);
         }
 
+        public void AddPadding(int padding) => scrollContainer.Padding = new MarginPadding { Bottom = padding, Top = padding };
+
         private async Task drawableFadeOut(EntityInfoDrawable drawable)
         {
             drawable.FadeOut(DELAY);
@@ -184,13 +186,13 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public void Sort(string condition, bool reversed)
         {
-            List<dynamic[]> newList = new();
-
-            foreach (var drawable in scrollContainer.Children)
-            {
-                var entityInfoDrawable = (EntityInfoDrawable)drawable;
-                newList.Add(new dynamic[] { entityInfoDrawable.entity, entityInfoDrawable });
-            }
+            List<dynamic[]> newList = (
+                from EntityInfoDrawable entityInfoDrawable in scrollContainer.Children
+                select new dynamic[]
+                {
+                    entityInfoDrawable.entity, entityInfoDrawable
+                }
+            ).ToList();
 
             switch (condition)
             {
