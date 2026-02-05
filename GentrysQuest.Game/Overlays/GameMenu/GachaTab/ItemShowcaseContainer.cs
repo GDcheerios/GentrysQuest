@@ -38,7 +38,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                 drawable.Level.Hide();
                 drawable.BuffContainer.Hide();
 
-                drawable.EdgeFadeStart = 80f;
+                drawable.EdgeFadeStart = 40f;
                 drawable.MinAlphaAwayFromCentre = 0.01f;
                 drawable.MinScaleAwayFromCentre = 0.01f;
 

@@ -65,7 +65,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             MaxValue = 20
         };
 
-        private GqText GachaName = new GqText("")
+        private readonly GqText gachaName = new("")
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -107,7 +107,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             Logger.Log($"Loading gacha {gacha.Name} {gacha.Price} {gacha.Weapons.Count} {gacha.Characters.Count}");
             weaponContainer.Child = new ItemShowcaseContainer([..gacha.Weapons]);
             characterContainer.Child = new ItemShowcaseContainer([..gacha.Characters]);
-            GachaName.Text = gacha.Name;
+            gachaName.Text = gacha.Name;
         }
 
         public void AnimateShow()
@@ -162,7 +162,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                             RelativeSizeAxes = Axes.Both,
                             Colour = Colour4.Gray,
                         },
-                        GachaName,
+                        gachaName,
                         weaponContainer,
                         weaponAmountSelectionBox,
                         new GqText("Weapons")
