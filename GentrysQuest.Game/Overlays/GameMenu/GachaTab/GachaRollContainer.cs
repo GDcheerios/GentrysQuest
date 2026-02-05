@@ -1,6 +1,12 @@
+using osu.Framework.Graphics.Containers;
+
 namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab;
 
-public class GachaRollContainer
+public partial class GachaRollContainer : Container
 {
-    
+    private FillFlowContainer items;
+
+    public GachaRollContainer()
+    {
+    }
 }
