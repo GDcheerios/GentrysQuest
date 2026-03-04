@@ -108,6 +108,26 @@ namespace GentrysQuest.Game.Utils
         public static bool IsChanceSuccessful(float passingValue) => passingValue >= RandomFloat();
         public static int RandomChoice(int size) => Random.Shared.Next(size);
 
+        /// <summary>
+        /// Get a random star rating.
+        /// </summary>
+        /// <returns></returns>
+        public static int RandomGachaStarRating()
+        {
+            int chance = RandomInt(0, 10000);
+
+            int starRating = chance switch
+            {
+                < 50 => 5,
+                < 500 => 4,
+                < 1500 => 3,
+                < 5000 => 2,
+                _ => 1
+            };
+
+            return starRating;
+        }
+
         #endregion
 
         #region TimeMath
@@ -139,7 +159,6 @@ namespace GentrysQuest.Game.Utils
         /// <returns>the star rating</returns>
         public static int GetStarRating(int difficulty)
         {
-            // difficulty starts at zero so we add one
             int currentStarRating = difficulty + 1;
             if (IsChanceSuccessful(0.15f)) currentStarRating++;
             if (IsChanceSuccessful(0.03f)) currentStarRating++;
@@ -148,11 +167,9 @@ namespace GentrysQuest.Game.Utils
 
         public static float CalculateShortestRotation(float currentRotation, float targetRotation)
         {
-            // Normalize angles to [0, 360)
             currentRotation = (currentRotation % 360 + 360) % 360;
             targetRotation = (targetRotation % 360 + 360) % 360;
 
-            // Determine shortest rotation direction and angle
             float rotationDifference = targetRotation - currentRotation;
 
             if (rotationDifference > 180)
