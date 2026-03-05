@@ -45,6 +45,7 @@ namespace GentrysQuest.Game.Gachas
             for (int i = 0; i < amount; i++)
             {
                 int starRating = MathBase.RandomGachaStarRating();
+                while (Characters.Count(w => w.StarRating == starRating) == 0) starRating = MathBase.RandomGachaStarRating();
                 List<Character> validCharacters = Characters.Where(c => c.StarRating == starRating).ToList();
                 rolledCharacters.Add(validCharacters[MathBase.RandomChoice(validCharacters.Count)]);
             }
@@ -77,18 +78,19 @@ namespace GentrysQuest.Game.Gachas
         {
             int price = (int)(Price * amount);
             List<Weapon> rolledWeapons = [];
-            if (!user.MoneyHandler.CanAfford((int)(Price * amount))) return [];
+            if (user.MoneyHandler != null && !user.MoneyHandler.CanAfford((int)(Price * amount))) return [];
 
             for (int i = 0; i < amount; i++)
             {
                 int starRating = MathBase.RandomGachaStarRating();
+                while (Weapons.Count(w => w.StarRating == starRating) == 0) starRating = MathBase.RandomGachaStarRating();
                 List<Weapon> validWeapons = Weapons.Where(w => w.StarRating == starRating).ToList();
                 Weapon weapon = validWeapons[MathBase.RandomChoice(validWeapons.Count)];
                 rolledWeapons.Add(weapon);
                 user.AddItem(weapon);
             }
 
-            if (rolledWeapons.Count != 0) user.MoneyHandler.Spend(price);
+            if (rolledWeapons.Count != 0) user.MoneyHandler!.Spend(price);
             return rolledWeapons;
         }
     }

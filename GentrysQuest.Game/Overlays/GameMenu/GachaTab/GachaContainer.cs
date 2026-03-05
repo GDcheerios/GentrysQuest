@@ -108,6 +108,11 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             weaponContainer.Child = new ItemShowcaseContainer([..gacha.Weapons]);
             characterContainer.Child = new ItemShowcaseContainer([..gacha.Characters]);
             gachaName.Text = gacha.Name;
+            rollButton.SetAction(() =>
+            {
+                gacha.RollCharacter(characterAmountSelectionBox.GetAmount(), user.Value);
+                gacha.RollWeapon(weaponAmountSelectionBox.GetAmount(), user.Value);
+            });
         }
 
         public void AnimateShow()
