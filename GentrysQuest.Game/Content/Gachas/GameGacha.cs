@@ -33,7 +33,12 @@ namespace GentrysQuest.Game.Content.Gachas
                 new Knife(),
                 new Spear(),
                 new BraydensOsuPen(),
-                new BrodysBroadsword()
+                new BrodysBroadsword(),
+                new TestWeapon(1),
+                new TestWeapon(2),
+                new TestWeapon(3),
+                new TestWeapon(4),
+                new TestWeapon(5)
             ];
         }
     }

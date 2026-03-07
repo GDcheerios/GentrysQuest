@@ -53,12 +53,11 @@ namespace GentrysQuest.Game.Gachas
             if (rolledCharacters.Count != 0)
             {
                 user.MoneyHandler.Spend(price);
-
                 List<Character> duplicateCharacters = [];
 
                 foreach (Character rolledCharacter in rolledCharacters)
                 {
-                    duplicateCharacters.AddRange(from userCharacter in user.Characters where rolledCharacter.Name == userCharacter.Name select rolledCharacter);
+                    duplicateCharacters.AddRange(from userCharacter in user.Characters where rolledCharacter.Name == userCharacter.Name && rolledCharacter.StarRating == userCharacter.StarRating select rolledCharacter);
                     if (!duplicateCharacters.Contains(rolledCharacter)) user.Characters.Add(rolledCharacter);
                 }
 

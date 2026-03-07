@@ -118,10 +118,10 @@ namespace GentrysQuest.Game.Utils
 
             int starRating = chance switch
             {
-                < 50 => 5,
-                < 500 => 4,
-                < 1500 => 3,
-                < 5000 => 2,
+                <= 50 => 5,
+                <= 500 => 4,
+                <= 1500 => 3,
+                <= 5000 => 2,
                 _ => 1
             };
 

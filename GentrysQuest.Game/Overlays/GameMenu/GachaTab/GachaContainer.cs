@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System;
 using GentrysQuest.Game.Content.Gachas;
+using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Gachas;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.UserInterface;
@@ -17,11 +20,15 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 {
     public partial class GachaContainer : Container
     {
+        private const int full_size_pull_threshold = 7;
+        private const float min_pull_scale = 0.35f;
+
         [Resolved]
         private Bindable<IUser> user { get; set; }
 
         private Container leftContainer;
         private Container rightContainer;
+        private FillFlowContainer<GachaRollContainer> pullContainer;
 
         private readonly Container characterContainer = new Container
         {
@@ -51,7 +58,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             Y = 100,
             Size = new Vector2(0.35f),
             Margin = new MarginPadding { Right = 35 },
-            MaxValue = 20
+            MaxValue = 10
         };
 
         private readonly AmountSelectionBox weaponAmountSelectionBox = new()
@@ -62,7 +69,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             Y = 100,
             Size = new Vector2(0.35f),
             Margin = new MarginPadding { Left = 35 },
-            MaxValue = 20
+            MaxValue = 10
         };
 
         private readonly GqText gachaName = new("")
@@ -110,9 +117,40 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             gachaName.Text = gacha.Name;
             rollButton.SetAction(() =>
             {
-                gacha.RollCharacter(characterAmountSelectionBox.GetAmount(), user.Value);
-                gacha.RollWeapon(weaponAmountSelectionBox.GetAmount(), user.Value);
+                List<Character> characterResults = gacha.RollCharacter(characterAmountSelectionBox.GetAmount(), user.Value);
+                List<Weapon> weaponResults = gacha.RollWeapon(weaponAmountSelectionBox.GetAmount(), user.Value);
+                setUpRollAnimation(gacha, characterResults, weaponResults);
             });
+        }
+
+        private void setUpRollAnimation(Gacha gacha, List<Character> characterResults, List<Weapon> weaponResults)
+        {
+            leftContainer.FadeOut(200);
+            rightContainer.FadeOut(200);
+            pullContainer.FadeIn(200);
+            updatePullScale(characterResults.Count + weaponResults.Count);
+
+            foreach (Character characterResult in characterResults) pullContainer.Add(new GachaRollContainer([..gacha.Characters], characterResult));
+            foreach (Weapon weaponResult in weaponResults) pullContainer.Add(new GachaRollContainer([..gacha.Weapons], weaponResult));
+
+            Scheduler.AddDelayed(() =>
+            {
+                leftContainer.FadeIn(200);
+                rightContainer.FadeIn(200);
+                pullContainer.FadeOut(200);
+                pullContainer.Clear();
+                pullContainer.ScaleTo(new Vector2(1f), 0);
+            }, 8000);
+        }
+
+        private void updatePullScale(int totalPulls)
+        {
+            float targetScale = 1f;
+
+            if (totalPulls > full_size_pull_threshold)
+                targetScale = MathF.Max(min_pull_scale, (float)full_size_pull_threshold / totalPulls);
+
+            pullContainer.ScaleTo(new Vector2(targetScale), 200, Easing.OutQuint);
         }
 
         public void AnimateShow()
@@ -194,6 +232,12 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                             Margin = new MarginPadding { Bottom = 25 }
                         }
                     ]
+                },
+                pullContainer = new FillFlowContainer<GachaRollContainer>
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre
                 }
             ];
         }
