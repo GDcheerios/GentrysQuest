@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Location.Drawables;
 using osu.Framework.Graphics;
@@ -10,7 +9,6 @@ namespace GentrysQuest.Game.Location
     public class Map
     {
         public string Name { get; protected set; }
-        public List<Family> Families { get; } = new();
         public List<MapObject> Objects { get; } = new();
         public List<DrawableEntity> Npcs { get; } = new();
         public Vector2 Size { get; protected set; } = Vector2.Zero;

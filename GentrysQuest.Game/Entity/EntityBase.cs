@@ -13,7 +13,7 @@ namespace GentrysQuest.Game.Entity
         public Experience Experience { get; protected set; } = new();
 
         [CanBeNull]
-        public TextureMapping TextureMapping { get; protected set; } = null;
+        public TextureMapping TextureMapping { get; protected set; } = new();
 
         public DrawableTexture DrawableTexture { get; protected set; } = new();
 

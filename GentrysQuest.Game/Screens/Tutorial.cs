@@ -23,7 +23,7 @@ using osu.Framework.Screens;
 using osuTK;
 using osuTK.Input;
 using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
-using Keyboard = GentrysQuest.Game.Content.Families.Intro.Keyboard;
+using Keyboard = GentrysQuest.Game.Content.Artifacts.Keyboard;
 
 namespace GentrysQuest.Game.Screens
 {

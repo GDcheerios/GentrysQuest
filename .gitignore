@@ -61,6 +61,8 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+!GentrysQuest.Game/Content/Artifacts/
+!GentrysQuest.Game/Content/Artifacts/**
 
 # StyleCop
 StyleCopReport.xml
