@@ -38,6 +38,8 @@ namespace GentrysQuest.Game.Gachas
         /// <returns>List of the retrieved characters</returns>
         public List<Character> RollCharacter(int amount, IUser user)
         {
+            if (amount <= 0 || Characters.Count == 0) return [];
+
             int price = (int)(Price * amount);
             List<Character> rolledCharacters = [];
             if (!user.MoneyHandler.CanAfford(price)) return [];
@@ -61,7 +63,7 @@ namespace GentrysQuest.Game.Gachas
                     if (!duplicateCharacters.Contains(rolledCharacter)) user.Characters.Add(rolledCharacter);
                 }
 
-                foreach (Character _ in duplicateCharacters) user.AddItem(new EmptyGachaContainer());
+                foreach (Character character in duplicateCharacters) user.AddItem(new EmptyGachaContainer(character.StarRating));
             }
 
             return rolledCharacters;
@@ -75,6 +77,8 @@ namespace GentrysQuest.Game.Gachas
         /// <returns>List of the retrieved weapons</returns>
         public List<Weapon> RollWeapon(int amount, IUser user)
         {
+            if (amount <= 0 || Weapons.Count == 0) return [];
+
             int price = (int)(Price * amount);
             List<Weapon> rolledWeapons = [];
             if (user.MoneyHandler != null && !user.MoneyHandler.CanAfford((int)(Price * amount))) return [];

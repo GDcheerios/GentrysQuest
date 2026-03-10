@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using System;
-using GentrysQuest.Game.Content.Gachas;
+using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Gachas;
@@ -29,6 +28,10 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
         private Container leftContainer;
         private Container rightContainer;
         private FillFlowContainer<GachaRollContainer> pullContainer;
+        private Container resultsOverlay;
+        private FillFlowContainer resultsList;
+        private GqText resultsTitle;
+        private MainGqButton resultsContinueButton;
 
         private readonly Container characterContainer = new Container
         {
@@ -89,10 +92,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             RelativeSizeAxes = Axes.Both
         };
 
-        private readonly List<Gacha> gachas =
-        [
-            new StarterGacha()
-        ];
+        private readonly List<Gacha> gachas = [];
 
         public GachaContainer()
         {
@@ -117,14 +117,22 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
             gachaName.Text = gacha.Name;
             rollButton.SetAction(() =>
             {
-                List<Character> characterResults = gacha.RollCharacter(characterAmountSelectionBox.GetAmount(), user.Value);
-                List<Weapon> weaponResults = gacha.RollWeapon(weaponAmountSelectionBox.GetAmount(), user.Value);
+                int characterAmount = characterAmountSelectionBox.GetAmount();
+                int weaponAmount = weaponAmountSelectionBox.GetAmount();
+                int totalPulls = characterAmount + weaponAmount;
+                int totalPrice = (int)gacha.Price * totalPulls;
+
+                if (totalPulls == 0 || !user.Value.MoneyHandler.CanAfford(totalPrice)) return;
+
+                List<Character> characterResults = gacha.RollCharacter(characterAmount, user.Value);
+                List<Weapon> weaponResults = gacha.RollWeapon(weaponAmount, user.Value);
                 setUpRollAnimation(gacha, characterResults, weaponResults);
             });
         }
 
         private void setUpRollAnimation(Gacha gacha, List<Character> characterResults, List<Weapon> weaponResults)
         {
+            hideResultsOverlay(immediate: true);
             leftContainer.FadeOut(200);
             rightContainer.FadeOut(200);
             pullContainer.FadeIn(200);
@@ -140,7 +148,60 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                 pullContainer.FadeOut(200);
                 pullContainer.Clear();
                 pullContainer.ScaleTo(new Vector2(1f), 0);
+                showResultsOverlay(characterResults, weaponResults);
             }, 8000);
+        }
+
+        private void showResultsOverlay(List<Character> characterResults, List<Weapon> weaponResults)
+        {
+            resultsList.Clear();
+
+            int totalResults = characterResults.Count + weaponResults.Count;
+            resultsTitle.Text = totalResults > 0
+                ? $"You obtained {totalResults} item{(totalResults == 1 ? "" : "s")}"
+                : "No items obtained";
+
+            foreach (Character character in characterResults)
+                resultsList.Add(createResultText("Character", character));
+
+            foreach (Weapon weapon in weaponResults)
+                resultsList.Add(createResultText("Weapon", weapon));
+
+            if (totalResults == 0)
+            {
+                resultsList.Add(new GqText("You pulled nothing lol.")
+                {
+                    Font = FontUsage.Default.With(size: 28),
+                });
+            }
+
+            resultsOverlay.Show();
+            resultsOverlay.ClearTransforms();
+            resultsOverlay.FadeOut(0);
+            resultsOverlay.FadeIn(250, Easing.OutQuint);
+        }
+
+        private GqText createResultText(string itemType, EntityBase item)
+        {
+            return new GqText($"[{itemType}] {item.Name} ({item.StarRating.Value}-Star)")
+            {
+                Font = FontUsage.Default.With(size: 30),
+                Colour = item.StarRating.GetColor(),
+            };
+        }
+
+        private void hideResultsOverlay(bool immediate = false)
+        {
+            resultsOverlay.ClearTransforms();
+
+            if (immediate)
+            {
+                resultsOverlay.FadeOut(0);
+                resultsOverlay.Hide();
+                return;
+            }
+
+            resultsOverlay.FadeOut(200).OnComplete(_ => resultsOverlay.Hide());
         }
 
         private void updatePullScale(int totalPulls)
@@ -238,8 +299,73 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
+                },
+                resultsOverlay = new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = 0,
+                    Children =
+                    [
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = new Colour4(0, 0, 0, 180)
+                        },
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Size = new Vector2(0.6f, 0.7f),
+                            Masking = true,
+                            CornerRadius = 12,
+                            CornerExponent = 2,
+                            Children =
+                            [
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = new Colour4(28, 28, 28, 255)
+                                },
+                                new FillFlowContainer
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Vertical,
+                                    Padding = new MarginPadding(24),
+                                    Spacing = new Vector2(0, 12),
+                                    Children =
+                                    [
+                                        resultsTitle = new GqText("You obtained")
+                                        {
+                                            Font = FontUsage.Default.With(size: 42),
+                                        },
+                                        new BasicScrollContainer
+                                        {
+                                            RelativeSizeAxes = Axes.Both,
+                                            Height = 0.75f,
+                                            Child = resultsList = new FillFlowContainer
+                                            {
+                                                RelativeSizeAxes = Axes.X,
+                                                AutoSizeAxes = Axes.Y,
+                                                Direction = FillDirection.Vertical,
+                                                Spacing = new Vector2(0, 8)
+                                            }
+                                        },
+                                        resultsContinueButton = new MainGqButton("Continue")
+                                        {
+                                            Width = 220,
+                                            Height = 56
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
                 }
             ];
+
+            resultsOverlay.Hide();
+            resultsContinueButton.SetAction(() => hideResultsOverlay());
         }
     }
 }

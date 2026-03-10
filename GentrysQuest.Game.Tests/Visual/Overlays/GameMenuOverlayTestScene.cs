@@ -35,7 +35,11 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [Test]
         public void Test()
         {
-            AddStep("Create User", () => user.Value = new GuestUser("testy"));
+            AddStep("Create User", () =>
+            {
+                user.Value = new GuestUser("testy");
+                user.Value.MoneyHandler.InfiniteMoney = true;
+            });
             AddStep("Appear", () => gameMenuOverlay.Appear());
             AddStep("Disappear", () => gameMenuOverlay.Disappear());
         }
