@@ -41,6 +41,11 @@ namespace GentrysQuest.Game.Entity
         public List<StatusEffect> StatusEffects = new();
 
         /// <summary>
+        /// If this attack ignores defense
+        /// </summary>
+        public bool IgnoreDefense = false;
+
+        /// <summary>
         /// Get the amount of times the sender has attacked the receiver
         /// </summary>
         /// <returns>The hit count of Receiver</returns>

@@ -1,5 +1,5 @@
-﻿using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Families;
+﻿using GentrysQuest.Game.Content.Artifacts;
+using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
@@ -15,7 +15,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
         private EntityInfoDrawable entityInfoDrawable;
         private ArtifactInfoDrawable artifactInfoDrawable;
         private WeaponInfoDrawable weaponInfoDrawable;
-        private GentrysQuest.Game.Entity.Entity testEntity;
+        private Game.Entity.Entity testEntity;
         private Weapon testWeapon;
         private Artifact testArtifact;
 
@@ -32,7 +32,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             Add(weaponInfoDrawable = new WeaponInfoDrawable(testWeapon = new Knife()));
             AddSliderStep("Change the star rating", 1, 5, 1, i =>
             {
-                entityInfoDrawable.starRatingContainer.starRating.Value = i;
+                entityInfoDrawable.StarRatingContainer.starRating.Value = i;
             });
         }
     }

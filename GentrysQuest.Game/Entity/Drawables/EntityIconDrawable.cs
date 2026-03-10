@@ -1,5 +1,5 @@
-﻿using osu.Framework.Graphics.Sprites;
-using osuTK;
+﻿using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
@@ -7,8 +7,10 @@ namespace GentrysQuest.Game.Entity.Drawables
     {
         public EntityIconDrawable()
         {
-            // RelativePositionAxes = Axes.Both;
-            Scale = new Vector2(0.32f);
+            RelativeSizeAxes = Axes.Both;
+            FillMode = FillMode.Fit;
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
         }
     }
 }

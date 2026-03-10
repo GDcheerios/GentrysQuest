@@ -5,6 +5,7 @@ using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Graphics.UserInterface;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -38,8 +39,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
     private InventoryButton exchangeButton;
     private Container equipContainer;
     private Container equipsContainer;
-    private InventoryLevelUpBox levelUpBox;
-    private Container moneyControl;
+    private AmountSelectionBox levelUpBox;
 
     private const int DELAY = 25;
 
@@ -176,44 +176,21 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                             levelUpButton = new InventoryButton("Level Up")
                             {
                                 RelativeSizeAxes = Axes.Both,
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
                                 Width = 0.8f,
                                 Height = 0.45f
                             },
-                            moneyControl = new Container
+                            levelUpBox = new AmountSelectionBox
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Width = 1f,
-                                Height = 0.45f,
-                                Y = 140,
-                                Children =
-                                [
-                                    levelUpBox = new InventoryLevelUpBox()
-                                    {
-                                        Width = 150
-                                    },
-                                    new InventoryButton("-")
-                                    {
-                                        RelativeSizeAxes = Axes.Both,
-                                        Width = 0.2f,
-                                        Height = 0.3f,
-                                        X = -100,
-                                        Action = () => { levelUpBox.DecreaseAmount(); }
-                                    },
-                                    new InventoryButton("+")
-                                    {
-                                        RelativeSizeAxes = Axes.Both,
-                                        Width = 0.2f,
-                                        Height = 0.3f,
-                                        X = 100,
-                                        Action = () => { levelUpBox.IncreaseAmount(); }
-                                    }
-                                ]
+                                Prefix = "$",
+                                RelativeSizeAxes = Axes.X,
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Y = 40
                             },
                             exchangeButton = new InventoryButton("Exchange")
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Width = 0.8f,
-                                Height = 0.3f,
                                 Y = 150
                             },
                         ]
@@ -317,24 +294,6 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
         descriptionContainer.Clear();
         string description = entity.Description;
 
-        if (entity is Artifact)
-        {
-            Artifact artifact = (Artifact)entity;
-            description += "\nApart of the " + artifact.family.Name + " "
-                           + "\nBuffs:";
-
-            string twoSetDescription = "\nTwo Set - "
-                                       + artifact.family.TwoSetBuff.BuffExplanation();
-            description += twoSetDescription;
-
-            if (artifact.family.FourSetBuff != null)
-            {
-                string fourSetDescription = "\nFour Set - "
-                                            + artifact.family.FourSetBuff.Explanation;
-                description += fourSetDescription;
-            }
-        }
-
         descriptionContainer.SetTaggedText(description);
 
         individualCharacterTime = textDuration / descriptionContainer.GetSpriteTexts().ToList().Count;
@@ -364,6 +323,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
+                    Size = new Vector2(84),
                     Margin = new MarginPadding { Left = 50 },
                     Name = "Weapon",
                     Action = () => { inventoryReference.ClickWeapon(); }
@@ -381,6 +341,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                         Origin = Anchor.CentreLeft,
                         Name = $"Artifact{i}",
                         X = 175 + (i * 85),
+                        Size = new Vector2(84),
                         Action = () => { inventoryReference.ClickArtifact(i1); }
                     };
                     artifactPanel.SetRemoveAction(() => inventoryReference.RemoveArtifact(i1));
@@ -399,13 +360,13 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
 
         if (entity is Artifact)
         {
-            moneyControl.FadeOut();
             levelUpButton.FadeOut();
             exchangeButton.SetAction(inventoryReference.StartArtifactExchange);
+            levelUpBox.FadeOut();
         }
         else
         {
-            moneyControl.FadeIn();
+            levelUpBox.FadeIn();
             levelUpButton.FadeIn();
             levelUpButton.SetAction(handleLevelUp);
             exchangeButton.SetAction(inventoryReference.StartWeaponExchange);

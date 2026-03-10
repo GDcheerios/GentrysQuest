@@ -68,7 +68,6 @@ namespace GentrysQuest.Game.Overlays.Inventory
         [BackgroundDependencyLoader]
         private void load(TextureStore store)
         {
-            Size = new Vector2(84);
             InternalChildren =
             [
                 icon = new Sprite

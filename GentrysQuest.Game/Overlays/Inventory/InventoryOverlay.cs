@@ -81,8 +81,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
             RelativePositionAxes = Axes.Both;
             Anchor = Anchor.Centre;
             Depth = -3;
-            InternalChildren = new Drawable[]
-            {
+            InternalChildren =
+            [
                 topButtons = new Container
                 {
                     Anchor = Anchor.TopCentre,
@@ -100,12 +100,12 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         Origin = Anchor.Centre,
                         Size = new Vector2(1),
                         Spacing = new Vector2(40),
-                        Children = new[]
-                        {
+                        Children =
+                        [
                             charactersButton = new InventoryButton("Characters"),
                             artifactsButton = new InventoryButton("Artifacts"),
                             weaponsButton = new InventoryButton("Weapons")
-                        }
+                        ]
                     }
                 },
                 itemContainerBox = new Container
@@ -232,8 +232,8 @@ namespace GentrysQuest.Game.Overlays.Inventory
                             ]
                         }
                     ]
-                },
-            };
+                }
+            ];
             Origin = Anchor.Centre;
             displayingSection.BindValueChanged(async void (_) =>
             {
@@ -317,7 +317,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         {
             string category;
 
-            moneyText.Text = $"${user?.MoneyHandler.Amount}";
+            moneyText.Text = $"${user?.MoneyHandler?.Amount}";
 
             switch (selectionMode)
             {
@@ -367,7 +367,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 item.OnClickEvent += (_, _) => handleEntityClick(item);
                 item.FadeOut();
-                item.starRatingContainer.starRating.Value = 0;
+                item.StarRatingContainer.starRating.Value = 0;
 
                 if (
                     (
@@ -405,7 +405,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             {
                 items[i].FadeIn(itemContainer.GetDelay());
                 var starRating = items[i].entity.StarRating;
-                items[i].starRatingContainer.starRating.Value = starRating;
+                items[i].StarRatingContainer.starRating.Value = starRating;
                 await Task.Delay(i >= itemContainer.GetDelayLimit() ? 0 : itemContainer.GetDelay());
             }
         }
