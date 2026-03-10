@@ -14,10 +14,16 @@ namespace GentrysQuest.Game.Entity
 
         public Artifact[] Get() => artifacts;
 
+        /// <summary>
+        /// Get the amount of artifacts of a certain name
+        /// </summary>
+        public int GetArtifactCountByName(string artifactName) => artifacts.Count(artifact => artifact != null && artifact.Name == artifactName);
+
         public void Equip(Artifact artifact, int index)
         {
-            artifacts[index] = artifact;
             artifact.Holder = parent;
+            if (GetArtifactCountByName(artifact.Name) == 0) artifact.OnEquip(parent);
+            artifacts[index] = artifact;
             OnChangeArtifact?.Invoke();
         }
 
@@ -28,6 +34,7 @@ namespace GentrysQuest.Game.Entity
             Artifact artifact = artifacts[index];
             artifacts[index].Holder = null;
             artifacts[index] = null;
+            if (GetArtifactCountByName(artifact.Name) == 0) artifact.OnUnequip(parent);
             OnChangeArtifact?.Invoke();
             return artifact;
         }
