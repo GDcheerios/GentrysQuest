@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Entity;
 
 namespace GentrysQuest.Game.ContentRegistry
@@ -8,10 +9,10 @@ namespace GentrysQuest.Game.ContentRegistry
     {
         private static readonly Dictionary<string, Func<Artifact>> map = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["Osu Tablet"] = () => new Content.Families.BraydenMesserschmidt.OsuTablet(),
-            ["Madoka Chibi Plush"] = () => new Content.Families.BraydenMesserschmidt.MadokaChibiPlush(),
-            ["Keyboard"] = () => new Content.Families.Intro.Keyboard(),
-            ["El Hefe"] = () => new Content.Families.JVee.ElHefe()
+            ["Osu Tablet"] = () => new OsuTablet(),
+            ["Madoka Chibi Plush"] = () => new MadokaChibiPlush(),
+            ["Keyboard"] = () => new Keyboard(),
+            ["El Hefe"] = () => new ElHefe()
         };
 
         public static Artifact Create(string key)

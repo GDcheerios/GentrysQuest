@@ -1,4 +1,4 @@
-using GentrysQuest.Game.Content.Families;
+using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using NUnit.Framework;

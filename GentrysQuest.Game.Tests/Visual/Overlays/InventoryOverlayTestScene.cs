@@ -1,9 +1,5 @@
-using GentrysQuest.Game.Content;
+using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Families;
-using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
-using GentrysQuest.Game.Content.Families.Intro;
-using GentrysQuest.Game.Content.Families.JVee;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Overlays.Inventory;
 using GentrysQuest.Game.Users;
@@ -36,8 +32,7 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [Test]
         public void Initialize()
         {
-            AddStep("Load Content", ContentManager.LoadContent);
-            AddStep("Create user", () => { user.Value = GuestUser.Create("test", true); });
+            AddStep("Create user", () => { user.Value = new GuestUser(); });
             AddStep("Give infinite money", () =>
             {
                 user.Value.MoneyHandler.InfiniteMoney = true;

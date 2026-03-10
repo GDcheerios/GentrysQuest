@@ -2,14 +2,13 @@ using System.Collections.Generic;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics;
 
-namespace GentrysQuest.Game.Content.Families.BraydenMesserschmidt
+namespace GentrysQuest.Game.Content.Artifacts
 {
     public class OsuTablet : Artifact
     {
         public override List<StatType> ValidMainAttributes { get; set; } = [StatType.CritRate];
         public override string Name { get; set; } = "Osu Tablet";
         public override string Description { get; protected set; } = "Brayden's Osu Tablet.";
-        public override Family family { get; protected set; } = new BraydenMesserschmidtFamily();
 
         public OsuTablet()
         {

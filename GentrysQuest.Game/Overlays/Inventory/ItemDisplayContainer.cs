@@ -294,24 +294,6 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
         descriptionContainer.Clear();
         string description = entity.Description;
 
-        if (entity is Artifact)
-        {
-            Artifact artifact = (Artifact)entity;
-            description += "\nApart of the " + artifact.family.Name + " "
-                           + "\nBuffs:";
-
-            string twoSetDescription = "\nTwo Set - "
-                                       + artifact.family.TwoSetBuff.BuffExplanation();
-            description += twoSetDescription;
-
-            if (artifact.family.FourSetBuff != null)
-            {
-                string fourSetDescription = "\nFour Set - "
-                                            + artifact.family.FourSetBuff.Explanation;
-                description += fourSetDescription;
-            }
-        }
-
         descriptionContainer.SetTaggedText(description);
 
         individualCharacterTime = textDuration / descriptionContainer.GetSpriteTexts().ToList().Count;
