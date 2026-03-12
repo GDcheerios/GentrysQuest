@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Overlays.SkillOverlay;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,6 +10,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
     public partial class GameplayHud : CompositeDrawable
     {
         private Entity.Entity entityTracker;
+        private EntityBase.EntityEvent healthEventHandler;
+        private EntityBase.EntityEvent weaponSwapHandler;
 
         private Container barsContainer;
 
@@ -85,11 +88,28 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
         public void SetEntity(Entity.Entity theEntity)
         {
-            theEntity.OnHealthEvent += () =>
+            if (entityTracker != null)
             {
-                healthBar.Current.Value = (float)theEntity.Stats.Health.GetCurrent();
-                healthBar.Max.Value = (float)theEntity.Stats.Health.Total();
+                if (healthEventHandler != null) entityTracker.OnHealthEvent -= healthEventHandler;
+                if (weaponSwapHandler != null) entityTracker.OnSwapWeapon -= weaponSwapHandler;
+            }
+
+            entityTracker = theEntity;
+
+            healthEventHandler = () =>
+            {
+                healthBar.Current.Value = (float)entityTracker.Stats.Health.GetCurrent();
+                healthBar.Max.Value = (float)entityTracker.Stats.Health.Total();
             };
+            entityTracker.OnHealthEvent += healthEventHandler;
+
+            weaponSwapHandler = () =>
+            {
+                skillOverlay.ClearSkills();
+                skillOverlay.SetUpSkills(entityTracker);
+            };
+            entityTracker.OnSwapWeapon += weaponSwapHandler;
+
             theEntity.Experience.Xp.Current.ValueChanged += _ =>
             {
                 experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;

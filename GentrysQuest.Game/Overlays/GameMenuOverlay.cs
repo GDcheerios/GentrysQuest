@@ -49,7 +49,7 @@ namespace GentrysQuest.Game.Overlays
 
         public readonly GachaContainer GachaContainer = new();
 
-        private bool isVisible;
+        public bool IsVisible { get; private set; }
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
@@ -145,15 +145,15 @@ namespace GentrysQuest.Game.Overlays
                 Key = Key.Escape,
                 Action = () =>
                 {
-                    if (isVisible)
+                    if (IsVisible)
                     {
                         Disappear();
-                        isVisible = false;
+                        IsVisible = false;
                     }
                     else
                     {
                         Appear();
-                        isVisible = true;
+                        IsVisible = true;
                     }
                 }
             };
@@ -164,7 +164,7 @@ namespace GentrysQuest.Game.Overlays
                 Key = Key.C,
                 Action = () =>
                 {
-                    switch (isVisible)
+                    switch (IsVisible)
                     {
                         case true when state.Value != SelectionState.Inventory:
                             state.Value = SelectionState.Inventory;
@@ -172,19 +172,19 @@ namespace GentrysQuest.Game.Overlays
 
                         case true when state.Value == SelectionState.Inventory:
                             Disappear();
-                            isVisible = false;
+                            IsVisible = false;
                             break;
 
                         default:
                             Appear();
-                            isVisible = true;
+                            IsVisible = true;
                             state.Value = SelectionState.Inventory;
                             break;
                     }
                 }
             };
 
-            inputHandler.AddKeyDownEvent(gameOverlayToggle );
+            inputHandler.AddKeyDownEvent(gameOverlayToggle);
             inputHandler.AddKeyDownEvent(gameInventory);
         }
 
@@ -218,9 +218,9 @@ namespace GentrysQuest.Game.Overlays
 
         public void Toggle()
         {
-            if (isVisible) Disappear();
+            if (IsVisible) Disappear();
             else Appear();
-            isVisible = !isVisible;
+            IsVisible = !IsVisible;
         }
 
         private void handleState(ValueChangedEvent<SelectionState> stateChange)

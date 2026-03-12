@@ -48,13 +48,28 @@ public partial class ProgressBar : CompositeDrawable
 
         if (Animate)
         {
-            Current.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
-            Max.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), DELAY, Easing.InOutCirc);
+            Current.ValueChanged += _ => updateForegroundWidth(DELAY, Easing.InOutCirc);
+            Max.ValueChanged += _ => updateForegroundWidth(DELAY, Easing.InOutCirc);
         }
         else
         {
-            Current.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), 0, Easing.None);
-            Max.ValueChanged += _ => foreground.ResizeWidthTo((float)(Current.Value / Max.Value), 0, Easing.None);
+            Current.ValueChanged += _ => updateForegroundWidth(0, Easing.None);
+            Max.ValueChanged += _ => updateForegroundWidth(0, Easing.None);
         }
+
+        updateForegroundWidth(0, Easing.None);
+    }
+
+    private void updateForegroundWidth(double duration, Easing easing)
+    {
+        float width = 0;
+
+        if (float.IsFinite(Current.Value) && float.IsFinite(Max.Value) && Max.Value > 0)
+        {
+            width = Current.Value / Max.Value;
+            width = float.Clamp(width, 0, 1);
+        }
+
+        foreground.ResizeWidthTo(width, duration, easing);
     }
 }

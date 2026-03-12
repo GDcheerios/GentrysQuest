@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Location.Drawables;
 using osu.Framework.Graphics;
@@ -9,11 +10,37 @@ namespace GentrysQuest.Game.Location
     public class Map
     {
         public string Name { get; protected set; }
-        public List<MapObject> Objects { get; } = new();
-        public List<DrawableEntity> Npcs { get; } = new();
+        public List<MapObject> Objects { get; protected set; } = [];
+        public List<DrawableEntity> Npcs { get; protected set; } = [];
+        public List<Enemy> Enemies { get; protected set; } = [];
         public Vector2 Size { get; protected set; } = Vector2.Zero;
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
         private DrawableMap drawableInstance = null;
+
+        /// <summary>
+        /// The maximum number of enemies that can spawn on the map.
+        /// </summary>
+        public ushort MaxEnemies { get; protected set; } = 5;
+
+        /// <summary>
+        /// Interval between enemy spawns.
+        /// </summary>
+        public double TimeToSpawnEnemies { get; protected set; } = 10000;
+
+        /// <summary>
+        /// The minimum number of enemies that can spawn per interval.
+        /// </summary>
+        public ushort MinEnemySpawn { get; protected set; } = 1;
+
+        /// <summary>
+        /// The maximum number of enemies that can spawn per interval.
+        /// </summary>
+        public ushort MaxEnemySpawn { get; protected set; } = 2;
+
+        /// <summary>
+        /// Determines if enemies can spawn outside of spawn zones.
+        /// </summary>
+        public bool AllowRandomSpawning { get; protected set; } = true;
 
         /// <summary>
         /// Loads map objects.

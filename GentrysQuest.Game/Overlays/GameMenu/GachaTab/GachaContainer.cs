@@ -216,12 +216,14 @@ namespace GentrysQuest.Game.Overlays.GameMenu.GachaTab
 
         public void AnimateShow()
         {
+            if (leftContainer == null || rightContainer == null) return;
             leftContainer.ResizeHeightTo(0.95f, 200, Easing.OutQuint);
             rightContainer.ResizeHeightTo(0.95f, 200, Easing.OutQuint);
         }
 
         public void AnimateHide()
         {
+            if (leftContainer == null || rightContainer == null) return;
             leftContainer.ResizeHeightTo(0, 200, Easing.OutQuint);
             rightContainer.ResizeHeightTo(0, 200, Easing.OutQuint);
         }

@@ -1,10 +1,15 @@
 using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
+using GentrysQuest.Game.Users;
 using NUnit.Framework;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Screens;
 
 namespace GentrysQuest.Game.Tests.Visual.Screens
@@ -14,29 +19,47 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
     {
         private ScreenStack screens;
         private GameplayScreen gameplayScreen;
-        private Character theGuy;
+        private Character player;
         private Weapon testWeapon;
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
+
+        [Cached]
+        private GameMenuOverlay gameMenuOverlay;
+
+        [Cached]
+        private ProfileButton profileButton = new();
+
+        [Cached]
+        private ScreenManager screenManager;
 
         public TestSceneGameplay()
         {
-            theGuy = new TestCharacter(1);
+            player = new TestCharacter(1);
             testWeapon = new Bow();
-            theGuy.SetWeapon(testWeapon);
+            player.SetWeapon(testWeapon);
             Add(screens = new ScreenStack());
+            Add(gameMenuOverlay = new GameMenuOverlay());
+            screenManager = new ScreenManager(screens);
             screens.Push(gameplayScreen = new GameplayScreen());
         }
 
         [Test]
         public void Gameplay()
         {
-            AddStep("Ready", () => { });
-            AddStep("AddEnemy", () => gameplayScreen.AddEnemy(theGuy.Experience.Level.Current.Value));
-            // AddSliderStep("Difficulty", 0, 10, 0, i => gameplay.SetDifficulty(i));
-            AddStep("Damage", (() => theGuy.Damage(10)));
-            AddStep("Slow", () => theGuy.AddEffect(new Slowness()));
-            AddStep("Burn", () => theGuy.AddEffect(new Burn()));
-            AddStep("Spawn Enemys", () => gameplayScreen.SpawnEntities());
-            AddStep("End", () => gameplayScreen.End());
+            AddStep("Ready", () =>
+            {
+                profileButton = new ProfileButton();
+                gameMenuOverlay.Disappear();
+                user.Value = new GuestUser();
+                user.Value.AddItem(player);
+                user.Value.AddItem(new Sword());
+                user.Value.AddItem(new Spear());
+                user.Value.AddItem(new Hammer());
+                user.Value.EquippedCharacter = player;
+                gameplayScreen.LoadGameplay(user.Value, new TestMap());
+            });
         }
     }
 }
