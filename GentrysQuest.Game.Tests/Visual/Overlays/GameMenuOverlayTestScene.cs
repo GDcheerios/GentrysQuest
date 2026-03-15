@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Content.Gachas;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
@@ -25,15 +26,20 @@ namespace GentrysQuest.Game.Tests.Visual.Overlays
         [BackgroundDependencyLoader]
         private void load()
         {
-            user.Value = GuestUser.Create("testy");
             profileButton = new ProfileButton();
             Add(gameMenuOverlay = new GameMenuOverlay { Y = -100 });
+            gameMenuOverlay.GachaContainer.LoadGacha(new GameGacha());
+            gameMenuOverlay.Disappear();
         }
 
         [Test]
         public void Test()
         {
-            AddStep("Create User", () => gameMenuOverlay.Show());
+            AddStep("Create User", () =>
+            {
+                user.Value = new GuestUser("testy");
+                user.Value.MoneyHandler.InfiniteMoney = true;
+            });
             AddStep("Appear", () => gameMenuOverlay.Appear());
             AddStep("Disappear", () => gameMenuOverlay.Disappear());
         }

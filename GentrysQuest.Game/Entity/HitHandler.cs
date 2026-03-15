@@ -13,7 +13,6 @@
 //  * to my program.
 
 using System.Collections.Generic;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Utils;
 using osuTK;
@@ -30,7 +29,6 @@ public class HitHandler
     private readonly DrawableEntity receiver;
     private readonly Entity receiverBase;
     private readonly Entity sender;
-    private readonly StatTracker stats;
 
     public HitHandler(Entity sender, DrawableEntity receiver, List<StatusEffect> statusEffects = null, int projectileDamage = 0)
     {
@@ -39,15 +37,14 @@ public class HitHandler
         Details.Sender = this.sender = sender;
         this.receiver = receiver;
         Details.Receiver = receiverBase = receiver.GetBase();
-        // stats = GameData.CurrentStats;
 
         // logic
         calcDamage(projectileDamage);
-        applyDamage();
+        invokeHitEvent();
         applyHitCount();
         applyKnockback();
-        invokeHitEvent();
-        // applyRewards();
+        applyDamage();
+        applyRewards();
     }
 
     private bool getCritChance() => sender.Stats.CritRate.Current.Value > MathBase.RandomInt(0, 100);
@@ -66,8 +63,17 @@ public class HitHandler
 
     private void applyDamage()
     {
-        if (Details.IsCrit) receiverBase.CritWithDefense(Details.Damage);
-        else receiverBase.DamageWithDefense(Details.Damage);
+        if (Details.IgnoreDefense)
+        {
+            if (Details.IsCrit) receiverBase.Crit(Details.Damage);
+            else receiverBase.Damage(Details.Damage);
+        }
+        else
+        {
+            if (Details.IsCrit) receiverBase.CritWithDefense(Details.Damage);
+            else receiverBase.DamageWithDefense(Details.Damage);
+        }
+
         receiverBase.RemoveTenacity();
     }
 
@@ -89,8 +95,8 @@ public class HitHandler
 
     private void invokeHitEvent()
     {
-        foreach (var effect in Details.StatusEffects) receiverBase.AddEffect(effect);
         receiverBase.OnHit(Details);
+        foreach (var effect in Details.StatusEffects) receiverBase.AddEffect(effect);
         if (sender.Weapon != null) sender.Weapon!.HitEntity(Details);
     }
 
@@ -99,11 +105,9 @@ public class HitHandler
         switch (receiverBase)
         {
             case Character character:
-                stats.AddToStat(StatTypes.HitsTaken);
                 break;
 
             case Entity:
-                stats.AddToStat(StatTypes.Hits);
                 break;
         }
 
@@ -112,20 +116,7 @@ public class HitHandler
             case Character character:
                 if (receiverBase.IsDead)
                 {
-                    // GameData.CurrentStats.AddToStat(StatTypes.Hits);
-                    // if (Details.IsCrit) GameData.CurrentStats.AddToStat(StatTypes.Crits);
-                    // GameData.CurrentStats.AddToStat(StatTypes.Damage, Details.Damage);
-                    // GameData.CurrentStats.AddToStat(StatTypes.MostDamage, Details.Damage);
-                    int money = receiverBase.GetMoneyReward();
-                    // GameData.CurrentStats.AddToStat(StatTypes.MoneyGained, money);
-                    // GameData.CurrentStats.AddToStat(StatTypes.MoneyGainedOnce, money);
                     sender.AddXp(receiverBase.GetXpReward());
-                    // GameData.Money.Hand(money);
-
-                    Weapon.Weapon reward = receiverBase.GetWeaponReward();
-                    // if (reward != null) GameData.Add(reward);
-
-                    // GameData.CurrentStats.AddToStat(StatTypes.Kills);
                 }
 
                 break;

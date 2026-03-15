@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Online;
 using osu.Framework.Allocation;
@@ -70,7 +69,6 @@ namespace GentrysQuest.Game.Screens
         private async Task loadGameData()
         {
             status.Text = "Loading game data";
-            ContentManager.LoadContent();
             await Task.Delay(500);
         }
 

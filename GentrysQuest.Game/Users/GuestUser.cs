@@ -13,7 +13,11 @@ namespace GentrysQuest.Game.Users
 {
     public class GuestUser : IUser
     {
-        public GuestUser(string name) => Name = name;
+        public GuestUser(string name = "Guest")
+        {
+            Name = name;
+            MoneyHandler = new Money(this);
+        }
 
         public string Name { get; set; }
 
@@ -43,7 +47,6 @@ namespace GentrysQuest.Game.Users
             {
                 string jsonData = File.ReadAllText(filePath);
                 JsonConvert.PopulateObject(jsonData, this);
-                MoneyHandler = new Money(this);
 #if DEBUG
                 MoneyHandler.InfiniteMoney = true;
 #endif

@@ -1,5 +1,5 @@
+using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Families.BraydenMesserschmidt;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics;

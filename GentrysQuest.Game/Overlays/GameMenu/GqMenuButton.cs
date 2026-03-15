@@ -15,7 +15,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
         [BackgroundDependencyLoader]
         private void load()
         {
-            Size = new Vector2(200, 100);
+            Size = new Vector2(200, 50);
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
         }
