@@ -38,5 +38,7 @@ namespace GentrysQuest.Game.Graphics
             icon.Rotation += (float)(0.5 * Clock.ElapsedFrameTime);
             base.Update();
         }
+
+        public void ChangeStatus(string text = "Loading...") => this.text.Text = text;
     }
 }

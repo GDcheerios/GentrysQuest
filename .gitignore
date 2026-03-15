@@ -61,6 +61,8 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+!GentrysQuest.Game/Content/Artifacts/
+!GentrysQuest.Game/Content/Artifacts/**
 
 # StyleCop
 StyleCopReport.xml
@@ -424,3 +426,5 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 /.idea/
+GentrysQuest.Desktop/GuestData
+GentrysQuest.Game.Tests/GuestData

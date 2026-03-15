@@ -27,6 +27,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         protected readonly Entity Entity;
 
+        public const int SIZE = 100;
+
         /// <summary>
         /// The entity sprite
         /// </summary>
@@ -61,7 +63,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The base speed variable for all entities
         /// </summary>
-        protected const double SPEED_MAIN = 0.15;
+        protected const double SPEED_MAIN = 0.2;
 
         private const int DODGE_TIME = 250;
         private const int DODGE_INTERVAL = 1000;
@@ -70,7 +72,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The center of this DrawableEntity
         /// </summary>
-        private static readonly Vector2 CENTER = new Vector2(50);
+        private static readonly Vector2 CENTER = new((int)(SIZE / 2));
 
         /// <summary>
         /// When doing some math you might need this
@@ -98,7 +100,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             entity.Stats.Restore();
             Entity = entity;
             Affiliation = affiliationType;
-            Size = new Vector2(100);
+            Size = new Vector2(SIZE);
             HitBox = new HitBox(this);
             ColliderBox = new CollisonHitBox(this);
             Colour = Colour4.White;
@@ -111,7 +113,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
-                EntityBar = new DrawableEntityBar(Entity),
+                EntityBar = new DrawableEntityBar(entity),
                 HitBox,
                 ColliderBox
             };
@@ -125,8 +127,8 @@ namespace GentrysQuest.Game.Entity.Drawables
                 EntityBar.StatusEffects.Origin = Anchor.CentreLeft;
             }
 
-            if (Entity.Weapon != null) Weapon = new DrawableWeapon(this, Affiliation);
-            Entity.OnSwapWeapon += setDrawableWeapon;
+            setDrawableWeapon();
+            entity.OnSwapWeapon += setDrawableWeapon;
             entity.OnDamage += delegate(int amount) { addIndicator(amount, DamageType.Damage); };
             entity.OnHeal += delegate(int amount) { addIndicator(amount, DamageType.Heal); };
             entity.OnCrit += delegate(int amount) { addIndicator(amount, DamageType.Crit); };
@@ -154,7 +156,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             // textures
             Sprite.Colour = Colour4.White;
-            Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            if (Entity.TextureMapping != null) Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            AddInternal(Entity.DrawableTexture);
 
             // sounds
             Entity.OnSpawn += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };
@@ -198,7 +201,9 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void Move(Vector2 direction, double speed)
         {
             float value = (float)(Clock.ElapsedFrameTime * speed);
-            ColliderBox.Position += (direction * 0.05f) * value;
+            Vector2 delta = (direction * 0.05f) * value;
+
+            if (!float.IsNaN(delta.X) && !float.IsNaN(delta.Y)) ColliderBox.Position += delta;
 
             if (!HitBoxScene.Collides(ColliderBox)) { OnMove?.Invoke(direction, speed); }
         }
@@ -310,18 +315,21 @@ namespace GentrysQuest.Game.Entity.Drawables
             Direction = Vector2.Zero;
 
             //  Knockback logic
-            if (knockbackTimeRemaining > 0)
+            if (GetBase().CanKnockback)
             {
-                float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
-                Entity.SpeedModifier = knockbackForce * knockbackDelta;
-                Direction += knockbackDirection * knockbackForce;
-
-                knockbackTimeRemaining -= Clock.ElapsedFrameTime;
-
-                if (knockbackTimeRemaining < 0)
+                if (knockbackTimeRemaining > 0)
                 {
-                    knockbackTimeRemaining = 0;
-                    Entity.SpeedModifier = 1;
+                    float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
+                    Entity.SpeedModifier = knockbackForce * knockbackDelta;
+                    Direction += knockbackDirection * knockbackForce;
+
+                    knockbackTimeRemaining -= Clock.ElapsedFrameTime;
+
+                    if (knockbackTimeRemaining < 0)
+                    {
+                        knockbackTimeRemaining = 0;
+                        Entity.SpeedModifier = 1;
+                    }
                 }
             }
 

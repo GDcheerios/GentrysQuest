@@ -1,5 +1,5 @@
 using GentrysQuest.Game.Entity.Drawables;
-using GentrysQuest.Game.Location.Drawables;
+using GentrysQuest.Game.Location;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Entity
             Size = new Vector2(0.3f);
         }
 
-        public CollisonHitBox(DrawableMapObject parent)
+        public CollisonHitBox(MapObject parent)
             : base(parent)
         {
             Colour = Colour4.LimeGreen;

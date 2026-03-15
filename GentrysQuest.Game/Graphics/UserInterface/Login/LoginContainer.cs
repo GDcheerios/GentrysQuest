@@ -1,5 +1,7 @@
 using System;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Online.API.Requests.Account;
+using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -77,7 +79,7 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                 }
             ];
 
-            loginButton.SetAction(async () =>
+            loginButton.SetAction(async void () =>
             {
                 var loginRequest = new LoginRequest(usernameInput.Text, passwordInput.Text);
                 startLoading();
@@ -88,17 +90,27 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
 
                     if (loginRequest.Response != null)
                     {
-                        Logger.Log($"Login successful: {loginRequest.Response}", LoggingTarget.Network);
-                        user.Value = loginRequest.Response;
+                        if (loginRequest.Response.Token != null)
+                        {
+                            loadingIndicator.ChangeStatus("Authenticating");
+                            await APIAccess.SetUserToken(loginRequest.Response.Token);
+                            await APIAccess.EnsureApiKeyAsync();
+                        }
+
+                        loadingIndicator.ChangeStatus("Loading data");
+                        OnlineUser retrievedUser = new OnlineUser(loginRequest.Response.Data!);
+                        await retrievedUser.Load();
+
+                        user.Value = retrievedUser;
                     }
                     else
                     {
-                        Logger.Log("Login failed: No response received.", LoggingTarget.Network);
+                        Notification.Create("Login failed", NotificationType.Error);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"An error occurred during login: {ex.Message}", LoggingTarget.Network);
+                    Logger.Log($"An error occurred during login {ex.StackTrace}", LoggingTarget.Network);
                 }
                 finally
                 {

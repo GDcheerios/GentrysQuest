@@ -21,6 +21,7 @@ namespace GentrysQuest.Game.Content.Weapons
         {
             Damage.SetDefaultValue(100);
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "weapons_hammer.png");
             TextureMapping.Add("Base", "weapons_hammer.png");
 

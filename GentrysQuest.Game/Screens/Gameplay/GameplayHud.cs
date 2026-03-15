@@ -10,6 +10,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
     public partial class GameplayHud : CompositeDrawable
     {
         private Entity.Entity entityTracker;
+        private EntityBase.EntityEvent healthEventHandler;
+        private EntityBase.EntityEvent weaponSwapHandler;
 
         private Container barsContainer;
 
@@ -26,7 +28,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
             InternalChildren = new Drawable[]
             {
-                barsContainer = new Container()
+                barsContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                     RelativePositionAxes = Axes.Both,
@@ -57,6 +59,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
                             RelativePositionAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
+                            BackgroundColour = Colour4.Gray,
+                            ForegroundColour = Colour4.LightBlue,
                             Size = new Vector2(1, 0.5f)
                         },
                         levelText = new SpriteText
@@ -65,7 +69,8 @@ namespace GentrysQuest.Game.Screens.Gameplay
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.TopLeft,
                             RelativePositionAxes = Axes.Both,
-                            Font = FontUsage.Default.With(size: 20),
+                            Font = FontUsage.Default.With(size: 24),
+                            Margin = new MarginPadding { Left = 10 },
                             Position = new Vector2(0)
                         }
                     }
@@ -83,33 +88,40 @@ namespace GentrysQuest.Game.Screens.Gameplay
 
         public void SetEntity(Entity.Entity theEntity)
         {
-            entityTracker = theEntity;
-            SetHealth(theEntity.Stats.Health);
-            SetExperience(theEntity.Experience);
-            entityTracker.Stats.Health.Current.ValueChanged += delegate { SetHealth(theEntity.Stats.Health); };
-            entityTracker.Experience.Level.Current.ValueChanged += delegate { SetExperience(theEntity.Experience); };
-            entityTracker.Experience.Xp.Current.ValueChanged += delegate { SetExperience(theEntity.Experience); };
-            entityTracker.OnUpdateStats += delegate
+            if (entityTracker != null)
             {
-                SetHealth(theEntity.Stats.Health);
-                SetExperience(theEntity.Experience);
-            };
+                if (healthEventHandler != null) entityTracker.OnHealthEvent -= healthEventHandler;
+                if (weaponSwapHandler != null) entityTracker.OnSwapWeapon -= weaponSwapHandler;
+            }
 
+            entityTracker = theEntity;
+
+            healthEventHandler = () =>
+            {
+                healthBar.Current.Value = (float)entityTracker.Stats.Health.GetCurrent();
+                healthBar.Max.Value = (float)entityTracker.Stats.Health.Total();
+            };
+            entityTracker.OnHealthEvent += healthEventHandler;
+
+            weaponSwapHandler = () =>
+            {
+                skillOverlay.ClearSkills();
+                skillOverlay.SetUpSkills(entityTracker);
+            };
+            entityTracker.OnSwapWeapon += weaponSwapHandler;
+
+            theEntity.Experience.Xp.Current.ValueChanged += _ =>
+            {
+                experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;
+                experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
+            };
+            levelText.Text = $"Level {theEntity.Experience.CurrentLevel()}";
+            healthBar.Current.Value = (float)theEntity.Stats.Health.GetCurrent();
+            healthBar.Max.Value = (float)theEntity.Stats.Health.Total();
+            experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;
+            experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
             skillOverlay.ClearSkills();
             skillOverlay.SetUpSkills(theEntity);
-        }
-
-        public void SetHealth(Stat health)
-        {
-            healthBar.Current = (int)health.Current.Value;
-            healthBar.Max = (int)health.Total();
-        }
-
-        public void SetExperience(Experience experience)
-        {
-            levelText.Text = $"Level {experience.Level.Current}";
-            experienceBar.Current = experience.Xp.Current.Value;
-            experienceBar.Max = experience.Xp.Requirement.Value;
         }
 
         public void Disappear()

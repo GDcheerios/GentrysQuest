@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Content.Effects
 
         public override Colour4 EffectColor { get; protected set; } = Colour4.DarkRed;
         public override IconUsage Icon { get; protected set; } = FontAwesome.Solid.Splotch;
-        public override bool IsInfinite { get; set; } = false;
+        public override bool IsInfinite { get; set; }
         public override double Interval { get; protected set; } = new Second(0.5);
 
         public override void Handle()

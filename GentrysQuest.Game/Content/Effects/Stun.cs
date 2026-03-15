@@ -6,6 +6,9 @@ namespace GentrysQuest.Game.Content.Effects
 {
     public class Stun : StatusEffect
     {
+        /// <summary>
+        /// Prevents from attacking and moving
+        /// </summary>
         public Stun(int duration = 1, int stack = 1)
             : base(duration, stack)
         {

@@ -7,8 +7,14 @@ namespace GentrysQuest.Game.Entity;
 
 public abstract class StatusEffect
 {
+    protected static int Identifier = 0;
+    public int ID;
+
     protected StatusEffect(int duration = 1, int stack = 1)
     {
+        Identifier++;
+        ID = Identifier;
+
         Duration = duration;
         Stack = stack;
     }
@@ -51,7 +57,7 @@ public abstract class StatusEffect
     /// <summary>
     /// is it effecting?
     /// </summary>
-    public bool Effecting = false;
+    public bool Active = false;
 
     /// <summary>
     /// The time between effect
@@ -88,6 +94,7 @@ public abstract class StatusEffect
         Time = 0;
         StartTime = null;
         Stack = 1;
+        Active = false;
     }
 
     /// <summary>

@@ -18,6 +18,7 @@ namespace GentrysQuest.Game.Entity
         public bool CanMove = true;
         public bool Invincible = false;
         public bool CanDie = true;
+        public bool CanKnockback = true;
         public int CurrentTenacity = 0;
         public Vector2 PositionRef;
 
@@ -47,9 +48,6 @@ namespace GentrysQuest.Game.Entity
 
         public Entity()
         {
-            OnLevelUp += UpdateStats;
-            OnLevelUp += Stats.Restore;
-            OnSwapWeapon += UpdateStats;
             CurrentTenacity = (int)Stats.Tenacity.Total();
             CalculateXpRequirement();
         }
@@ -110,6 +108,13 @@ namespace GentrysQuest.Game.Entity
             OnDeath?.Invoke();
         }
 
+        public override void LevelUp()
+        {
+            base.LevelUp();
+            UpdateStats();
+            Difficulty = (byte)(Experience.Level.Current.Value / 20);
+        }
+
         public void Attack() => OnAttack?.Invoke();
 
         public int AfterDefense(int amount) => (int)(amount * (100 / (Stats.Defense.Current.Value * DefenseModifier)));
@@ -160,6 +165,7 @@ namespace GentrysQuest.Game.Entity
         {
             Weapon = weapon;
             if (weapon != null) weapon.Holder = this;
+            UpdateStats();
             OnSwapWeapon?.Invoke();
         }
 
@@ -186,7 +192,7 @@ namespace GentrysQuest.Game.Entity
 
         public virtual Weapon.Weapon GetWeaponReward()
         {
-            if (MathBase.IsChanceSuccessful(Weapon!.DropChance)) return Weapon;
+            if (Weapon != null && MathBase.IsChanceSuccessful(Weapon!.DropChance)) return Weapon;
 
             return null;
         }
@@ -218,6 +224,20 @@ namespace GentrysQuest.Game.Entity
             OnEffect?.Invoke();
         }
 
+        public void RemoveEffect(StatusEffect statusEffect)
+        {
+            foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()).ToList())
+            {
+                effect.Stack--;
+
+                if (effect.Stack == 0)
+                {
+                    effect.OnRemove?.Invoke();
+                    Effects.Remove(effect);
+                }
+            }
+        }
+
         public void RemoveEffect(string name)
         {
             for (var index = 0; index < Effects.Count; index++)
@@ -232,6 +252,15 @@ namespace GentrysQuest.Game.Entity
             }
 
             OnEffect?.Invoke();
+        }
+
+        public void ClearEffects()
+        {
+            foreach (var effect in Effects.ToList())
+            {
+                effect.OnRemove?.Invoke();
+                Effects.Remove(effect);
+            }
         }
 
         public void Affect(double time)

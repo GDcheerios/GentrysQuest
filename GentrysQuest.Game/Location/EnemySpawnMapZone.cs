@@ -1,9 +1,14 @@
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 
 namespace GentrysQuest.Game.Location
 {
-    public class EnemySpawnZone : MapZone
+    public partial class EnemySpawnZone : MapZone
     {
-        public override Colour4 Colour { get; set; } = Colour4.Red;
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Colour = Colour4.Yellow;
+        }
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using Newtonsoft.Json;
+using osu.Framework.Bindables;
 
 namespace GentrysQuest.Game.Users
 {
@@ -12,13 +14,13 @@ namespace GentrysQuest.Game.Users
         /// The username
         /// </summary>
         [JsonProperty("username")]
-        public string Name { get; set; }
+        string Name { get; set; }
 
         /// <summary>
         /// User level
         /// </summary>
-        [JsonProperty("level")]
-        public Experience Experience { get; set; }
+        [JsonProperty("experience")]
+        Experience Experience { get; set; }
 
         /// <summary>
         /// User statistics
@@ -27,61 +29,92 @@ namespace GentrysQuest.Game.Users
         // public StatTracker Stats { get; set; }
 
         /// <summary>
-        /// How many times this user has started up the game
-        /// </summary>
-        [JsonProperty("startupAmount")]
-        public int StartupAmount { get; set; }
-
-        /// <summary>
         /// How much money the user has
         /// </summary>
         [JsonProperty("money")]
-        public int Money { get; set; }
+        int Money { get; set; }
+
+        /// <summary>
+        /// The global rank (placement) of the user
+        /// </summary>
+        Bindable<int> Placement { get; set; }
+
+        /// <summary>
+        /// The Weighted GP of the user
+        /// </summary>
+        Bindable<int> WeightedGp { get; set; }
+
+        /// <summary>
+        /// The Unweighted GP of the user
+        /// </summary>
+        Bindable<int> UnweightedGp { get; set; }
+
+        /// <summary>
+        /// The rank of the user
+        /// </summary>
+        Bindable<string> Rank { get; set; }
+
+        /// <summary>
+        /// The tier of the user
+        /// </summary>
+        Bindable<int> Tier { get; set; }
 
         /// <summary>
         /// Handles money functions
         /// </summary>
         [JsonIgnore]
-        public Money MoneyHandler { get; set; }
+        Money MoneyHandler { get; set; }
 
         /// <summary>
         /// The characters
         /// </summary>
         [JsonProperty("characters")]
-        public List<Character> Characters { get; set; }
+        List<Character> Characters { get; set; }
 
         /// <summary>
         /// The artifacts
         /// </summary>
         [JsonProperty("artifacts")]
-        public List<Artifact> Artifacts { get; set; }
+        List<Artifact> Artifacts { get; set; }
 
         /// <summary>
         /// The weapons
         /// </summary>
         [JsonProperty("weapons")]
-        public List<Weapon> Weapons { get; set; }
+        List<Weapon> Weapons { get; set; }
 
         /// <summary>
         /// The user's equipped character
         /// </summary>
         [JsonIgnore]
-        public Character EquippedCharacter { get; set; }
+        Character EquippedCharacter { get; set; }
 
         /// <summary>
         /// Loads the user's data
         /// </summary>
-        public void Load();
+        Task Load();
 
         /// <summary>
         /// Saves the user's data
         /// </summary>
-        public void Save();
+        Task Save();
 
         /// <summary>
-        /// Add an item to this user's data
+        /// Add an item to this user's data.
         /// </summary>
-        /// <param name="entity"></param>
-        public void AddItem(EntityBase entity);
+        /// <param name="entity">The entity to be added</param>
+        Task AddItem(EntityBase entity);
+
+        /// <summary>
+        /// Update the item. Only functional with online users.
+        /// </summary>
+        /// <param name="entity">the entity to update</param>
+        Task UpdateItem(EntityBase entity);
+
+        /// <summary>
+        /// Remove the item from the inventory.
+        /// </summary>
+        /// <param name="entity">The entity to be removed</param>
+        Task RemoveItem(EntityBase entity);
     }
 }

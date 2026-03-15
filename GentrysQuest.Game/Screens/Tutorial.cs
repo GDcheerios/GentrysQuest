@@ -1,41 +1,57 @@
+using System;
+using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Characters;
-using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Music;
-using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics.Dialogue;
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Location;
+using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Quests;
 using GentrysQuest.Game.Screens.Gameplay;
+using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Audio;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
+using osuTK.Input;
 using GentrysClassroom = GentrysQuest.Game.Content.Maps.GentrysClassroom;
+using Keyboard = GentrysQuest.Game.Content.Artifacts.Keyboard;
 
 namespace GentrysQuest.Game.Screens
 {
     public partial class Tutorial : GqScreen
     {
-        private DrawablePlayableEntity player;
-        private DrawableEnemyEntity enemy;
-        private GameplayHud gameplayHud;
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
 
-        private SpriteText keyMovementText;
-        private SpriteText keyAttackText;
-        private SpriteText keyDodgeText;
-        private SpriteText keySkillText;
+        [Resolved]
+        private GameMenuOverlay gameMenuOverlay { get; set; }
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
+
+        [Resolved]
+        private InputHandler inputHandler { get; set; }
+
+        private DrawablePlayableEntity player;
+        private DrawableEnemyEntity clone;
+        private GameplayHud gameplayHud;
 
         private readonly MapScene scene = new();
 
-        private readonly SceneScript introScript = new();
-        private readonly SceneScript afterCombatScript = new();
+        private readonly QuestOverlay questOverlay = new();
+
+        private readonly SceneScript introScript;
+
+        private bool[] movementButtons = new bool[4];
 
         private bool ninetyPercent = false;
         private bool eightyPercent = false;
@@ -45,24 +61,50 @@ namespace GentrysQuest.Game.Screens
         private bool fivePercent = false;
         private bool onePercent = false;
 
-        private DrawableSample flashbangSound;
-        private DrawableSample lightDie;
-
-        private Box flashCover;
-
         public Tutorial()
         {
-            scene.LoadMap(new GentrysClassroom());
-
             gameplayHud = new GameplayHud();
+            gameplayHud.Hide();
+
+            introScript = new SceneScript();
 
             #region introScript
 
+            introScript.AddEvent("Pro1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Since 1956 [p:500] around 500 people a year go missing.",
+                    Duration = 4000
+                },
+                Duration = 3000,
+                Delay = 1000
+            });
+            introScript.AddEvent("Pro2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Another 1,000 to 10,000 become stuck in a coma due to unknown reasons.",
+                    Duration = 6000
+                },
+                Duration = 4000,
+                Delay = 1000
+            });
+            introScript.AddEvent("Pro3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "About 5% of the comatose individuals end up waking up, [p:500] and none of the missing people ever come back."
+                },
+                Delay = 1000,
+                Duration = 6000
+            });
             introScript.AddEvent("Fade In", new SceneEvent
             {
                 Event =
                     () =>
                     {
+                        scene.LoadMap(new GentrysClassroom(true));
                         scene.GetMap().FadeOut().Then().FadeIn(1000);
                         AudioManager.Instance.ChangeMusic(new Content.Music.GentrysClassroom());
                     }
@@ -72,530 +114,443 @@ namespace GentrysQuest.Game.Screens
                 Event =
                     () =>
                     {
-                        scene.GetMap().MoveToY(450, 5000);
+                        scene.GetMap().MoveToY(scene.GetNpc("GMoney").Y, 5000);
                     },
                 Delay = 1100
             });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
+            introScript.AddEvent("Gentry D1", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
-                    Author = "Mr.Gentry",
-                    Text = "Hello students,",
-                    Duration = 1000
+                    Text = "Alright class, [p:500] That will be all the time we have for the test, [p:500] please submit your work.",
+                    Author = "Mr. Gentry"
+                },
+                Duration = 4000,
+                Delay = 6000
+            });
+            introScript.AddEvent("Student D1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Wait! [p:200] Mr. Gentry, [p:200] I just need to finish this last recursion problem!",
+                    Author = "Student"
                 },
                 Duration = 3000,
-                Delay = 7000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today we’ll be going over chapter 2 of computer programming.",
-                    Duration = 4300
-                },
-                Duration = 7000
-            });
-            introScript.AddEvent("C-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Class",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Okay...",
-                    Duration = 500
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "So, today…",
-                    Duration = 1000
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Today will be more of a fun day.",
-                    Duration = 2000
-                },
-                Duration = 3000
-            });
-            introScript.AddEvent("Power Outage", new SceneEvent
-            {
-                Duration = 2000, Delay = 2000,
-                Event = () =>
-                {
-                    scene.FadeTo(0);
-                    AudioManager.Instance.StopMusic();
-                    AudioManager.Instance.PlaySound(lightDie);
-                }
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "...",
-                    Duration = 1000,
-                },
-                Duration = 2000
-            });
-            introScript.AddEvent("G-Dialogue", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "uhh",
-                    Duration = 1000,
-                },
-                Duration = 1500
-            });
-            introScript.AddEvent("Evil Gentry First Convo", new SceneEvent
-            {
-                Delay = 2500, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Finally...",
-                    Duration = 2000
-                },
-                Event = () =>
-                {
-                    AudioManager.Instance.ChangeMusic(new AMBI());
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Duration = 8000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I've been waiting years for this moment to come.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("G-dialogue", new SceneEvent
-            {
-                Delay = 1000, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Mr.Gentry",
-                    Text = "Who are you?",
-                    Duration = 500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 1500, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "hmhmhmhmhm",
-                    Duration = 1500
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 7000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "You actually know me quite well.",
-                    Duration = 5000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 3000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "In fact...",
-                    Duration = 1000
-                }
-            });
-            introScript.AddEvent("EG-dialogue", new SceneEvent
-            {
-                Delay = 0, Duration = 6000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "I'd say you and me...",
-                    Duration = 4000
-                }
-            });
-            introScript.AddEvent("dialogue", new SceneEvent
-            {
-                Delay = 2000, Duration = 5000,
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "???",
-                    Text = "Are the same.",
-                    Duration = 2000
-                }
-            });
-            introScript.AddEvent("Evil Gentry Entrance", new SceneEvent
-            {
-                Event = () =>
-                {
-                    scene.RemoveNpc(scene.GetMap().Npcs[^1]);
-                    scene.FadeIn();
-                    scene.AddPlayer(player = new DrawablePlayableEntity(new GMoney()) { Y = -200, X = -200 });
-                    scene.AddEnemy(enemy = new DrawableEnemyEntity(new EvilGentry()) { Y = -200, X = 200 });
-                    enemy.GetBase().Experience.Level.Current.Value = 20;
-                    enemy.GetBase().UpdateStats();
-                    enemy.GetBase().Heal();
-                    enemy.GetBase().CanAttack = false;
-                    enemy.GetBase().CanMove = false;
-                    player.EntityBar.OnlyShowName();
-                    enemy.EntityBar.OnlyShowName();
-                    player.GetBase().AddEffect(new Paused());
-                },
-                Delay = 10
-            });
-            introScript.AddEvent("Pan to player", new SceneEvent
-            {
-                Event = () =>
-                {
-                    scene.GetMap().MoveTo(new Vector2(-player.X, GentrysClassroom.CLASSROOM_HEIGHT - 1100), 1000);
-                    player.MoveTo(Vector2.Zero, 1000);
-                    enemy.MoveTo(new Vector2(enemy.X + 200, 0), 1000);
-                }
-            });
-            introScript.AddEvent("Initiate Combat Tutorial", new SceneEvent
-            {
-                Event = () =>
-                {
-                    Scheduler.AddDelayed(() =>
-                        {
-                            gameplayHud.Appear();
-                            gameplayHud.SetEntity(player.GetBase());
-                            keyMovementText.FadeIn(250, Easing.OutQuint);
-                        }, 1000
-                    );
-
-                    AudioManager.Instance.ChangeMusic(new Anguish());
-
-                    player.OnMove += hideMovementText;
-                    player.GetBase().OnHitEntity += hideAttackText;
-                    player.OnDodge += hideDodgeText;
-                    player.GetBase().SetWeapon(new Sword());
-                    player.EntityBar.ShowAll();
-                    player.GetBase().RemoveEffect("Paused");
-                    player.GetBase().Heal();
-                    player.SetupClickContainer();
-                    player.Weapon.GetBase().OnHitEntity += (details) =>
-                    {
-                        if (details.GetHitAmount() == 1 && details.Receiver == enemy.GetBase())
-                        {
-                            enemy.GetBase().CanAttack = true;
-                            displayDialogue(new DialogueEvent
-                            {
-                                Author = "Evil Gentry",
-                                Text = "You really wanna try and fight me?",
-                                Duration = 1000
-                            });
-                        }
-                    };
-
-                    player.GetBase().OnDeath += () => { afterCombatScript.Start(Overlay, Scheduler); };
-
-                    enemy.GetBase().CanDie = false;
-                    enemy.GetBase().SetWeapon(new Sword());
-                    enemy.EntityBar.ShowAll();
-                    enemy.FollowEntity(player);
-                    enemy.GetBase().OnDamage += _ => checkEnemyHealth();
-                    enemy.GetBase().Stats.AttackSpeed.Current.Value = 0.2;
-                },
                 Delay = 1000
             });
-
-            #endregion
-
-            #region afterCombatScript
-
-            afterCombatScript.AddEvent("AfterFight", new SceneEvent
+            introScript.AddEvent("Gentry D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "You've had an hour to finish. [p:500] You'll be able to retake the test next week.",
+                    Author = "Mr. Gentry"
+                },
+                Duration = 4000,
+                Delay = 1000
+            });
+            introScript.AddEvent("Student D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Oh fine...",
+                    Author = "Student"
+                },
+                Duration = 1000,
+                Delay = 1000
+            });
+            introScript.AddEvent("transition", new SceneEvent
             {
                 Event = () =>
                 {
-                    gameplayHud.Disappear();
-
-                    AudioManager.Instance.StopMusic();
-
-                    player.EntityBar.OnlyShowName();
-                    player.GetBase().AddEffect(new Paused());
-                    player.GetBase().SetWeapon(null);
-                    player.GetBase().Spawn();
-
-                    enemy.EntityBar.OnlyShowName();
-                    enemy.GetBase().AddEffect(new Paused());
-                    enemy.GetBase().SetWeapon(null);
-                }
-            });
-            afterCombatScript.AddEvent("EG-dialogue1", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Evil Gentry",
-                    Text = "Actually...",
-                    Duration = 20
+                    Scheduler.AddDelayed((() => scene.GetNpc("GMoney").X = -500), 1000);
+                    scene.GetMap().FadeOut(1000).Then().FadeIn(1000);
                 },
-                Duration = 2000,
-                Delay = 1000
+                Delay = 2000
             });
-            afterCombatScript.AddEvent("EG-dialogue2", new SceneEvent
+            introScript.AddEvent("Gentry D3", new SceneEvent
             {
                 DialogueEvent = new DialogueEvent
                 {
-                    Author = "Evil Gentry",
-                    Text = "You're pretty strong...",
-                    Duration = 2000
+                    Text = "Aah... [p:500] There are so many quizzes I have to grade, [p:500] and I decided to stay up late practicing frisbee golf...",
+                    Author = "Mr. Gentry"
+                },
+                Duration = 6000,
+                Delay = 3000
+            });
+            introScript.AddEvent("Gentry D4", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "I could totally just rest my head right now.",
+                    Author = "Mr. Gentry"
+                },
+                Duration = 3000,
+                Delay = 3000
+            });
+            introScript.AddEvent("Gentry D5", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Wow, [p:100] this is surprisingly comfortable. [p:500] It feels like I'm on a cloud.",
+                    Author = "Mr. Gentry"
                 },
                 Duration = 5000,
-                Delay = 1000
+                Delay = 3000
             });
-            afterCombatScript.AddEvent("EG-dialogue3", new SceneEvent
-            {
-                DialogueEvent = new DialogueEvent
-                {
-                    Author = "Evil Gentry",
-                    Text = "For a frisbee golf player!",
-                    Duration = 2000
-                },
-                Duration = 2000,
-                Delay = 2000
-            });
-            afterCombatScript.AddEvent("Flashbang", new SceneEvent
+            introScript.AddEvent("Gentry Sleep", new SceneEvent
             {
                 Event = () =>
                 {
-                    enemy.FadeOut(250);
-                    enemy.MoveTo(Vector2.Zero, 250);
-                    scene.GetMap().MoveTo(new Vector2(0, 0), 500);
-                    Scheduler.AddDelayed(() =>
-                    {
-                        AudioManager.Instance.PlaySound(flashbangSound);
-                        flashCover.FadeIn(25, Easing.OutQuint);
-                        Scheduler.AddDelayed(() => { flashCover.FadeOut(3000, Easing.In); }, 6000);
-                    }, 300);
+                    scene.GetMap().FadeOut(5000);
                 },
-                Delay = 1000
+                Duration = 5000,
+                Delay = 3000
             });
-            afterCombatScript.AddEvent("UnloadMap", new SceneEvent
+            introScript.AddEvent("WhitePlane transition", new SceneEvent
             {
                 Event = () =>
                 {
                     scene.UnloadMap();
+                    scene.LoadMap(new WhitePlane());
+                    AudioManager.Instance.StopMusic();
+                    AudioManager.Instance.ChangeMusic(new AMBI());
+                    scene.GetMap().FadeOut().Then().FadeIn(5000);
+                }
+            });
+            introScript.AddEvent("Gentry D6", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Where am I?",
+                    Author = "Mr. Gentry"
                 },
-                Delay = 1000
+                Duration = 2000,
+                Delay = 10000
+            });
+            introScript.AddEvent("Gentry D7", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Is anyone there?",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 2000,
+                Duration = 2000
+            });
+            introScript.AddEvent("Gentry D8", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "How did I end up here?",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 4000,
+                Duration = 2000
+            });
+            introScript.AddEvent("Gentry D9", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "I need to keep grading the quizzes!",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 4000,
+                Duration = 2000
+            });
+            introScript.AddEvent("Scene Flicker", new SceneEvent
+            {
+                Event = () =>
+                {
+                    // scene.GetMap().Unload();
+                    scene.LoadMap(new GentrysClassroom(true));
+                    scene.GetMap().FadeOut().Then().FadeIn(500);
+                    foreach (DrawableEntity npc in scene.GetMap().Npcs.ToList()) scene.RemoveNpc(npc);
+                    GMoney gMoney = new GMoney();
+                    scene.AddPlayer(player = new DrawablePlayableEntity(gMoney));
+
+                    if (user.Value != null)
+                    {
+                        user.Value.AddItem(gMoney);
+                        user.Value.EquippedCharacter = gMoney;
+                    }
+
+                    player.EntityBar.Hide();
+                    player.SetupClickContainer();
+                    Quest movementQuest = new Quest { Title = "Movement" };
+                    movementQuest.AddObjective(new Objective { Name = "Move with WASD", TargetValue = 4 });
+                    InputEvent w = new InputEvent { Key = Key.W, Action = () => { handleMovementKey(Key.W); } };
+                    InputEvent a = new InputEvent { Key = Key.A, Action = () => { handleMovementKey(Key.A); } };
+                    InputEvent s = new InputEvent { Key = Key.S, Action = () => { handleMovementKey(Key.S); } };
+                    InputEvent d = new InputEvent { Key = Key.D, Action = () => { handleMovementKey(Key.D); } };
+                    inputHandler.AddKeyDownEvent(w);
+                    inputHandler.AddKeyDownEvent(a);
+                    inputHandler.AddKeyDownEvent(s);
+                    inputHandler.AddKeyDownEvent(d);
+                    movementQuest.QuestCompleted += _ =>
+                    {
+                        inputHandler.RemoveKeyDownEvent(w);
+                        inputHandler.RemoveKeyDownEvent(a);
+                        inputHandler.RemoveKeyDownEvent(s);
+                        inputHandler.RemoveKeyDownEvent(d);
+                    };
+                    QuestManager.PushQuest(movementQuest);
+                },
+                Duration = 1000
+            });
+            introScript.AddEvent("Gentry D10", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "I'm back...",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 1000,
+                Duration = 1500
+            });
+            introScript.AddEvent("Gentry D11", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "How did I end up on this side?",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 1000,
+                Duration = 3000
+            });
+            introScript.AddEvent("Gentry D12", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Whatever, [p:500] I should finish grading the quizzes.",
+                    Author = "Mr. Gentry"
+                },
+                Event = () =>
+                {
+                    MapObject gradingQuestPlate = scene.GetMap().Objects.First(x => x.Name == "gradingQuestPlate");
+                    gradingQuestPlate.FadeTo(0.25f);
+                    Quest gradePapers = new Quest
+                    {
+                        Title = "Grade Quizzes",
+                    };
+                    gradePapers.AddObjective(new Objective
+                    {
+                        Name = "Finish grading the Quizzes",
+                    });
+                    QuestManager.PushQuest(gradePapers);
+                    gradePapers.QuestCompleted += _ =>
+                    {
+                        AutoDialogueBox dialogueBox;
+                        Overlay.Add(dialogueBox = new AutoDialogueBox(
+                            "Mr. Gentry",
+                            "Where did the quizzes go?"
+                        ));
+                        dialogueBox.Delay(2000).FadeOut(50);
+                        clone = new DrawableEnemyEntity(new GMoney());
+                        scene.AddEnemy(clone);
+                        clone.X = 700;
+                        clone.Y = 1200;
+                        clone.GetBase().CanMove = false;
+                        scene.GetMap().Objects.FirstOrDefault(x => x.Name == "findQuizPlate")!.Alpha = 0.25f;
+                        Quest findQuizQuest = new Quest
+                        {
+                            Title = "Find the Quizzes"
+                        };
+                        findQuizQuest.AddObjective(new Objective
+                        {
+                            Name = "Find the Quizzes",
+                            TargetValue = 1
+                        });
+                        QuestManager.PushQuest(findQuizQuest);
+                        findQuizQuest.QuestCompleted += quest =>
+                        {
+                            player.GetBase().CanMove = false;
+                            Vector2 oldPos = scene.GetMap().Position;
+                            Vector2 newPos = new Vector2(-500, -1400);
+                            scene.GetMap().MoveTo(newPos, 1000);
+                            clone.MoveTo(clone.Position + newPos - oldPos, 1000);
+                            startEvilGentryScene();
+                        };
+                    };
+                },
+                Delay = 1000,
+                Duration = 3000
             });
 
-            #endregion
+            # endregion
         }
 
-        private void checkEnemyHealth()
+        private void startEvilGentryScene()
         {
-            int currentHealth = (int)enemy.GetBase().Stats.Health.Current.Value;
-            float healthPercent = (float)(currentHealth / enemy.GetBase().Stats.Health.Total());
-
-            switch (healthPercent)
+            AudioManager.Instance.StopMusic();
+            SceneScript evilGentryScene = new SceneScript();
+            evilGentryScene.AddEvent("Gentry D1", new SceneEvent
             {
-                case var x when x <= 0.01f && !onePercent:
-                    onePercent = true;
-                    afterCombatScript.Start(Overlay, Scheduler);
-                    break;
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "It's... [p:1000] Me...",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 2000,
+                Duration = 3000
+            });
+            evilGentryScene.AddEvent("Clone D1", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Hey, [p:500] you’re in front of my basket!",
+                    Author = "Gentry Clone"
+                },
+                Delay = 2000,
+                Duration = 3000
+            });
+            evilGentryScene.AddEvent("Gentry D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "You mean my basket...",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 1000,
+                Duration = 1000
+            });
+            evilGentryScene.AddEvent("Clone D2", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "No no no... [p:500] My basket.",
+                    Author = "Gentry Clone"
+                },
+                Delay = 500,
+                Duration = 2000
+            });
+            evilGentryScene.AddEvent("Gentry D3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "This is my classroom, [p:300] I have no idea what you mean by this is your basket.",
+                    Author = "Mr. Gentry"
+                },
+                Delay = 500,
+                Duration = 4000
+            });
+            evilGentryScene.AddEvent("Clone D3", new SceneEvent
+            {
+                DialogueEvent = new DialogueEvent
+                {
+                    Text = "Now [p:100] I'm getting really mad!",
+                    Author = "Gentry Clone"
+                },
+                Delay = 1000,
+                Duration = 2000
+            });
+            evilGentryScene.AddEvent("Start Fight", new SceneEvent
+            {
+                Event = () =>
+                {
+                    AudioManager.Instance.ChangeMusic(new Anguish());
+                    clone.GetBase().CanMove = true;
+                    clone.GetBase().Stats.Speed.SetDefaultValue(0.5);
+                    clone.GetBase().OnDeath += () => { user.Value?.AddItem(new Keyboard()); };
 
-                case var x when x <= 0.05f && !fivePercent:
-                    fivePercent = true;
-                    enemy.GetBase().Stats.Speed.Current.Value += 0.2;
-                    displayDialogue(new DialogueEvent
+                    const int limit = 1000;
+                    const int delay = 3600;
+
+                    for (int i = 0; i < limit; i++)
                     {
-                        Author = "Evil Gentry",
-                        Text = "You shouldn't be this strong.",
-                        Duration = 1000
-                    });
-                    break;
+                        Scheduler.AddDelayed(() => clone.QueuedProjectiles.Add(new Projectile(
+                            new ProjectileParameters
+                            {
+                                Damage = 10,
+                                Speed = 10,
+                                Direction = MathBase.GetAngle(clone.Position, Vector2.Zero)
+                            }
+                        )), i * delay);
+                    }
 
-                case var x when x <= 0.1f && !tenPercent:
-                    tenPercent = true;
-                    enemy.GetBase().Stats.Speed.Current.Value += 0.2;
-                    displayDialogue(new DialogueEvent
+                    player.GetBase().CanMove = true;
+                    player.EntityBar.ShowAll();
+                    gameplayHud.Show();
+                    gameplayHud.SetEntity(player.GetBase());
+
+                    Quest combatQuest = new Quest { Title = "Combat Training" };
+                    combatQuest.AddObjective(new Objective { Name = "Use your Secondary (Mouse Left)", TargetValue = 1 });
+                    // combatQuest.AddObjective(new Objective { Name = "Use your Utility (Space)", TargetValue = 1 });
+                    // combatQuest.AddObjective(new Objective { Name = "Use your Ultimate (R)", TargetValue = 1 });
+                    combatQuest.AddObjective(new Objective { Name = "Dodge (Shift)", TargetValue = 5 });
+
+                    int dodgeCount = 0;
+                    Action secondaryAction = () => QuestManager.SignalComplete("Use your Secondary (Mouse Left)");
+                    // Action utilityAction = () => QuestManager.SignalComplete("Use your Utility (Space)");
+                    // Action ultimateAction = () => QuestManager.SignalComplete("Use your Ultimate (R)");
+
+                    player.GetBase().Secondary.OnAct += secondaryAction;
+                    // player.GetBase().Utility.OnAct += utilityAction;
+                    // player.GetBase().Ultimate.OnAct += ultimateAction;
+
+                    InputEvent dodge = new InputEvent
                     {
-                        Author = "Evil Gentry",
-                        Text = "Not a chance",
-                        Duration = 1000
-                    });
-                    break;
+                        Key = Key.ShiftLeft, Action = () =>
+                        {
+                            QuestManager.SignalSet("Dodge (Shift)", dodgeCount + 1);
+                            dodgeCount++;
+                        }
+                    };
 
-                case var x when x <= 0.25f && !twentyFivePercent:
-                    twentyFivePercent = true;
-                    enemy.GetBase().Stats.Speed.Current.Value += 0.2;
-                    displayDialogue(new DialogueEvent
+                    inputHandler.AddKeyDownEvent(dodge);
+
+                    combatQuest.QuestCompleted += _ =>
                     {
-                        Author = "Evil Gentry",
-                        Text = "No",
-                        Duration = 1000
-                    });
-                    break;
+                        player.GetBase().Secondary.OnAct -= secondaryAction;
+                        // player.GetBase().Utility.OnAct -= utilityAction;
+                        // player.GetBase().Ultimate.OnAct -= ultimateAction;
+                        inputHandler.RemoveKeyDownEvent(dodge);
+                    };
 
-                case var x when x <= 0.5f && !fiftyPercent:
-                    fiftyPercent = true;
-                    enemy.GetBase().Stats.Speed.Current.Value += 0.2;
-                    displayDialogue(new DialogueEvent
-                    {
-                        Author = "Evil Gentry",
-                        Text = "You're pretty strong",
-                        Duration = 1000
-                    });
-                    break;
+                    QuestManager.PushQuest(combatQuest);
+                }
+            });
 
-                case var x when x <= 0.8f && !eightyPercent:
-                    eightyPercent = true;
-                    displayDialogue(new DialogueEvent
-                    {
-                        Author = "Evil Gentry",
-                        Text = "...",
-                        Duration = 1000
-                    });
-                    break;
-
-                case var x when x <= 0.9f && !ninetyPercent:
-                    ninetyPercent = true;
-                    displayDialogue(new DialogueEvent
-                    {
-                        Author = "Evil Gentry",
-                        Text = "You've got some fight in you.",
-                        Duration = 1000
-                    });
-                    break;
-            }
-        }
-
-        private void displayDialogue(DialogueEvent dialogueEvent)
-        {
-            AutoDialogueBox dialogueBox = new AutoDialogueBox(dialogueEvent.Author, dialogueEvent.Text);
-            AddInternal(dialogueBox);
-            Scheduler.AddDelayed(() => { dialogueBox.FadeOut(500); }, dialogueEvent.Duration + 500);
-            Scheduler.AddDelayed(() => { RemoveInternal(dialogueBox, true); }, dialogueEvent.Duration + 1000);
-        }
-
-        private void hideMovementText(Vector2 direction, double speed)
-        {
-            if (!keyMovementText.IsPresent) return;
-
-            keyMovementText.FadeOut(500);
-            keyAttackText.Delay(1000).Then().MoveToX(-0.1f, 500, Easing.OutQuint);
-        }
-
-        private void hideAttackText(DamageDetails details)
-        {
-            if (!keyAttackText.IsPresent) return;
-
-            keyAttackText.FadeOut(500);
-            keyDodgeText.Delay(1000).Then().FadeIn(500, Easing.OutQuint);
-        }
-
-        private void hideDodgeText()
-        {
-            if (!keyDodgeText.IsPresent) return;
-
-            keyDodgeText.FadeOut(500);
-            enemy.GetBase().Stats.AttackSpeed.Current.Value = 0.5;
-            keySkillText.Delay(1000).Then()
-                        .MoveToX(-0.1f, 500, Easing.OutQuint).Then()
-                        .Delay(6000).Then()
-                        .FadeOut(500, Easing.OutQuint);
+            evilGentryScene.Start(Overlay, Scheduler);
         }
 
         [BackgroundDependencyLoader]
         private void load(ISampleStore samples)
         {
             AddInternal(scene);
+            AddInternal(questOverlay);
             AddInternal(gameplayHud);
-            gameplayHud.Disappear();
-
-            flashbangSound = new DrawableSample(samples.Get("flashbang.mp3"));
-            lightDie = new DrawableSample(samples.Get("light-die.mp3"));
-
-            AddInternal(keyMovementText = new SpriteText
-            {
-                RelativePositionAxes = Axes.Both,
-                X = 0.05f,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Alpha = 0,
-                Text = "Use WASD to move around.",
-                Font = FontUsage.Default.With(size: 70),
-                Y = -0.15f
-            });
-
-            AddInternal(keyAttackText = new SpriteText
-            {
-                RelativePositionAxes = Axes.Both,
-                X = 0.6f,
-                Anchor = Anchor.BottomRight,
-                Origin = Anchor.BottomRight,
-                Text = "Use LEFT MOUSE button for main attack.",
-                Font = FontUsage.Default.With(size: 70),
-                Y = -0.2f
-            });
-
-            AddInternal(keyDodgeText = new SpriteText
-            {
-                RelativePositionAxes = Axes.Both,
-                X = 0.05f,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Alpha = 0,
-                Text = "Use SHIFT to dodge attacks.",
-                Font = FontUsage.Default.With(size: 70),
-                Y = -0.15f
-            });
-
-            AddInternal(keySkillText = new SpriteText
-            {
-                RelativePositionAxes = Axes.Both,
-                X = 0.6f,
-                Anchor = Anchor.BottomRight,
-                Origin = Anchor.BottomRight,
-                Text = "You can also use RIGHT MOUSE, SPACE, or R to use skills.",
-                Font = FontUsage.Default.With(size: 50),
-                Y = -0.2f
-            });
-
-            AddInternal(flashCover = new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.White,
-                Alpha = 0
-            });
-
-            scene.GetMap().Y = -400;
+            questOverlay.Load();
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
         {
             base.OnEntering(e);
             introScript.Start(Overlay, Scheduler);
+            discordRpc.UpdatePresence("Tutorial", "Playing");
+        }
+
+        private void handleMovementKey(Key key)
+        {
+            switch (key)
+            {
+                case Key.W:
+                    movementButtons[0] = true;
+                    break;
+
+                case Key.A:
+                    movementButtons[1] = true;
+                    break;
+
+                case Key.S:
+                    movementButtons[2] = true;
+                    break;
+
+                case Key.D:
+                    movementButtons[3] = true;
+                    break;
+            }
+
+            QuestManager.SignalSet("Move with WASD", movementButtons.Count(x => x));
         }
     }
 }

@@ -16,7 +16,7 @@ public class Burn(int duration = 1, int stack = 1) : StatusEffect(duration, stac
 
     public override IconUsage Icon { get; protected set; } = FontAwesome.Solid.Fire;
 
-    public override bool IsInfinite { get; set; } = false;
+    public override bool IsInfinite { get; set; }
     public override double Interval { get; protected set; } = new Second(0.5);
 
     public override void Handle()

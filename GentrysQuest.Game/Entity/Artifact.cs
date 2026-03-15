@@ -8,28 +8,47 @@ namespace GentrysQuest.Game.Entity
 {
     public class Artifact : EntityBase
     {
-        public virtual Family family
-        {
-            get { throw new NotImplementedException(); }
-            protected set { throw new NotImplementedException(); }
-        }
-
         public Buff MainAttribute { get; set; }
-        public List<Buff> Attributes { get; set; }
+        public List<Buff> Attributes { get; set; } = [];
         public virtual List<StatType> ValidMainAttributes { get; set; } = new();
         public virtual List<int> ValidStarRatings { get; set; } = new() { 1, 2, 3, 4, 5 };
         public virtual AllowedPercentMethod AllowedPercentMethod { get; set; } = AllowedPercentMethod.Allowed;
         public Character Holder;
 
-        public Artifact()
+        /// <summary>
+        /// Abstract method for handling artifact equip events. Subclasses should override this to provide specific behavior.
+        /// </summary>
+        /// <param name="entity">The entity that is equipping the artifact.</param>
+        public virtual void OnEquip(Entity entity) { }
+
+        /// <summary>
+        /// Abstract method for handling artifact unequip events. Subclasses should override this to provide specific behavior.
+        /// </summary>
+        /// <param name="entity">The entity that is unequipping the artifact.</param>
+        public virtual void OnUnequip(Entity entity) { }
+
+        /// <summary>
+        /// Get the stack of this artifact.
+        /// </summary>
+        public int Stack => Holder != null ? Holder.Artifacts.GetArtifactCountByName(Name) - 1 : 0;
+
+        public Artifact() => Initialize(MathBase.RandomGachaStarRating());
+        public Artifact(int starRating) => Initialize(starRating);
+
+        public override void LevelUp()
         {
-            Initialize(ValidStarRatings[Random.Shared.Next(ValidStarRatings.Count)]);
-            OnLevelUp += delegate
-            {
-                if (Experience.Level.Current.Value % 4 == 0) AddBuff();
-                MainAttribute.Improve();
-                Holder?.UpdateStats();
-            };
+            if (Experience.Level.Current.Value >= Experience.Level.Limit.Value) return;
+
+            base.LevelUp();
+            Difficulty = (byte)(Experience.Level.Current.Value / 4);
+            if (Experience.Level.Current.Value % 4 == 0) AddBuff();
+            MainAttribute.Improve();
+            Holder?.UpdateStats();
+        }
+
+        public override void CalculateXpRequirement()
+        {
+            Experience.Xp.Requirement.Value = (Experience.CurrentLevel() * (100 * StarRating)) + ((Experience.CurrentLevel() / 4) * (1000 * StarRating));
         }
 
         public void Initialize(int starRating)
@@ -46,12 +65,15 @@ namespace GentrysQuest.Game.Entity
                     isPercent = MathBase.RandomBool();
                     break;
 
-                case AllowedPercentMethod.NotAllowed:
-                    break;
-
                 case AllowedPercentMethod.OnlyPercent:
                     isPercent = true;
                     break;
+
+                case AllowedPercentMethod.NotAllowed:
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             MainAttribute = new Buff(this, stat, isPercent);
@@ -69,31 +91,25 @@ namespace GentrysQuest.Game.Entity
                 StarRating = StarRating.Value,
                 ID = ID,
                 CurrentXp = Experience.CurrentXp(),
-                MainBuff = MainAttribute.ToJson(),
-                FamilyName = family.Name
+                MainBuff = MainAttribute.ToJson()
             };
-            List<JsonBuff> buffs = new List<JsonBuff>();
-            foreach (Buff buff in Attributes) buffs.Add(buff.ToJson());
+            List<JsonBuff> buffs = Attributes.Select(buff => buff.ToJson()).ToList();
             jsonEntity.Buffs = buffs;
 
             return jsonEntity;
         }
 
-        public void LoadJson(JsonArtifact jsonArtifact)
+        public override void LoadJson(IJsonEntity jsonEntity)
         {
+            JsonArtifact jsonArtifact = (JsonArtifact)jsonEntity;
             LoadJsonBase(jsonArtifact);
             MainAttribute = new Buff(jsonArtifact.MainBuff);
             foreach (JsonBuff jsonBuff in jsonArtifact.Buffs) Attributes.Add(new Buff(jsonBuff));
         }
 
-        public override void CalculateXpRequirement()
-        {
-            Experience.Xp.Requirement.Value = (Experience.CurrentLevel() * (100 * StarRating)) + ((Experience.CurrentLevel() / 4) * (1000 * StarRating));
-        }
-
         private void initializeAttributes()
         {
-            Attributes = new();
+            Attributes = [];
             Experience = new Experience(new Xp(), new Level(1, StarRating.Value * 4));
             int counter = StarRating.Value;
 
@@ -121,11 +137,10 @@ namespace GentrysQuest.Game.Entity
                     duplicate = true;
                 }
 
-                if (!duplicate)
-                {
-                    newBuff.ParentEntity = this;
-                    Attributes.Add(newBuff);
-                }
+                if (duplicate) return;
+
+                newBuff.ParentEntity = this;
+                Attributes.Add(newBuff);
             }
         }
     }

@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using GentrysQuest.Game.Content;
 using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Online.API;
+using GentrysQuest.Game.Online;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Screens;
 
 namespace GentrysQuest.Game.Screens
 {
@@ -18,6 +18,9 @@ namespace GentrysQuest.Game.Screens
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
 
         /// <summary>
         /// This is the main loading screen for the game.
@@ -57,24 +60,21 @@ namespace GentrysQuest.Game.Screens
             });
         }
 
+        public override void OnEntering(ScreenTransitionEvent e)
+        {
+            base.OnEntering(e);
+            discordRpc.UpdatePresence("Loading", "");
+        }
+
         private async Task loadGameData()
         {
             status.Text = "Loading game data";
-            ContentManager.LoadContent();
             await Task.Delay(500);
-        }
-
-        private async Task setupAPIAccess()
-        {
-            status.Text = "Connecting to server";
-            _ = new APIAccess(); // need to set up API access
-            await APIAccess.GrabToken();
         }
 
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            await setupAPIAccess();
             await loadGameData();
 
             Scheduler.AddDelayed(() =>
@@ -92,9 +92,9 @@ namespace GentrysQuest.Game.Screens
             }, 1500);
             Scheduler.AddDelayed(() => status.FadeOut(250), 2700);
 #if DEBUG
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(ScreenState.MainMenu); }, 3000);
+            Scheduler.AddDelayed(() => { screenManager.SetScreen(new MainMenuScreen()); }, 3000);
 #else
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(ScreenState.Intro); }, 3000);
+            Scheduler.AddDelayed(() => { screenManager.SetScreen(new IntroScreen(false)); }, 3000);
 #endif
         }
     }

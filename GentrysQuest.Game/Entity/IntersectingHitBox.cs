@@ -1,4 +1,4 @@
-using GentrysQuest.Game.Location.Drawables;
+using GentrysQuest.Game.Location;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -9,7 +9,7 @@ namespace GentrysQuest.Game.Entity
     /// </summary>
     public partial class IntersectingHitBox : HitBox
     {
-        public IntersectingHitBox(DrawableMapObject parent)
+        public IntersectingHitBox(MapObject parent)
             : base(parent)
         {
             Colour = new Colour4(1, 1, 1, 0.5f);

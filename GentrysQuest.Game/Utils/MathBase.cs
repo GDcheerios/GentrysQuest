@@ -5,6 +5,8 @@ namespace GentrysQuest.Game.Utils
 {
     public static class MathBase
     {
+        #region VectorMath
+
         /// <summary>
         /// Get the (Normalized) direction from one vector to the other.
         /// </summary>
@@ -86,27 +88,70 @@ namespace GentrysQuest.Game.Utils
             return new Vector2(newX, newY);
         }
 
-        public static double SecondToMs(double input)
-        {
-            return input * 1000;
-        }
-
         public static double GetDistance(Vector2 firstPos, Vector2 secondPos)
         {
             return Math.Sqrt(Math.Pow(secondPos.X - firstPos.X, 2) + Math.Pow(secondPos.Y - firstPos.Y, 2));
         }
 
+        #endregion
+
+        #region RandomMath
+
         public static double GetPercent(double value, double percent) => value * (percent * 0.01f);
         public static int RandomInt(int min, int max) => Random.Shared.Next(min, max + 1);
         public static int RandomInt(int max) => Random.Shared.Next(max + 1);
+        public static int RandomPercent() => Random.Shared.Next(0, 101);
         public static float RandomFloat(float min, float max) => min + Random.Shared.NextSingle() * (max - min);
         public static float RandomFloat(float max) => Random.Shared.NextSingle() * max;
         public static float RandomFloat() => Random.Shared.NextSingle();
         public static bool RandomBool() => Convert.ToBoolean(Random.Shared.Next(2));
         public static bool IsChanceSuccessful(int passingValue, int chance) => (passingValue >= RandomInt(chance));
         public static bool IsChanceSuccessful(float passingValue) => passingValue >= RandomFloat();
-
         public static int RandomChoice(int size) => Random.Shared.Next(size);
+
+        /// <summary>
+        /// Get a random star rating.
+        /// </summary>
+        /// <returns></returns>
+        public static int RandomGachaStarRating()
+        {
+            int chance = RandomInt(0, 10000);
+
+            int starRating = chance switch
+            {
+                <= 50 => 5,
+                <= 500 => 4,
+                <= 1500 => 3,
+                <= 5000 => 2,
+                _ => 1
+            };
+
+            return starRating;
+        }
+
+        #endregion
+
+        #region TimeMath
+
+        public static double SecondToMs(double input)
+        {
+            return input * 1000;
+        }
+
+        #endregion
+
+        #region UnitConversionMath
+
+        private const int ENTITY_INCHES = 12;
+
+        private const int INCHES_TO_MILES = 63360;
+
+        private const int INCHES_TO_FEET = 12;
+
+        public static int GetMilesToPixels(double miles) => (int)(miles * (INCHES_TO_MILES * (ENTITY_INCHES * 0.1)));
+        public static int GetFeetToPixels(double feet) => (int)(feet * (INCHES_TO_FEET * (ENTITY_INCHES * 0.1)));
+
+        #endregion
 
         /// <summary>
         /// Get the star rating based off of difficulty
@@ -115,7 +160,6 @@ namespace GentrysQuest.Game.Utils
         /// <returns>the star rating</returns>
         public static int GetStarRating(int difficulty)
         {
-            // difficulty starts at zero so we add one
             int currentStarRating = difficulty + 1;
             if (IsChanceSuccessful(0.15f)) currentStarRating++;
             if (IsChanceSuccessful(0.03f)) currentStarRating++;
@@ -124,11 +168,9 @@ namespace GentrysQuest.Game.Utils
 
         public static float CalculateShortestRotation(float currentRotation, float targetRotation)
         {
-            // Normalize angles to [0, 360)
             currentRotation = (currentRotation % 360 + 360) % 360;
             targetRotation = (targetRotation % 360 + 360) % 360;
 
-            // Determine shortest rotation direction and angle
             float rotationDifference = targetRotation - currentRotation;
 
             if (rotationDifference > 180)

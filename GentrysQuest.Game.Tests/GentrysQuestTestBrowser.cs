@@ -1,5 +1,5 @@
+using GentrysQuest.Game.Graphics;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Platform;
 using osu.Framework.Testing;
 
@@ -14,7 +14,7 @@ namespace GentrysQuest.Game.Tests
             AddRange(new Drawable[]
             {
                 new TestBrowser("GentrysQuest"),
-                new CursorContainer()
+                new GqCursorContainer()
             });
         }
 

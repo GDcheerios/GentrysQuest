@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Tests.Visual.Maps
 
         public TestSceneMap()
         {
-
+            TestName = "MapTest";
         }
     }
 }

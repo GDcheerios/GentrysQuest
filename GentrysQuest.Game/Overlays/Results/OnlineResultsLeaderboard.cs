@@ -25,7 +25,7 @@ namespace GentrysQuest.Game.Overlays.Results
         protected override async void LoadComplete()
         {
             base.LoadComplete();
-            Load();
+            // Load();
         }
 
         private void populate(List<LeaderboardPlacement> placements)

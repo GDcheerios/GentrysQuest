@@ -1,17 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Overlays.Notifications;
 using Newtonsoft.Json;
+using osu.Framework.Bindables;
 
 namespace GentrysQuest.Game.Users
 {
     public class GuestUser : IUser
     {
-        public GuestUser(string name) => Name = name;
+        public GuestUser(string name = "Guest")
+        {
+            Name = name;
+            MoneyHandler = new Money(this);
+        }
 
         public string Name { get; set; }
 
@@ -19,14 +25,19 @@ namespace GentrysQuest.Game.Users
 
         // public StatTracker Stats { get; set; } = new StatTracker();
         public int StartupAmount { get; set; }
-        public int Money { get; set; }
+        public int Money { get; set; } = 0;
+        public Bindable<int> Placement { get; set; } = new();
+        public Bindable<int> WeightedGp { get; set; } = new();
+        public Bindable<int> UnweightedGp { get; set; } = new();
+        public Bindable<string> Rank { get; set; } = new();
+        public Bindable<int> Tier { get; set; } = new();
         public Money MoneyHandler { get; set; }
         public List<Character> Characters { get; set; } = [];
         public List<Artifact> Artifacts { get; set; } = [];
         public List<Weapon> Weapons { get; set; } = [];
         public Character EquippedCharacter { get; set; } = null;
 
-        public void Load()
+        public Task Load()
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{Name}.json");
             if (!File.Exists(filePath))
@@ -36,15 +47,19 @@ namespace GentrysQuest.Game.Users
             {
                 string jsonData = File.ReadAllText(filePath);
                 JsonConvert.PopulateObject(jsonData, this);
-                MoneyHandler = new Money(this);
+#if DEBUG
+                MoneyHandler.InfiniteMoney = true;
+#endif
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException($"Error loading guest user data for '{Name}'.", ex);
             }
+
+            return Task.CompletedTask;
         }
 
-        public void Save()
+        public Task Save()
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{Name}.json");
 
@@ -57,9 +72,11 @@ namespace GentrysQuest.Game.Users
             {
                 throw new InvalidOperationException($"Error saving guest user data for '{Name}'.", ex);
             }
+
+            return Task.CompletedTask;
         }
 
-        public void AddItem(EntityBase entity)
+        public Task AddItem(EntityBase entity)
         {
             Notification.Create($"Obtained {entity.StarRating.Value} star {entity.Name}", NotificationType.Obtained);
 
@@ -77,6 +94,30 @@ namespace GentrysQuest.Game.Users
                     Weapons.Add(weapon);
                     break;
             }
+
+            return null;
+        }
+
+        public Task UpdateItem(EntityBase entity) { return null; }
+
+        public Task RemoveItem(EntityBase entity)
+        {
+            switch (entity)
+            {
+                case Character character:
+                    Characters.Remove(character);
+                    break;
+
+                case Artifact artifact:
+                    Artifacts.Remove(artifact);
+                    break;
+
+                case Weapon weapon:
+                    Weapons.Remove(weapon);
+                    break;
+            }
+
+            return null;
         }
 
         public void Delete()
@@ -94,17 +135,27 @@ namespace GentrysQuest.Game.Users
             }
         }
 
-        public static GuestUser Create(string name)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name">Name of the guest</param>
+        /// <param name="forceCreation">Will ignore if the user already exists</param>
+        /// <returns></returns>
+        public static GuestUser Create(string name, bool forceCreation = false)
         {
             string filePath = Path.Combine(DatabaseManager.PATH, $"{name}.json");
 
-            if (File.Exists(filePath))
+            if (!forceCreation)
             {
-                Notification.Create($"Guest user '{name}' already exists.", NotificationType.Error);
-                return new(name);
+                if (File.Exists(filePath))
+                {
+                    Notification.Create($"Guest user '{name}' already exists.", NotificationType.Error);
+                    return new(name);
+                }
             }
 
             GuestUser newUser = new(name);
+            newUser.MoneyHandler = new Money(newUser);
             newUser.Save();
 
             return newUser;

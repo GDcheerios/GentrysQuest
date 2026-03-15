@@ -1,30 +1,42 @@
-using System;
+using System.Collections.Generic;
+using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.Drawables;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osuTK;
 
 namespace GentrysQuest.Game.Location
 {
-    public abstract class MapZone : IMapObject
-    {
-        public Vector2 Size { get; set; } = Vector2.One;
-        public Vector2 Position { get; set; }
-        public EventHandler OnTouchEvent { get; set; }
-        public Anchor Anchor { get; set; } = Anchor.Centre;
-        public Anchor Origin { get; set; } = Anchor.TopLeft;
-        public Axes RelativeSizeAxes { get; set; } = Axes.None;
-        public Axes RelativePositionAxes { get; set; } = Axes.None;
+    public delegate void TouchEventHandler(DrawableEntity entity);
 
-        public void OnTouch()
+    public partial class MapZone : MapObject
+    {
+        public event TouchEventHandler OnTouched;
+
+        public bool Flashes { get; set; }
+
+        public MapZone()
         {
-            throw new NotImplementedException();
+            Reactive = true;
+            HasCollider = false;
         }
 
-        public abstract Colour4 Colour { get; set; }
-#if DEBUG
-        public float Alpha { get; set; } = 0.5f;
-#else
-        public float Alpha { get; set; } = 0;
-#endif
+        protected virtual void OnTouch(DrawableEntity entity) => OnTouched?.Invoke(entity);
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            if (Flashes) this.FlashColour(Colour4.White, 500).Loop();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            List<HitBox> intersections = HitBoxScene.GetIntersections(IntersectingHitBox);
+
+            foreach (HitBox hitBox in intersections)
+            {
+                if (hitBox.GetParent() is DrawableEntity entity) OnTouch(entity);
+            }
+        }
     }
 }
-

@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using GentrysQuest.Game.Graphics;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
@@ -15,22 +19,30 @@ namespace GentrysQuest.Game.Entity.Drawables
         private bool queued = false;
         private readonly List<EntityBase> queuedEntities = new();
         private const int DURATION = 150;
+        private const int DELAY = 50;
+        private const int DELAY_ITEM_LIMIT = 7;
+        private const int DELAY_MAX = DELAY * DELAY_ITEM_LIMIT + 1;
+        private const int SORT_DURATION = 100;
         private readonly SpriteText noItemsDisclaimer;
         private readonly LoadingIndicator loadingIndicator;
         public event EventHandler FinishedLoading;
 
+        public Bindable<int> Spacing { get; } = new Bindable<int>(20);
+
         public EntityInfoListContainer()
         {
+            Name = "Entity Info List";
             RelativeSizeAxes = Axes.Both;
             Origin = Anchor.TopCentre;
             Anchor = Anchor.TopCentre;
             Padding = new MarginPadding(3f);
-            Children = new Drawable[]
-            {
+            Children =
+            [
                 scrollContainer = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(1, 0.9f)
+                    Size = new Vector2(1, 0.9f),
+                    Padding = new MarginPadding { Bottom = 10 },
                 },
                 noItemsDisclaimer = new SpriteText
                 {
@@ -46,24 +58,37 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
                 }
-            };
+            ];
             loadingIndicator.FadeOut(0);
             entityReferences = new();
+            Spacing.ValueChanged += _ => RepositionItems();
         }
 
-        private void addToList(EntityInfoDrawable drawable)
+        private Task addToList(EntityInfoDrawable drawable)
         {
-            drawable.Y = 110 * scrollContainer.Count;
+            drawable.Y = drawable.Height * scrollContainer.Count;
+
+            drawable.GetViewportScreenSpaceRect = () =>
+            {
+                var topLeft = scrollContainer.ToScreenSpace(scrollContainer.DrawRectangle.TopLeft);
+                var bottomRight = scrollContainer.ToScreenSpace(scrollContainer.DrawRectangle.BottomRight);
+
+                return new RectangleF(
+                    topLeft.X,
+                    topLeft.Y,
+                    bottomRight.X - topLeft.X,
+                    bottomRight.Y - topLeft.Y
+                );
+            };
+
             scrollContainer.Add(drawable);
             entityReferences.Add(drawable);
+            return Task.CompletedTask;
         }
 
-        public List<EntityInfoDrawable> GetEntityInfoDrawables()
-        {
-            return entityReferences;
-        }
+        public List<EntityInfoDrawable> GetEntityInfoDrawables() => entityReferences;
 
-        private void addEntity(EntityBase entity, int delay = 0)
+        private async Task addEntity(EntityBase entity, int delay = 0, bool hidden = false)
         {
             EntityInfoDrawable entityInfoDrawable;
 
@@ -86,59 +111,42 @@ namespace GentrysQuest.Game.Entity.Drawables
                     break;
             }
 
-            addToList(entityInfoDrawable);
-            entityInfoDrawable.FadeOut().Then().Delay(delay).Then().FadeIn(DURATION);
+            await addToList(entityInfoDrawable);
+            if (hidden) entityInfoDrawable.FadeOut().Then().ScaleTo(new Vector2(1, 0.001f));
         }
 
-        public void AddFromList<T>(List<T> entityList, bool isNew = false) where T : EntityBase
+        public async Task AddFromList<T>(List<T> entityList) where T : EntityBase
         {
             if (entityList.Count == 0) noItemsDisclaimer.FadeIn(DURATION);
             else noItemsDisclaimer.FadeOut(DURATION);
-
-            if (queued)
-            {
-                queuedEntities.Clear();
-
-                foreach (var entity in entityList)
-                {
-                    queuedEntities.Add(entity);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < entityList.Count; i++)
-                {
-                    addEntity(entityList[i], 35);
-                }
-            }
+            for (int i = 0; i < entityList.Count; i++) await addEntity(entityList[i]);
         }
 
-        private void drawableFadeOut(EntityInfoDrawable drawable)
+        public void AddPadding(int padding) => scrollContainer.Padding = new MarginPadding { Bottom = padding, Top = padding };
+
+        private async Task drawableFadeOut(EntityInfoDrawable drawable)
         {
-            drawable.FadeOut(DURATION).ScaleTo(0, DURATION);
-            Scheduler.AddDelayed(() =>
-            {
-                scrollContainer.Remove(drawable, false);
-            }, DURATION);
+            drawable.FadeOut(DELAY);
+            await Task.Delay(DELAY);
         }
 
-        public void ClearList()
+        private Task removeDrawable(EntityInfoDrawable drawable) => Task.FromResult(scrollContainer.Remove(drawable, false));
+
+        public async Task ClearList()
         {
-            queued = true;
-            loadingIndicator.FadeIn(50);
-            entityReferences.Clear();
+            int index = 0;
 
-            Scheduler.AddDelayed(() =>
+            foreach (EntityInfoDrawable entityInfoDrawable in entityReferences.ToList())
             {
-                loadingIndicator.FadeOut(50);
-                queued = false;
-            }, DURATION);
-
-            foreach (EntityInfoDrawable drawable in scrollContainer)
-            {
-                drawableFadeOut(drawable);
+                entityReferences.Remove(entityInfoDrawable);
+                if (index < DELAY_ITEM_LIMIT)
+                    await drawableFadeOut(entityInfoDrawable);
+                await removeDrawable(entityInfoDrawable);
+                index++;
             }
         }
+
+        public async Task RemoveFromList(EntityInfoDrawable drawable) => await drawableFadeOut(drawable);
 
         protected override void Update()
         {
@@ -152,14 +160,39 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.Update();
         }
 
+        public int GetDelayLimit() => DELAY_ITEM_LIMIT;
+        public int GetSortDuration() => SORT_DURATION;
+        public int GetDelay() => DELAY;
+
+        public void ScrollToTop() => scrollContainer.ScrollToStart();
+
+        public void ScrollToItem(int index)
+        {
+            if (index < 3 || index > entityReferences.Count - 4) return;
+
+            var targetY = (index - 3) * 110;
+            scrollContainer.ScrollTo(targetY);
+        }
+
+        public BasicScrollContainer GetScrollContainer() => scrollContainer;
+
+        public void RepositionItems()
+        {
+            for (int i = 0; i < entityReferences.Count; i++)
+            {
+                entityReferences[i].MoveToY(i * entityReferences[i].Height + Spacing.Value, SORT_DURATION, Easing.InOutCirc);
+            }
+        }
+
         public void Sort(string condition, bool reversed)
         {
-            List<dynamic[]> newList = new();
-
-            foreach (EntityInfoDrawable entityInfoDrawable in scrollContainer.Children)
-            {
-                newList.Add(new dynamic[] { entityInfoDrawable.entity, entityInfoDrawable });
-            }
+            List<dynamic[]> newList = (
+                from EntityInfoDrawable entityInfoDrawable in scrollContainer.Children
+                select new dynamic[]
+                {
+                    entityInfoDrawable.entity, entityInfoDrawable
+                }
+            ).ToList();
 
             switch (condition)
             {
@@ -183,8 +216,13 @@ namespace GentrysQuest.Game.Entity.Drawables
             foreach (var pair in newList)
             {
                 EntityInfoDrawable entityInfoDrawable = pair[1];
-                entityInfoDrawable.MoveToY(yPos, 100, Easing.InOutCirc);
-                yPos += 110;
+                entityInfoDrawable.MoveToY(yPos, SORT_DURATION, Easing.InOutCirc);
+                yPos += (int)entityInfoDrawable.Height + Spacing.Value;
+            }
+
+            for (int i = 0; i < newList.Count; i++)
+            {
+                entityReferences[i] = newList[i][1];
             }
         }
     }

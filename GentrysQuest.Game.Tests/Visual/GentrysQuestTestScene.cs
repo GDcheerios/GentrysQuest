@@ -1,6 +1,8 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Online;
 using osu.Framework.Allocation;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Testing;
 
 namespace GentrysQuest.Game.Tests.Visual
@@ -8,6 +10,14 @@ namespace GentrysQuest.Game.Tests.Visual
     public partial class GentrysQuestTestScene : TestScene
     {
         protected override ITestSceneTestRunner CreateRunner() => new GentrysQuestTestSceneTestRunner();
+
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
+
+        [Cached]
+        private TitleText title = new TitleText("Gentry's Quest") { Y = 300 };
+
+        protected virtual string TestName { get; init; }
 
         private partial class GentrysQuestTestSceneTestRunner : GentrysQuestGameBase, ITestSceneTestRunner
         {
@@ -25,7 +35,8 @@ namespace GentrysQuest.Game.Tests.Visual
         [BackgroundDependencyLoader]
         private void load()
         {
-            Add(new CursorContainer());
+            Add(new GqBackground());
+            discordRpc.UpdatePresence(TestName, "Testing");
         }
 
         public GentrysQuestTestScene()

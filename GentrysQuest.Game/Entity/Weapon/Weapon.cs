@@ -129,12 +129,16 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             Buff = ValidBuffs.Count > 0 ? new Buff(this, ValidBuffs[MathBase.RandomChoice(ValidBuffs.Count)]) : new Buff(this);
             SkillRef = new WeaponSkill();
-            OnLevelUp += delegate
-            {
-                UpdateStats();
-                Buff.Improve();
-                Holder?.UpdateStats();
-            };
+            CalculateXpRequirement();
+            UpdateStats();
+        }
+
+        public override void LevelUp()
+        {
+            base.LevelUp();
+            UpdateStats();
+            Buff.Improve();
+            Holder?.UpdateStats();
         }
 
         public JsonWeapon ToJson()
@@ -151,10 +155,11 @@ namespace GentrysQuest.Game.Entity.Weapon
             return jsonEntity;
         }
 
-        public void LoadJson(JsonWeapon jsonEntity)
+        public override void LoadJson(IJsonEntity jsonEntity)
         {
-            LoadJsonBase(jsonEntity);
-            Buff = new Buff(jsonEntity.Buff);
+            JsonWeapon jsonWeapon = (JsonWeapon)jsonEntity;
+            LoadJsonBase(jsonWeapon);
+            Buff = new Buff(jsonWeapon.Buff);
         }
 
         public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);

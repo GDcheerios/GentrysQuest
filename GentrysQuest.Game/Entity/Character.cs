@@ -1,4 +1,5 @@
 using GentrysQuest.Game.IO;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Entity;
 
@@ -10,27 +11,22 @@ public class Character : Entity
     {
         Artifacts = new ArtifactManager(this);
         Artifacts.OnChangeArtifact += UpdateStats;
+        UpdateStats();
     }
 
     public override void Damage(int amount)
     {
         base.Damage(amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.DamageTaken, amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.MostDamageTaken, amount);
     }
 
     public override void Heal(int amount)
     {
         base.Heal(amount);
-        // GameData.CurrentStats.AddToStat(StatTypes.HealthGained, (int)(amount * HealingModifier));
-        // GameData.CurrentStats.AddToStat(StatTypes.HealthGainedOnce, (int)(amount * HealingModifier));
     }
 
     public override void Die()
     {
         base.Die();
-        // GameData.CurrentStats.AddToStat(StatTypes.Deaths);
-        // GameData.CurrentStats.Log();
     }
 
     public override void UpdateStats()
@@ -116,17 +112,52 @@ public class Character : Entity
             CurrentWeapon = Weapon?.ToJson()
         };
         JsonArtifact[] artifacts = new JsonArtifact[5];
-        for (int i = 0; i < 5; i++) artifacts[i] = Artifacts.Get()[i].ToJson();
+
+        for (int i = 0; i < 5; i++)
+        {
+            var slot = Artifacts.Get()[i];
+            artifacts[i] = slot?.ToJson();
+        }
+
         jsonEntity.Artifacts = artifacts;
         return jsonEntity;
     }
 
+    public override void LoadJson(IJsonEntity jsonEntity)
+    {
+        JsonCharacter data = (JsonCharacter)jsonEntity;
+        Logger.Log($"Loading character {data.Name}");
+        Name = data.Name;
+        ID = data.ID;
+        StarRating.Value = data.StarRating;
+        Experience.Level.Current.Value = data.Level;
+        Experience.Xp.Current.Value = data.CurrentXp;
+
+        if (data.CurrentWeapon != null)
+            Weapon = (Weapon.Weapon)ItemSerializer.DeserializeItem("weapon", ItemSerializer.SerializeToString(data.CurrentWeapon));
+
+        for (int i = 0; i < data.Artifacts.Length; i++)
+        {
+            if (data.Artifacts[i] != null)
+                Artifacts.Equip((Artifact)ItemSerializer.DeserializeItem("artifact", ItemSerializer.SerializeToString(data.Artifacts[i])), i);
+        }
+
+        UpdateStats();
+    }
+
     public Enemy CreateEnemy(WeaponChoices weaponChoices)
     {
-        Enemy enemy = new Enemy();
-        enemy.Name = Name;
-        enemy.TextureMapping.Remove("Idle");
-        enemy.TextureMapping.Add("Idle", TextureMapping.Get("Idle"));
+        Enemy enemy = new Enemy
+        {
+            Name = Name
+        };
+
+        if (enemy.TextureMapping != null)
+        {
+            enemy.TextureMapping.Remove("Idle");
+            enemy.TextureMapping.Add("Idle", TextureMapping.Get("Idle"));
+        }
+
         enemy.Secondary = Secondary;
         enemy.Utility = Utility;
         enemy.Ultimate = Ultimate;

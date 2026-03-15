@@ -15,7 +15,6 @@ namespace GentrysQuest.Game.Content.Weapons
         public override string Name { get; set; } = "Brayden's Osu Pen";
 
         public override string Description { get; protected set; } = "The man himself, Brayden's osu pen!\n"
-                                                                     + "When [condition]held by the true wielder[/condition], gain a [unit]20%[/unit][details]+ 20 per difficulty[/details] increase in all your stats. "
                                                                      + "On a spinning attack you have a [unit]20%[/unit] chance to [type]bleed[/type] enemies for [unit]6 seconds[/unit]. ";
 
         public override StarRating StarRating { get; protected set; } = new(5);
@@ -116,6 +115,7 @@ namespace GentrysQuest.Game.Content.Weapons
 
             #region TextureMapping
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "brayden_osu_pen_base.png");
             TextureMapping.Add("Base", "brayden_osu_pen_base.png");
 

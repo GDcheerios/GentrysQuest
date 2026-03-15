@@ -1,3 +1,6 @@
+using GentrysQuest.Game.Content.Artifacts;
+using GentrysQuest.Game.Content.Enemies;
+using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
@@ -7,23 +10,32 @@ namespace GentrysQuest.Game.Content.Maps
 {
     public class TestMap : Map
     {
-        public override void Load()
+        public TestMap()
         {
             Name = "Test Map";
             DifficultyScales = true;
-
-            for (int i = 0; i < 100; i++) Objects.Add(new MapObject { Size = getRandVec(0.01f, 0.1f), Position = getRandVec(0, 1) });
-
-            // walls
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(1, 0.01f), Position = new Vector2(0, 0), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(1, 0.01f), Position = new Vector2(0, 1), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(0.01f, 1), Position = new Vector2(0, 0), Colour = Colour4.Black });
-            Objects.Add(new MapObject { HasCollider = true, Size = new Vector2(0.01f, 1), Position = new Vector2(1, 0), Colour = Colour4.Black });
+            Size = new Vector2(2000);
+            AllowRandomSpawning = true;
+            // TimeToSpawnEnemies = 10;
+            ArtifactChoices artifactChoices = new ArtifactChoices() { MultipleDrop = true };
+            artifactChoices.AddChoice(new OsuTablet(), 50);
+            artifactChoices.AddChoice(new MadokaChibiPlush(), 50);
+            Enemies =
+            [
+                new TestEnemy
+                {
+                    ArtifactChoices = artifactChoices
+                }
+            ];
+            SpawnPoint = GetCoordinatePercent(0.5f, 0.5f);
         }
 
-        private Vector2 getRandVec(float min, float max)
+        public override void Load()
         {
-            return new Vector2(MathBase.RandomFloat(min, max), MathBase.RandomFloat(min, max));
+            base.Load();
+            for (int i = 0; i < 100; i++) Objects.Add(new MapObject { HasCollider = true, Colour = Colour4.Black, Size = getRandVec(10, 300), Position = getRandVec(0, Size.X * 2) });
         }
+
+        private Vector2 getRandVec(float min, float max) => new(MathBase.RandomFloat(min, max), MathBase.RandomFloat(min, max));
     }
 }
