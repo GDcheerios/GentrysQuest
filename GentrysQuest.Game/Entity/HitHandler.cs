@@ -116,9 +116,7 @@ public class HitHandler
             case Character character:
                 if (receiverBase.IsDead)
                 {
-                    int money = receiverBase.GetMoneyReward();
                     sender.AddXp(receiverBase.GetXpReward());
-                    Weapon.Weapon reward = receiverBase.GetWeaponReward();
                 }
 
                 break;

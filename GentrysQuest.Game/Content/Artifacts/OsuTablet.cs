@@ -20,7 +20,7 @@ namespace GentrysQuest.Game.Content.Artifacts
 
         private void handleHit(DamageDetails details)
         {
-            if (details.GetHitAmount() % (10 - StarRating.Value) == 0)
+            if (Holder.Weapon != null && Holder.Weapon.AttackAmount % (10 - StarRating.Value) == 0)
             {
                 int percent = 50 + (20 * Stack);
                 details.Damage += (int)MathBase.GetPercent(details.Damage, percent);

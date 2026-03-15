@@ -36,7 +36,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             OnMove += delegate(Vector2 direction, double speed)
             {
-                Position += direction * (float)Clock.ElapsedFrameTime * (float)speed;
+                if (!float.IsNaN(direction.X) && !float.IsNaN(direction.Y))
+                    Position += direction * (float)Clock.ElapsedFrameTime * (float)speed;
             };
         }
 

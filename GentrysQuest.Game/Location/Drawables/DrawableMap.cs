@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Location.Drawables
 {
     public sealed partial class DrawableMap : CompositeDrawable
     {
-        public Map MapReference { get; private set; }
+        public Map Reference { get; private set; }
         public List<MapObject> Objects { get; private set; }
         public List<DrawableEntity> Npcs { get; private set; } = new();
 
@@ -36,8 +36,8 @@ namespace GentrysQuest.Game.Location.Drawables
 
         public void Load(Map map)
         {
-            MapReference = map;
-            MapReference.SetDrawable(this);
+            Reference = map;
+            Reference.SetDrawable(this);
             Objects = new();
 
             map.Load();
@@ -60,7 +60,7 @@ namespace GentrysQuest.Game.Location.Drawables
             AddInternal(new MapObject
             {
                 Name = "Spawn Point",
-                Position = MapReference.SpawnPoint,
+                Position = Reference.SpawnPoint,
                 Size = new Vector2(150),
                 Alpha = 0.5f,
                 Colour = Colour4.LightBlue,

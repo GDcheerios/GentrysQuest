@@ -165,6 +165,7 @@ namespace GentrysQuest.Game.Entity
         {
             Weapon = weapon;
             if (weapon != null) weapon.Holder = this;
+            UpdateStats();
             OnSwapWeapon?.Invoke();
         }
 
@@ -191,7 +192,7 @@ namespace GentrysQuest.Game.Entity
 
         public virtual Weapon.Weapon GetWeaponReward()
         {
-            if (MathBase.IsChanceSuccessful(Weapon!.DropChance)) return Weapon;
+            if (Weapon != null && MathBase.IsChanceSuccessful(Weapon!.DropChance)) return Weapon;
 
             return null;
         }

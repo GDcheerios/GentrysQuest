@@ -289,7 +289,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
                         case Weapon weapon:
                             if (focusedCharacter.Weapon != null) user?.AddItem(focusedCharacter.Weapon);
                             user?.RemoveItem(weapon);
-                            focusedCharacter.Weapon = weapon;
+                            focusedCharacter.SetWeapon(weapon);
                             user?.UpdateItem(focusedCharacter);
                             await displayInfo(new EntityInfoDrawable(focusedCharacter));
                             break;
@@ -487,7 +487,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
         {
             user?.AddItem(focusedCharacter.Weapon);
             user?.UpdateItem(focusedCharacter);
-            focusedCharacter.Weapon = null;
+            focusedCharacter.SetWeapon(null);
             _ = displayInfo(new EntityInfoDrawable(focusedCharacter));
         }
 

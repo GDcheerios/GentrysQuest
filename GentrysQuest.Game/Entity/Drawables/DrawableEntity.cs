@@ -113,7 +113,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
-                EntityBar = new DrawableEntityBar(Entity),
+                EntityBar = new DrawableEntityBar(entity),
                 HitBox,
                 ColliderBox
             };
@@ -127,8 +127,8 @@ namespace GentrysQuest.Game.Entity.Drawables
                 EntityBar.StatusEffects.Origin = Anchor.CentreLeft;
             }
 
-            if (Entity.Weapon != null) Weapon = new DrawableWeapon(this, Affiliation);
-            Entity.OnSwapWeapon += setDrawableWeapon;
+            setDrawableWeapon();
+            entity.OnSwapWeapon += setDrawableWeapon;
             entity.OnDamage += delegate(int amount) { addIndicator(amount, DamageType.Damage); };
             entity.OnHeal += delegate(int amount) { addIndicator(amount, DamageType.Heal); };
             entity.OnCrit += delegate(int amount) { addIndicator(amount, DamageType.Crit); };
@@ -201,7 +201,9 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void Move(Vector2 direction, double speed)
         {
             float value = (float)(Clock.ElapsedFrameTime * speed);
-            ColliderBox.Position += (direction * 0.05f) * value;
+            Vector2 delta = (direction * 0.05f) * value;
+
+            if (!float.IsNaN(delta.X) && !float.IsNaN(delta.Y)) ColliderBox.Position += delta;
 
             if (!HitBoxScene.Collides(ColliderBox)) { OnMove?.Invoke(direction, speed); }
         }
