@@ -1,4 +1,5 @@
 using GentrysQuest.Game.IO;
+using GentrysQuest.Game.Utils;
 using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Entity;
@@ -6,6 +7,7 @@ namespace GentrysQuest.Game.Entity;
 public class Character : Entity
 {
     public ArtifactManager Artifacts { get; }
+    public const double INVINCIBILITY_TIME = 2000;
 
     public Character()
     {
@@ -16,7 +18,7 @@ public class Character : Entity
 
     public override void Damage(int amount)
     {
-        base.Damage(amount);
+        if (LastDamageTime + INVINCIBILITY_TIME < GameClock.CurrentTime) base.Damage(amount);
     }
 
     public override void Heal(int amount)

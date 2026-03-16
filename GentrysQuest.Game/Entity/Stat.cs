@@ -19,10 +19,10 @@ namespace GentrysQuest.Game.Entity
 
         public bool IsPercent { get; private set; } = false;
 
-        public Bindable<double> Default { get; private set; } = new();
-        public Bindable<double> Minimum { get; } = new();
-        public Bindable<double> Current { get; private set; } = new();
-        public Bindable<double> Additional { get; private set; } = new();
+        public Bindable<double> Default { get; set; } = new();
+        public Bindable<double> Minimum { get; set; } = new();
+        public Bindable<double> Current { get; set; } = new();
+        public Bindable<double> Additional { get; set; } = new();
 
         public Stat(string name, StatType statType, double minimumValue, bool resetsOnUpdate = true)
         {

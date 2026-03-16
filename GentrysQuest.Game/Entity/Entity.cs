@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
@@ -19,8 +18,9 @@ namespace GentrysQuest.Game.Entity
         public bool Invincible = false;
         public bool CanDie = true;
         public bool CanKnockback = true;
-        public int CurrentTenacity = 0;
+        public int CurrentTenacity;
         public Vector2 PositionRef;
+        public double LastDamageTime;
 
         // Stats
         public Stats Stats = new();
@@ -41,6 +41,7 @@ namespace GentrysQuest.Game.Entity
         public float DefenseModifier = 1;
         public float PositionJump = 0; // For teleporting
         public float KnockbackModifier = 1;
+        public float EffectModifier = 1;
 
         // Skills
         public Skill Secondary = null;
@@ -63,6 +64,12 @@ namespace GentrysQuest.Game.Entity
 
         public delegate void ProjectileAdditionEvent(ProjectileParameters parameters);
 
+        public delegate void SwapArtifactEvent(Artifact artifact);
+
+        public delegate void SwapWeaponEvent(Weapon.Weapon weapon);
+
+        public delegate void EffectEvent(StatusEffect effect);
+
         // Spawn / Death events
         public event EntitySpawnEvent OnSpawn;
         public event EntitySpawnEvent OnDeath;
@@ -74,8 +81,8 @@ namespace GentrysQuest.Game.Entity
         public event EntityHealthEvent OnCrit;
 
         // Equipment events
-        public event EntityEvent OnSwapWeapon;
-        public event EntityEvent OnSwapArtifact;
+        public event SwapWeaponEvent OnSwapWeapon;
+        public event SwapArtifactEvent OnSwapArtifact;
 
         // Combat events
         public event EntityEvent OnAttack;
@@ -84,7 +91,7 @@ namespace GentrysQuest.Game.Entity
 
         // Other Events
         public event EntityEvent OnUpdateStats;
-        public event Action OnEffect;
+        public event EffectEvent OnEffect;
         public event ProjectileAdditionEvent OnAddProjectile;
 
         #endregion
@@ -131,6 +138,7 @@ namespace GentrysQuest.Game.Entity
             if (Stats.Health.Current.Value <= 0 && !IsDead) Die();
             OnHealthEvent?.Invoke();
             OnDamage?.Invoke(amount);
+            LastDamageTime = GameClock.CurrentTime;
         }
 
         public void DamageWithDefense(int amount) => Damage(AfterDefense(amount));
@@ -167,7 +175,7 @@ namespace GentrysQuest.Game.Entity
             Weapon = weapon;
             if (weapon != null) weapon.Holder = this;
             UpdateStats();
-            OnSwapWeapon?.Invoke();
+            OnSwapWeapon?.Invoke(weapon);
         }
 
         public int GetXpReward()
@@ -222,7 +230,7 @@ namespace GentrysQuest.Game.Entity
             }
 
             if (!inList) Effects.Add(statusEffect);
-            OnEffect?.Invoke();
+            OnEffect?.Invoke(statusEffect);
         }
 
         public void RemoveEffect(StatusEffect statusEffect)
@@ -243,7 +251,7 @@ namespace GentrysQuest.Game.Entity
         {
             for (var index = 0; index < Effects.Count; index++)
             {
-                var effect = Effects[index];
+                StatusEffect effect = Effects[index];
 
                 if (effect.Name.Equals(name))
                 {
@@ -251,8 +259,6 @@ namespace GentrysQuest.Game.Entity
                     Effects.Remove(effect);
                 }
             }
-
-            OnEffect?.Invoke();
         }
 
         public void ClearEffects()
@@ -277,8 +283,6 @@ namespace GentrysQuest.Game.Entity
                     else effect.Stack--;
                 }
             }
-
-            OnEffect?.Invoke();
         }
 
         public void AddProjectile(ProjectileParameters parameters) => OnAddProjectile?.Invoke(parameters);

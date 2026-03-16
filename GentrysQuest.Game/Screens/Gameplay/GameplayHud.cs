@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
     {
         private Entity.Entity entityTracker;
         private EntityBase.EntityEvent healthEventHandler;
-        private EntityBase.EntityEvent weaponSwapHandler;
+        private Entity.Entity.SwapWeaponEvent weaponSwapHandler;
 
         private Container barsContainer;
 
@@ -103,7 +103,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
             };
             entityTracker.OnHealthEvent += healthEventHandler;
 
-            weaponSwapHandler = () =>
+            weaponSwapHandler = _ =>
             {
                 skillOverlay.ClearSkills();
                 skillOverlay.SetUpSkills(entityTracker);

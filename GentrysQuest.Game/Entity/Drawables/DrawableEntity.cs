@@ -80,7 +80,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         public const float SLOWING_FACTOR = 0.01f;
 
         private double lastRegenTime;
-        private double lastHitTime;
 
         // Movement events
         public delegate void Movement(Vector2 direction, double speed);
@@ -128,11 +127,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
 
             setDrawableWeapon();
-            entity.OnSwapWeapon += setDrawableWeapon;
+            entity.OnSwapWeapon += _ => setDrawableWeapon();
             entity.OnDamage += delegate(int amount) { addIndicator(amount, DamageType.Damage); };
             entity.OnHeal += delegate(int amount) { addIndicator(amount, DamageType.Heal); };
             entity.OnCrit += delegate(int amount) { addIndicator(amount, DamageType.Crit); };
-            entity.OnDamage += delegate { lastHitTime = Clock.CurrentTime; };
             entity.OnDeath += delegate { Sprite.FadeOut(100); };
             entity.OnSpawn += delegate { Sprite.FadeIn(100); };
             entity.OnSpawn += delegate { lastRegenTime = Clock.CurrentTime; };
@@ -347,10 +345,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
 
-            if (new ElapsedTime(Clock.CurrentTime, lastHitTime) > new Second(0.5))
+            if (new ElapsedTime(Clock.CurrentTime, GetBase().LastDamageTime) > new Second(0.5))
             {
                 Entity.AddTenacity();
-                lastHitTime = Clock.CurrentTime;
+                GetBase().LastDamageTime = Clock.CurrentTime;
             }
 
             // Regen should always be at the bottom
