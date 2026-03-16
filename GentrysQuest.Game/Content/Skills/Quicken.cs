@@ -18,12 +18,17 @@ namespace GentrysQuest.Game.Content.Skills
 
     public class QuickenEffect : StatusEffect
     {
+        private string sourceKey;
+
         public QuickenEffect()
             : base(new Second(4))
         {
             OnRemove += delegate
             {
-                Effector.UpdateStats();
+                if (sourceKey != null)
+                    Effector.StatModifiers.RemoveSource(sourceKey);
+
+                Effector.RefreshStatModifiers();
             };
         }
 
@@ -36,11 +41,16 @@ namespace GentrysQuest.Game.Content.Skills
 
         public override void Handle()
         {
-            if (Active) return;
-
             Active = true;
-            Effector.Stats.Speed.Add(2);
-            Effector.Stats.AttackSpeed.Add(0.7);
+            sourceKey ??= $"effect:quicken:{ID}";
+
+            Effector.StatModifiers.SetSource(sourceKey,
+            [
+                StatModifier.Flat(StatType.Speed, 2 * Stack),
+                StatModifier.Flat(StatType.AttackSpeed, 0.7 * Stack)
+            ]);
+
+            Effector.RefreshStatModifiers();
         }
     }
 }

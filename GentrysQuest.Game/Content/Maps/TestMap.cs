@@ -1,6 +1,4 @@
-using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Content.Enemies;
-using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Location;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
@@ -17,15 +15,9 @@ namespace GentrysQuest.Game.Content.Maps
             Size = new Vector2(2000);
             AllowRandomSpawning = true;
             // TimeToSpawnEnemies = 10;
-            ArtifactChoices artifactChoices = new ArtifactChoices() { MultipleDrop = true };
-            artifactChoices.AddChoice(new OsuTablet(), 50);
-            artifactChoices.AddChoice(new MadokaChibiPlush(), 50);
             Enemies =
             [
-                new TestEnemy
-                {
-                    ArtifactChoices = artifactChoices
-                }
+                new TestEnemy()
             ];
             SpawnPoint = GetCoordinatePercent(0.5f, 0.5f);
         }

@@ -57,6 +57,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
                 user.Value.AddItem(new Sword());
                 user.Value.AddItem(new Spear());
                 user.Value.AddItem(new Hammer());
+                user.Value.AddItem(new BraydensOsuPen());
                 user.Value.EquippedCharacter = player;
                 gameplayScreen.LoadGameplay(user.Value, new TestMap());
             });
