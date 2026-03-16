@@ -31,7 +31,6 @@ public class Character : Entity
 
     public override void UpdateStats()
     {
-        Stats.ResetAdditionalValues();
         int level = Experience.Level.Current.Value;
         int starRating = StarRating.Value;
 
@@ -80,24 +79,45 @@ public class Character : Entity
             CalculatePointBenefit(Difficulty * 1, Stats.RegenStrength.Point, 1)
         );
 
-        if (Weapon != null) AddToStat(Weapon.Buff);
+        RemoveStatModifierSourcesByPrefix("equipment:");
 
-        foreach (Artifact artifact in Artifacts.Get())
+        if (Weapon != null)
+            SetStatModifierSource("equipment:weapon", createModifierFromBuff(Weapon.Buff));
+
+        for (int i = 0; i < Artifacts.Get().Length; i++)
         {
-            if (artifact != null)
-            {
-                AddToStat(artifact.MainAttribute);
+            Artifact artifact = Artifacts.Get()[i];
 
-                foreach (Buff attribute in artifact.Attributes)
-                {
-                    AddToStat(attribute);
-                }
-            }
+            if (artifact == null)
+                continue;
+
+            SetStatModifierSource($"equipment:artifact:{i}:main", createModifierFromBuff(artifact.MainAttribute));
+
+            for (int buffIndex = 0; buffIndex < artifact.Attributes.Count; buffIndex++)
+                SetStatModifierSource($"equipment:artifact:{i}:sub:{buffIndex}", createModifierFromBuff(artifact.Attributes[buffIndex]));
         }
 
-        if (Stats.CritRate.Total() > 100) Stats.CritDamage.Add(100 - Stats.CritRate.Total());
+        RebuildStatAdditionalValues();
+
+        if (Stats.CritRate.Total() > 100)
+        {
+            SetStatModifierSource("rule:crit-rate-overcap", StatModifier.Flat(StatType.CritDamage, 100 - Stats.CritRate.Total()));
+            RebuildStatAdditionalValues();
+        }
+        else
+        {
+            RemoveStatModifierSource("rule:crit-rate-overcap");
+        }
 
         base.UpdateStats();
+    }
+
+    private static StatModifier createModifierFromBuff(Buff buff)
+    {
+        if (buff.IsPercent)
+            return StatModifier.PercentOfDefault(buff.StatType, buff.Value.Value);
+
+        return StatModifier.Flat(buff.StatType, buff.Value.Value);
     }
 
     public JsonCharacter ToJson()

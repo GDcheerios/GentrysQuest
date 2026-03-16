@@ -24,6 +24,7 @@ namespace GentrysQuest.Game.Entity
 
         // Stats
         public Stats Stats = new();
+        public StatModifierCollection StatModifiers { get; } = new();
         public Dictionary<Entity, int> EnemyHitCounter = new();
 
         // Equips
@@ -288,6 +289,65 @@ namespace GentrysQuest.Game.Entity
         public virtual void UpdateStats() => OnUpdateStats?.Invoke();
 
         #endregion
+
+        protected void SetStatModifierSource(string sourceKey, params StatModifier[] modifiers)
+        {
+            StatModifiers.SetSource(sourceKey, modifiers);
+        }
+
+        protected void SetStatModifierSource(string sourceKey, IEnumerable<StatModifier> modifiers)
+        {
+            StatModifiers.SetSource(sourceKey, modifiers);
+        }
+
+        protected void RemoveStatModifierSource(string sourceKey)
+        {
+            StatModifiers.RemoveSource(sourceKey);
+        }
+
+        protected void RemoveStatModifierSourcesByPrefix(string prefix)
+        {
+            StatModifiers.RemoveSourcesByPrefix(prefix);
+        }
+
+        public void RefreshStatModifiers()
+        {
+            RebuildStatAdditionalValues();
+            OnUpdateStats?.Invoke();
+        }
+
+        protected void RebuildStatAdditionalValues()
+        {
+            Stats.ResetAdditionalValues();
+
+            foreach (Stat stat in Stats.GetStats())
+            {
+                IReadOnlyList<StatModifier> modifiers = StatModifiers.ForStat(stat.Type);
+
+                if (modifiers.Count == 0)
+                    continue;
+
+                double flat = 0;
+                double percentOfDefault = 0;
+
+                foreach (StatModifier modifier in modifiers)
+                {
+                    switch (modifier.Operation)
+                    {
+                        case StatModifierOperation.Flat:
+                            flat += modifier.Value;
+                            break;
+
+                        case StatModifierOperation.PercentOfDefault:
+                            percentOfDefault += modifier.Value;
+                            break;
+                    }
+                }
+
+                double additional = flat + stat.GetPercentFromDefault((float)percentOfDefault);
+                stat.SetAdditional(additional);
+            }
+        }
 
         protected void AddToStat(Buff attribute)
         {

@@ -8,7 +8,7 @@ namespace GentrysQuest.Game.Entity
         private List<Weapon.Weapon> weapons = new();
         private List<int> chanceOfPicking = new();
 
-        public void AddChoice(Weapon.Weapon weapon, int chanceOfPicking)
+        public void AddChoice(Weapon.Weapon weapon, int chanceOfPicking = 50)
         {
             weapons.Add(weapon);
             this.chanceOfPicking.Add(chanceOfPicking);
@@ -18,13 +18,9 @@ namespace GentrysQuest.Game.Entity
         {
             while (true)
             {
-                for (int i = 0; i < weapons.Count; i++)
-                {
-                    if (MathBase.IsChanceSuccessful(chanceOfPicking[i], 100))
-                    {
-                        return weapons[i];
-                    }
-                }
+                int i = MathBase.RandomChoice(weapons.Count);
+                if (MathBase.IsChanceSuccessful(chanceOfPicking[i], 100))
+                    return weapons[i];
             }
         }
     }

@@ -1,5 +1,7 @@
+using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Content.Artifacts
 {
@@ -9,13 +11,14 @@ namespace GentrysQuest.Game.Content.Artifacts
         public override string Name { get; set; } = "Energy Drink";
 
         public override string Description { get; protected set; } = "Very tasty and addicting. "
-                                                                     + "Replaces Secondary with [type]Energy Drink[/type]. "
-                                                                     + "Raises "
+                                                                     + "[condition]When Secondary is used[/condition] "
+                                                                     + "Raise "
                                                                      + "[stat]Attack[/stat] by [unit]30%[/unit] "
                                                                      + "[stat]Speed[/stat] by [unit]20%[/unit] "
-                                                                     + "and decreases "
+                                                                     + "and decrease "
                                                                      + "[stat]Defense[/stat] by [unit]40%[/unit] "
-                                                                     + "for 10 seconds.";
+                                                                     + "for 10 seconds. "
+                                                                     + "[details]Has a 30 second cooldown.[/details]";
 
         public EnergyDrink()
         {
@@ -23,14 +26,19 @@ namespace GentrysQuest.Game.Content.Artifacts
             TextureMapping.Add("Icon", "artifacts_energy_drink.png");
         }
 
-        private Skill oldSkill;
+        private double lastUse;
 
-        public override void OnEquip(Entity.Entity entity)
+        public override void OnEquip(Entity.Entity entity) => Holder.Secondary.OnAct += attemptUse;
+
+        public override void OnUnequip(Entity.Entity entity) => Holder.Secondary.OnAct -= attemptUse;
+
+        private void attemptUse()
         {
-            oldSkill = Holder.Secondary;
-            Holder.Secondary = new Skills.EnergyDrink();
+            if (!(GameClock.CurrentTime - lastUse < 30))
+            {
+                lastUse = GameClock.CurrentTime;
+                Holder.AddEffect(new EnergyDrinkEffect());
+            }
         }
-
-        public override void OnUnequip(Entity.Entity entity) => Holder.Secondary = oldSkill;
     }
 }

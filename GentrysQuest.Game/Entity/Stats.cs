@@ -43,6 +43,16 @@
             return null;
         }
 
+        public Stat GetStat(StatType statType)
+        {
+            foreach (Stat stat in statGrouping)
+            {
+                if (stat.Type == statType) return stat;
+            }
+
+            return null;
+        }
+
         public void Boost(int percent)
         {
             foreach (Stat stat in statGrouping) stat.Add(stat.GetPercentFromDefault(percent));

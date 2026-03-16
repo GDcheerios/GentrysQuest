@@ -9,6 +9,7 @@ namespace GentrysQuest.Game.Entity
         public readonly string Name; // display name for other languages and etc
         protected StatType StatType; // this is how we get what stat we're looking at
         protected readonly bool ResetsOnUpdate;
+        public StatType Type => StatType;
 
         /// <summary>
         /// This is the bonus stat calculation variable.
