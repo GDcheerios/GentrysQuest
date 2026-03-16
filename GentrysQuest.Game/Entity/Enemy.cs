@@ -45,6 +45,18 @@ public class Enemy : Entity
             CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
         );
 
+        RemoveStatModifierSourcesByPrefix("equipment:");
+
+        if (Weapon != null)
+        {
+            if (Weapon.Buff.IsPercent)
+                SetStatModifierSource("equipment:weapon", StatModifier.PercentOfDefault(Weapon.Buff.StatType, Weapon.Buff.Value.Value));
+            else
+                SetStatModifierSource("equipment:weapon", StatModifier.Flat(Weapon.Buff.StatType, Weapon.Buff.Value.Value));
+        }
+
+        RebuildStatAdditionalValues();
+
         base.UpdateStats();
     }
 
