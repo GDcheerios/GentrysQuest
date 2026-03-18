@@ -34,9 +34,10 @@ namespace GentrysQuest.Game.Content.Maps
 
         private readonly Character[] seatedCharacters =
         [
-            // new BraydenMesserschmidt(),
-            // new PhilipMcClure(),
-            // new MekhiElliot()
+            new BraydenMesserschmidt(),
+            new PhilipMcClure(),
+            new MekhiElliot(),
+            new BenMeier()
         ];
 
         public GentrysClassroom(bool isTutorial = false)

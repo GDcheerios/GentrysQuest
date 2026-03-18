@@ -1,3 +1,4 @@
+using GentrysQuest.Game.Content.Skills;
 using GentrysQuest.Game.Entity;
 
 namespace GentrysQuest.Game.Content.Characters
@@ -11,6 +12,10 @@ namespace GentrysQuest.Game.Content.Characters
         {
             StarRating = new StarRating(starRating);
             TextureMapping = new();
+
+            Secondary = new Heal();
+            Utility = new Teleport();
+            Ultimate = new Quicken();
         }
     }
 }

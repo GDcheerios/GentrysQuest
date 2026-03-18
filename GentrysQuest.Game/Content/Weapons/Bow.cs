@@ -1,6 +1,10 @@
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using osuTK;
 
 namespace GentrysQuest.Game.Content.Weapons
 {
@@ -97,6 +101,15 @@ namespace GentrysQuest.Game.Content.Weapons
                 [
                     new ProjectileParameters
                     {
+                        Design = new Container
+                        {
+                            Size = new Vector2(16),
+                            Child = new Box
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Colour = Colour4.Black
+                            }
+                        },
                         Damage = currentDamage,
                         Speed = projectileSpeed,
                         PassthroughAmount = 1,

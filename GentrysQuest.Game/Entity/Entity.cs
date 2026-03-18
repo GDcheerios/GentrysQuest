@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
@@ -19,11 +18,14 @@ namespace GentrysQuest.Game.Entity
         public bool Invincible = false;
         public bool CanDie = true;
         public bool CanKnockback = true;
-        public int CurrentTenacity = 0;
+        public int CurrentTenacity;
         public Vector2 PositionRef;
+        public double LastDamageTime;
+        public double LastTenacityTime;
 
         // Stats
         public Stats Stats = new();
+        public StatModifierCollection StatModifiers { get; } = new();
         public Dictionary<Entity, int> EnemyHitCounter = new();
 
         // Equips
@@ -40,6 +42,7 @@ namespace GentrysQuest.Game.Entity
         public float DefenseModifier = 1;
         public float PositionJump = 0; // For teleporting
         public float KnockbackModifier = 1;
+        public float EffectModifier = 1;
 
         // Skills
         public Skill Secondary = null;
@@ -62,6 +65,12 @@ namespace GentrysQuest.Game.Entity
 
         public delegate void ProjectileAdditionEvent(ProjectileParameters parameters);
 
+        public delegate void SwapArtifactEvent(Artifact artifact);
+
+        public delegate void SwapWeaponEvent(Weapon.Weapon weapon);
+
+        public delegate void EffectEvent(StatusEffect effect);
+
         // Spawn / Death events
         public event EntitySpawnEvent OnSpawn;
         public event EntitySpawnEvent OnDeath;
@@ -73,8 +82,8 @@ namespace GentrysQuest.Game.Entity
         public event EntityHealthEvent OnCrit;
 
         // Equipment events
-        public event EntityEvent OnSwapWeapon;
-        public event EntityEvent OnSwapArtifact;
+        public event SwapWeaponEvent OnSwapWeapon;
+        public event SwapArtifactEvent OnSwapArtifact;
 
         // Combat events
         public event EntityEvent OnAttack;
@@ -83,7 +92,7 @@ namespace GentrysQuest.Game.Entity
 
         // Other Events
         public event EntityEvent OnUpdateStats;
-        public event Action OnEffect;
+        public event EffectEvent OnEffect;
         public event ProjectileAdditionEvent OnAddProjectile;
 
         #endregion
@@ -130,6 +139,7 @@ namespace GentrysQuest.Game.Entity
             if (Stats.Health.Current.Value <= 0 && !IsDead) Die();
             OnHealthEvent?.Invoke();
             OnDamage?.Invoke(amount);
+            LastDamageTime = GameClock.CurrentTime;
         }
 
         public void DamageWithDefense(int amount) => Damage(AfterDefense(amount));
@@ -166,7 +176,7 @@ namespace GentrysQuest.Game.Entity
             Weapon = weapon;
             if (weapon != null) weapon.Holder = this;
             UpdateStats();
-            OnSwapWeapon?.Invoke();
+            OnSwapWeapon?.Invoke(weapon);
         }
 
         public int GetXpReward()
@@ -217,11 +227,17 @@ namespace GentrysQuest.Game.Entity
             foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()))
             {
                 effect.Stack++;
+                effect.RestartLifetime();
                 inList = true;
             }
 
-            if (!inList) Effects.Add(statusEffect);
-            OnEffect?.Invoke();
+            if (!inList)
+            {
+                statusEffect.RestartLifetime();
+                Effects.Add(statusEffect);
+            }
+
+            OnEffect?.Invoke(statusEffect);
         }
 
         public void RemoveEffect(StatusEffect statusEffect)
@@ -234,7 +250,9 @@ namespace GentrysQuest.Game.Entity
                 {
                     effect.OnRemove?.Invoke();
                     Effects.Remove(effect);
+                    OnEffect?.Invoke(effect);
                 }
+                else OnEffect?.Invoke(effect);
             }
         }
 
@@ -242,16 +260,15 @@ namespace GentrysQuest.Game.Entity
         {
             for (var index = 0; index < Effects.Count; index++)
             {
-                var effect = Effects[index];
+                StatusEffect effect = Effects[index];
 
                 if (effect.Name.Equals(name))
                 {
                     effect.OnRemove?.Invoke();
                     Effects.Remove(effect);
+                    OnEffect?.Invoke(effect);
                 }
             }
-
-            OnEffect?.Invoke();
         }
 
         public void ClearEffects()
@@ -260,6 +277,7 @@ namespace GentrysQuest.Game.Entity
             {
                 effect.OnRemove?.Invoke();
                 Effects.Remove(effect);
+                OnEffect?.Invoke(effect);
             }
         }
 
@@ -270,14 +288,21 @@ namespace GentrysQuest.Game.Entity
                 effect.SetTime(time);
                 effect.Handle();
 
-                if (time - effect.StartTime > effect.Duration)
+                if (effect.IsInfinite) continue;
+
+                effect.StartTime ??= time;
+
+                if (time - effect.StartTime >= effect.Duration)
                 {
                     if (effect.Stack == 1) RemoveEffect(effect.Name);
-                    else effect.Stack--;
+                    else
+                    {
+                        effect.Stack--;
+                        effect.RestartLifetime(time);
+                        OnEffect?.Invoke(effect);
+                    }
                 }
             }
-
-            OnEffect?.Invoke();
         }
 
         public void AddProjectile(ProjectileParameters parameters) => OnAddProjectile?.Invoke(parameters);
@@ -288,6 +313,65 @@ namespace GentrysQuest.Game.Entity
         public virtual void UpdateStats() => OnUpdateStats?.Invoke();
 
         #endregion
+
+        protected void SetStatModifierSource(string sourceKey, params StatModifier[] modifiers)
+        {
+            StatModifiers.SetSource(sourceKey, modifiers);
+        }
+
+        protected void SetStatModifierSource(string sourceKey, IEnumerable<StatModifier> modifiers)
+        {
+            StatModifiers.SetSource(sourceKey, modifiers);
+        }
+
+        protected void RemoveStatModifierSource(string sourceKey)
+        {
+            StatModifiers.RemoveSource(sourceKey);
+        }
+
+        protected void RemoveStatModifierSourcesByPrefix(string prefix)
+        {
+            StatModifiers.RemoveSourcesByPrefix(prefix);
+        }
+
+        public void RefreshStatModifiers()
+        {
+            RebuildStatAdditionalValues();
+            OnUpdateStats?.Invoke();
+        }
+
+        protected void RebuildStatAdditionalValues()
+        {
+            Stats.ResetAdditionalValues();
+
+            foreach (Stat stat in Stats.GetStats())
+            {
+                IReadOnlyList<StatModifier> modifiers = StatModifiers.ForStat(stat.Type);
+
+                if (modifiers.Count == 0)
+                    continue;
+
+                double flat = 0;
+                double percentOfDefault = 0;
+
+                foreach (StatModifier modifier in modifiers)
+                {
+                    switch (modifier.Operation)
+                    {
+                        case StatModifierOperation.Flat:
+                            flat += modifier.Value;
+                            break;
+
+                        case StatModifierOperation.PercentOfDefault:
+                            percentOfDefault += modifier.Value;
+                            break;
+                    }
+                }
+
+                double additional = flat + stat.GetPercentFromDefault((float)percentOfDefault);
+                stat.SetAdditional(additional);
+            }
+        }
 
         protected void AddToStat(Buff attribute)
         {

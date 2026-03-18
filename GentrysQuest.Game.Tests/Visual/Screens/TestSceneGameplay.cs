@@ -36,7 +36,8 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
 
         public TestSceneGameplay()
         {
-            player = new TestCharacter(1);
+            // player = new TestCharacter(1);
+            player = new Airxy();
             testWeapon = new Bow();
             player.SetWeapon(testWeapon);
             Add(screens = new ScreenStack());
@@ -57,6 +58,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
                 user.Value.AddItem(new Sword());
                 user.Value.AddItem(new Spear());
                 user.Value.AddItem(new Hammer());
+                user.Value.AddItem(new BraydensOsuPen());
                 user.Value.EquippedCharacter = player;
                 gameplayScreen.LoadGameplay(user.Value, new TestMap());
             });

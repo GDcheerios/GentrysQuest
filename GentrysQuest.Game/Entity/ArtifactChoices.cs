@@ -19,7 +19,7 @@ namespace GentrysQuest.Game.Entity
         private List<Artifact> artifacts = new();
         private List<int> chanceOfPicking = new();
 
-        public void AddChoice(Artifact artifact, int chanceOfPicking)
+        public void AddChoice(Artifact artifact, int chanceOfPicking = 50)
         {
             artifacts.Add(artifact);
             this.chanceOfPicking.Add(chanceOfPicking);
@@ -31,16 +31,16 @@ namespace GentrysQuest.Game.Entity
 
             while (true)
             {
-                for (int i = 0; i < artifacts.Count; i++)
-                {
-                    if (MathBase.IsChanceSuccessful(chanceOfPicking[i], 100))
-                    {
-                        Artifact artifact = createArtifactInstance(artifacts[i]);
-                        if (artifact == null) continue;
-                        if (!MultipleDrop) return [artifact];
+                int i = MathBase.RandomChoice(artifacts.Count);
 
-                        result.Add(artifact);
-                    }
+                if (MathBase.IsChanceSuccessful(chanceOfPicking[i], 100))
+                {
+                    Artifact artifact = createArtifactInstance(artifacts[i]);
+                    if (artifact == null) continue;
+
+                    if (!MultipleDrop) return [artifact];
+
+                    result.Add(artifact);
                 }
 
                 if (result.Count != 0 || !GuaranteeDrop) return result;
