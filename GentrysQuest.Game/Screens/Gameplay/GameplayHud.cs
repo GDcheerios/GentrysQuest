@@ -90,6 +90,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 healthBar.Max.Value = (float)entityTracker.Stats.Health.Total();
             };
             entityTracker.OnHealthEvent += healthEventHandler;
+            entityTracker.OnUpdateStats += healthEventHandler;
 
             weaponSwapHandler = _ =>
             {
