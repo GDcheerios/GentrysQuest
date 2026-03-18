@@ -27,7 +27,7 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
     // design
     private TextureStore textureStore;
     private TextFlowContainer nameContainer;
-    private Sprite icon;
+    private EntityIconDrawable icon;
     private TaggedTextContainer descriptionContainer;
     private StarRatingContainer starRatingContainer;
     private StatDrawableContainer statContainer;
@@ -75,10 +75,11 @@ public partial class ItemDisplayContainer : DrawSizePreservingFillContainer
                 Margin = new MarginPadding { Left = 25 },
                 Children =
                 [
-                    icon = new Sprite
+                    new Container
                     {
                         Size = new Vector2(200),
-                        Margin = new MarginPadding { Top = 10 }
+                        Margin = new MarginPadding { Top = 10 },
+                        Child = icon = new EntityIconDrawable()
                     },
                     starRatingContainer = new StarRatingContainer(1)
                     {

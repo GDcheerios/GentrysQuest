@@ -17,7 +17,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         private readonly Skill skillReference;
         private readonly SpriteText skillName;
         private readonly ProgressBar percentageDisplay;
-        private readonly Sprite skillDisplay;
+        private readonly EntityIconDrawable skillDisplay;
         private readonly SpriteText skillStack;
         private readonly SpriteText cooldownText;
 
@@ -116,7 +116,7 @@ namespace GentrysQuest.Game.Entity.Drawables
                                         RelativeSizeAxes = Axes.Both,
                                         Colour = new Colour4(255, 255, 255, 25)
                                     },
-                                    skillDisplay = new Sprite
+                                    skillDisplay = new EntityIconDrawable
                                     {
                                         RelativeSizeAxes = Axes.Both,
                                         Size = new Vector2(0.88f),
