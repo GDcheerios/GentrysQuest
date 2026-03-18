@@ -1,3 +1,4 @@
+using System;
 using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Logging;
@@ -33,6 +34,8 @@ public class Character : Entity
 
     public override void UpdateStats()
     {
+        double missingHealth = Math.Max(0, Stats.Health.Total() - Stats.Health.Current.Value);
+
         int level = Experience.Level.Current.Value;
         int starRating = StarRating.Value;
 
@@ -110,6 +113,10 @@ public class Character : Entity
         {
             RemoveStatModifierSource("rule:crit-rate-overcap");
         }
+
+        double newCurrentHealth = Math.Clamp(Stats.Health.Total() - missingHealth, 0, Stats.Health.Total());
+        Stats.Health.Current.Value = newCurrentHealth;
+        IsFullHealth = Stats.Health.Current.Value >= Stats.Health.Total();
 
         base.UpdateStats();
     }

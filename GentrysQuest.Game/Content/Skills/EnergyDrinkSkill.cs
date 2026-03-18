@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Content.Skills
 {
@@ -14,7 +15,7 @@ namespace GentrysQuest.Game.Content.Skills
                                                                      + "[stat]Defense[/stat] by [unit]40%[/unit] "
                                                                      + "for 10 seconds.";
 
-        public override double Cooldown { get; protected set; } = 30;
+        public override double Cooldown { get; protected set; } = new Second(30);
 
         protected override void SkillDo() => User.GetBase().AddEffect(new EnergyDrinkEffect());
     }

@@ -13,7 +13,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
         private EntityBase.EntityEvent healthEventHandler;
         private Entity.Entity.SwapWeaponEvent weaponSwapHandler;
 
-        private Container barsContainer;
+        private FillFlowContainer barsContainer;
 
         private readonly GameplayBar healthBar;
         private readonly GameplayBar experienceBar;
@@ -26,54 +26,37 @@ namespace GentrysQuest.Game.Screens.Gameplay
             RelativeSizeAxes = Axes.Both;
             Depth = -2;
 
-            InternalChildren = new Drawable[]
-            {
-                barsContainer = new Container
+            InternalChildren =
+            [
+                barsContainer = new FillFlowContainer
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    RelativePositionAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    AutoSizeAxes = Axes.X,
+                    Margin = new MarginPadding { Bottom = 20 },
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
-
-                    CornerRadius = 4,
-                    CornerExponent = 2,
-                    Masking = true,
-
-                    Size = new Vector2(0.4f, 0.15f),
-                    Margin = new MarginPadding { Left = 30, Bottom = 10 },
-
-                    Children = new Drawable[]
-                    {
-                        healthBar = new GameplayBar
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            RelativePositionAxes = Axes.Both,
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
-                            Size = new Vector2(1, 0.5f),
-                            ForegroundColour = Colour4.LimeGreen
-                        },
+                    Children =
+                    [
                         experienceBar = new GameplayBar
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            RelativePositionAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
-                            BackgroundColour = Colour4.Gray,
-                            ForegroundColour = Colour4.LightBlue,
-                            Size = new Vector2(1, 0.5f)
+                            Position = new Vector2(0, 0),
+                            Size = new Vector2(500, 75),
+                            BackgroundColour = new Colour4(70, 70, 70, 255),
+                            ForegroundColour = new Colour4(149, 239, 255, 255)
                         },
-                        levelText = new SpriteText
+                        healthBar = new GameplayBar
                         {
-                            Text = "Level 0",
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.TopLeft,
-                            RelativePositionAxes = Axes.Both,
-                            Font = FontUsage.Default.With(size: 24),
-                            Margin = new MarginPadding { Left = 10 },
-                            Position = new Vector2(0)
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Position = new Vector2(0, -56),
+                            Size = new Vector2(500, 150),
+                            BackgroundColour = new Colour4(70, 70, 70, 255),
+                            ForegroundColour = new Colour4(28, 201, 84, 255)
                         }
-                    }
+                    ]
                 },
                 skillOverlay = new SkillOverlay
                 {
@@ -83,7 +66,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     Size = new Vector2(500, 200),
                     Margin = new MarginPadding { Right = 30, Bottom = 20 }
                 }
-            };
+            ];
         }
 
         public void SetEntity(Entity.Entity theEntity)
@@ -93,6 +76,11 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 if (healthEventHandler != null) entityTracker.OnHealthEvent -= healthEventHandler;
                 if (weaponSwapHandler != null) entityTracker.OnSwapWeapon -= weaponSwapHandler;
             }
+
+            healthBar.SetProgressSize(new Vector2(400, 75));
+            healthBar.SetLabel("Health");
+            experienceBar.SetProgressSize(new Vector2(350, 25));
+            experienceBar.SetLabel($"Level: {theEntity.Experience.CurrentLevel()}");
 
             entityTracker = theEntity;
 
@@ -115,7 +103,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                 experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;
                 experienceBar.Max.Value = (float)theEntity.Experience.Xp.Requirement.Value;
             };
-            levelText.Text = $"Level {theEntity.Experience.CurrentLevel()}";
+            theEntity.Experience.Level.Current.ValueChanged += _ => experienceBar.SetLabel($"Level: {theEntity.Experience.CurrentLevel()}");
             healthBar.Current.Value = (float)theEntity.Stats.Health.GetCurrent();
             healthBar.Max.Value = (float)theEntity.Stats.Health.Total();
             experienceBar.Current.Value = (float)theEntity.Experience.Xp.Current.Value;

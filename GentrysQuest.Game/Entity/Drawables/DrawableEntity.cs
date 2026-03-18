@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Graphics;
@@ -96,7 +95,6 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableEntity(Entity entity, AffiliationType affiliationType = AffiliationType.None, bool showInfo = true)
         {
             entity.UpdateStats();
-            entity.Stats.Restore();
             Entity = entity;
             Affiliation = affiliationType;
             Size = new Vector2(SIZE);
@@ -134,13 +132,6 @@ namespace GentrysQuest.Game.Entity.Drawables
             entity.OnDeath += delegate { Sprite.FadeOut(100); };
             entity.OnSpawn += delegate { Sprite.FadeIn(100); };
             entity.OnSpawn += delegate { lastRegenTime = Clock.CurrentTime; };
-            entity.OnEffect += delegate
-            {
-                foreach (var effect in Entity.Effects.Where(effect => !effect.IsInfinite))
-                {
-                    effect.StartTime ??= Clock.CurrentTime;
-                }
-            };
             entity.OnAddProjectile += parameters =>
             {
                 Projectile projectile = new Projectile(parameters);
@@ -345,10 +336,10 @@ namespace GentrysQuest.Game.Entity.Drawables
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
 
-            if (new ElapsedTime(Clock.CurrentTime, GetBase().LastDamageTime) > new Second(0.5))
+            if (new ElapsedTime(Clock.CurrentTime, GetBase().LastTenacityTime) > new Second(0.5))
             {
                 Entity.AddTenacity();
-                GetBase().LastDamageTime = Clock.CurrentTime;
+                GetBase().LastTenacityTime = Clock.CurrentTime;
             }
 
             // Regen should always be at the bottom

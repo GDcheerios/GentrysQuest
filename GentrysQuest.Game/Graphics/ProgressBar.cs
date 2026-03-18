@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Shapes;
 
 namespace GentrysQuest.Game.Graphics;
 
-public partial class ProgressBar : CompositeDrawable
+public partial class ProgressBar : Container
 {
     private const int DELAY = 200;
 
@@ -26,7 +26,6 @@ public partial class ProgressBar : CompositeDrawable
     {
         Current = new Bindable<float>(CurrentInit);
         Max = new Bindable<float>(MaxInit);
-        RelativeSizeAxes = Axes.Both;
     }
 
     [BackgroundDependencyLoader]

@@ -40,7 +40,7 @@ namespace GentrysQuest.Game.Content.Artifacts
 
         private void attemptUse()
         {
-            if (!(GameClock.CurrentTime - lastUse < 30))
+            if (!(GameClock.CurrentTime - lastUse < 3000))
             {
                 lastUse = GameClock.CurrentTime;
                 Holder.AddEffect(new EnergyDrinkEffect());

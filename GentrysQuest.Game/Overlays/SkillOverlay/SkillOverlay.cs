@@ -1,7 +1,6 @@
 using GentrysQuest.Game.Entity.Drawables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osuTK;
 
 namespace GentrysQuest.Game.Overlays.SkillOverlay
@@ -20,21 +19,14 @@ namespace GentrysQuest.Game.Overlays.SkillOverlay
                     Masking = true,
                     CornerRadius = 6,
                     CornerExponent = 2,
-                    Children = new Drawable[]
+                    Child = skillContainer = new FillFlowContainer
                     {
-                        new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = new Colour4(0, 0, 0, 65)
-                        },
-                        skillContainer = new FillFlowContainer
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            AutoSizeAxes = Axes.Both,
-                            Direction = FillDirection.Horizontal,
-                            Spacing = new Vector2(25,0)
-                        }
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        AutoSizeAxes = Axes.X,
+                        RelativeSizeAxes = Axes.Y,
+                        Direction = FillDirection.Horizontal,
+                        Spacing = new Vector2(25, 0)
                     }
                 }
             };

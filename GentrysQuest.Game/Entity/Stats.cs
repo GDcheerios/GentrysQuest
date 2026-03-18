@@ -4,7 +4,7 @@
     /// Stat management class /// </summary>
     public class Stats
     {
-        public Stat Health = new IntStat("Health", StatType.Health, 100, false);
+        public Stat Health = new HealthStat(100);
         public Stat Attack = new IntStat("Attack", StatType.Attack, 10);
         public Stat Defense = new IntStat("Defense", StatType.Defense, 100);
         public Stat CritRate = new IntStat("CritRate", StatType.CritRate, 1);

@@ -21,6 +21,7 @@ namespace GentrysQuest.Game.Entity
         public int CurrentTenacity;
         public Vector2 PositionRef;
         public double LastDamageTime;
+        public double LastTenacityTime;
 
         // Stats
         public Stats Stats = new();
@@ -226,10 +227,16 @@ namespace GentrysQuest.Game.Entity
             foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()))
             {
                 effect.Stack++;
+                effect.RestartLifetime();
                 inList = true;
             }
 
-            if (!inList) Effects.Add(statusEffect);
+            if (!inList)
+            {
+                statusEffect.RestartLifetime();
+                Effects.Add(statusEffect);
+            }
+
             OnEffect?.Invoke(statusEffect);
         }
 
@@ -243,7 +250,9 @@ namespace GentrysQuest.Game.Entity
                 {
                     effect.OnRemove?.Invoke();
                     Effects.Remove(effect);
+                    OnEffect?.Invoke(effect);
                 }
+                else OnEffect?.Invoke(effect);
             }
         }
 
@@ -257,6 +266,7 @@ namespace GentrysQuest.Game.Entity
                 {
                     effect.OnRemove?.Invoke();
                     Effects.Remove(effect);
+                    OnEffect?.Invoke(effect);
                 }
             }
         }
@@ -267,6 +277,7 @@ namespace GentrysQuest.Game.Entity
             {
                 effect.OnRemove?.Invoke();
                 Effects.Remove(effect);
+                OnEffect?.Invoke(effect);
             }
         }
 
@@ -277,10 +288,19 @@ namespace GentrysQuest.Game.Entity
                 effect.SetTime(time);
                 effect.Handle();
 
-                if (time - effect.StartTime > effect.Duration)
+                if (effect.IsInfinite) continue;
+
+                effect.StartTime ??= time;
+
+                if (time - effect.StartTime >= effect.Duration)
                 {
                     if (effect.Stack == 1) RemoveEffect(effect.Name);
-                    else effect.Stack--;
+                    else
+                    {
+                        effect.Stack--;
+                        effect.RestartLifetime(time);
+                        OnEffect?.Invoke(effect);
+                    }
                 }
             }
         }

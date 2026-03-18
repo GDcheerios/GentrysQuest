@@ -3,8 +3,8 @@ namespace GentrysQuest.Game.Entity
     public class StatModifier
     {
         public StatType StatType { get; }
-        public double Value { get; }
-        public StatModifierOperation Operation { get; }
+        public double Value { get; set; }
+        public StatModifierOperation Operation { get; set; }
 
         public StatModifier(StatType statType, double value, StatModifierOperation operation)
         {

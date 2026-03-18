@@ -85,6 +85,8 @@ public class HitHandler
     private void applyKnockback()
     {
         if (sender.Weapon == null) return;
+        if (Details.WasDodged) return;
+        if (receiverBase.Invincible) return;
 
         Vector2 direction = MathBase.GetDirection(sender.PositionRef, receiver.Position);
         float knockbackForce = sender.Weapon!.KnockbackMultiplier / receiverBase.KnockbackModifier;
@@ -96,6 +98,7 @@ public class HitHandler
     private void invokeHitEvent()
     {
         receiverBase.OnHit(Details);
+        if (receiverBase.IsDodging) Details.WasDodged = true;
         foreach (var effect in Details.StatusEffects) receiverBase.AddEffect(effect);
         if (sender.Weapon != null) sender.Weapon!.HitEntity(Details);
     }
