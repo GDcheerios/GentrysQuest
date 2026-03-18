@@ -186,44 +186,37 @@ namespace GentrysQuest.Game.Entity.Drawables
 
         public void Sort(string condition, bool reversed)
         {
-            List<dynamic[]> newList = (
-                from EntityInfoDrawable entityInfoDrawable in scrollContainer.Children
-                select new dynamic[]
-                {
-                    entityInfoDrawable.entity, entityInfoDrawable
-                }
-            ).ToList();
+            if (entityReferences.Count <= 1) return;
+
+            List<EntityInfoDrawable> sorted = entityReferences.ToList();
 
             switch (condition)
             {
                 case "Star Rating":
-                    newList.Sort((x, y) => x[0].StarRating.Value.CompareTo(y[0].StarRating.Value));
+                    sorted.Sort((x, y) => x.entity.StarRating.Value.CompareTo(y.entity.StarRating.Value));
                     break;
 
                 case "Name":
-                    newList.Sort((x, y) => string.Compare(x[0].Name, y[0].Name));
+                    sorted.Sort((x, y) => string.Compare(x.entity.Name, y.entity.Name, StringComparison.Ordinal));
                     break;
 
                 case "Level":
-                    newList.Sort((x, y) => x[0].Experience.Level.Current.Value.CompareTo(y[0].Experience.Level.Current.Value));
+                    sorted.Sort((x, y) => x.entity.Experience.Level.Current.Value.CompareTo(y.entity.Experience.Level.Current.Value));
                     break;
             }
 
-            if (!reversed) newList.Reverse();
+            if (!reversed) sorted.Reverse();
 
             int yPos = 0;
 
-            foreach (var pair in newList)
+            foreach (EntityInfoDrawable entityInfoDrawable in sorted)
             {
-                EntityInfoDrawable entityInfoDrawable = pair[1];
                 entityInfoDrawable.MoveToY(yPos, SORT_DURATION, Easing.InOutCirc);
                 yPos += (int)entityInfoDrawable.Height + Spacing.Value;
             }
 
-            for (int i = 0; i < newList.Count; i++)
-            {
-                entityReferences[i] = newList[i][1];
-            }
+            entityReferences.Clear();
+            entityReferences.AddRange(sorted);
         }
     }
 }
