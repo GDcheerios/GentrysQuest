@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
-using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Utils;
+using osu.Framework.Graphics.Containers;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -10,7 +10,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// Design of the projectile
         /// </summary>
-        public CustomSprite Design;
+        public Container Design;
 
         /// <summary>
         /// Speed of the projectile

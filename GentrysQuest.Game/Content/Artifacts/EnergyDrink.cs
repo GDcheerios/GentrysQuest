@@ -28,13 +28,19 @@ namespace GentrysQuest.Game.Content.Artifacts
 
         private double lastUse;
 
-        public override void OnEquip(Entity.Entity entity) => Holder.Secondary.OnAct += attemptUse;
+        public override void OnEquip(Entity.Entity entity)
+        {
+            if (Holder.Secondary != null) Holder.Secondary.OnAct += attemptUse;
+        }
 
-        public override void OnUnequip(Entity.Entity entity) => Holder.Secondary.OnAct -= attemptUse;
+        public override void OnUnequip(Entity.Entity entity)
+        {
+            if (Holder.Secondary != null) Holder.Secondary.OnAct -= attemptUse;
+        }
 
         private void attemptUse()
         {
-            if (!(GameClock.CurrentTime - lastUse < 30))
+            if (!(GameClock.CurrentTime - lastUse < 3000))
             {
                 lastUse = GameClock.CurrentTime;
                 Holder.AddEffect(new EnergyDrinkEffect());

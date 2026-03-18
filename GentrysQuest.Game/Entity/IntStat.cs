@@ -16,8 +16,8 @@ namespace GentrysQuest.Game.Entity;
 
 public class IntStat : Stat
 {
-    public IntStat(string name, StatType statType, double minimumValue, bool resetsOnUpdate = true)
-        : base(name, statType, minimumValue, resetsOnUpdate)
+    public IntStat(string name, StatType statType, double minimumValue)
+        : base(name, statType, minimumValue)
     {
         // This is how it's meant to be! :)
     }

@@ -1,4 +1,6 @@
+using System;
 using GentrysQuest.Game.IO;
+using GentrysQuest.Game.Utils;
 using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Entity;
@@ -6,6 +8,7 @@ namespace GentrysQuest.Game.Entity;
 public class Character : Entity
 {
     public ArtifactManager Artifacts { get; }
+    public const double INVINCIBILITY_TIME = 2000;
 
     public Character()
     {
@@ -16,7 +19,7 @@ public class Character : Entity
 
     public override void Damage(int amount)
     {
-        base.Damage(amount);
+        if (LastDamageTime + INVINCIBILITY_TIME < GameClock.CurrentTime) base.Damage(amount);
     }
 
     public override void Heal(int amount)
@@ -31,6 +34,8 @@ public class Character : Entity
 
     public override void UpdateStats()
     {
+        double missingHealth = Math.Max(0, Stats.Health.Total() - Stats.Health.Current.Value);
+
         int level = Experience.Level.Current.Value;
         int starRating = StarRating.Value;
 
@@ -108,6 +113,10 @@ public class Character : Entity
         {
             RemoveStatModifierSource("rule:crit-rate-overcap");
         }
+
+        double newCurrentHealth = Math.Clamp(Stats.Health.Total() - missingHealth, 0, Stats.Health.Total());
+        Stats.Health.Current.Value = newCurrentHealth;
+        IsFullHealth = Stats.Health.Current.Value >= Stats.Health.Total();
 
         base.UpdateStats();
     }

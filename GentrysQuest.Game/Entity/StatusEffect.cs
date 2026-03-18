@@ -98,6 +98,26 @@ public abstract class StatusEffect
     }
 
     /// <summary>
+    /// Restarts duration tracking without changing stacks.
+    /// </summary>
+    public virtual void RestartLifetime(double time)
+    {
+        StartTime = time;
+        Time = time;
+        CurrentStep = 1;
+    }
+
+    /// <summary>
+    /// Clears lifetime anchor so it is re-based on next update tick.
+    /// </summary>
+    public virtual void RestartLifetime()
+    {
+        StartTime = null;
+        Time = 0;
+        CurrentStep = 1;
+    }
+
+    /// <summary>
     /// Set the effector
     /// </summary>
     /// <param name="entity">the entity</param>

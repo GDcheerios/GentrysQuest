@@ -22,7 +22,7 @@ namespace GentrysQuest.Game.Content.Effects
             if (ElapsedTime() > Interval * CurrentStep)
             {
                 CurrentStep++;
-                Effector.Damage(3 + Effector.Experience.CurrentLevel() * Stack);
+                Effector.Damage((int)((3 + Effector.Experience.CurrentLevel() * Stack) * Effector.EffectModifier));
             }
         }
     }

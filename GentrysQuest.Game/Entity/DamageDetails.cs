@@ -46,6 +46,11 @@ namespace GentrysQuest.Game.Entity
         public bool IgnoreDefense = false;
 
         /// <summary>
+        /// If the attack was dodged or not.
+        /// </summary>
+        public bool WasDodged = false;
+
+        /// <summary>
         /// Get the amount of times the sender has attacked the receiver
         /// </summary>
         /// <returns>The hit count of Receiver</returns>

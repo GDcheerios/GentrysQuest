@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
-using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Utils;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
@@ -14,7 +12,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// Design of the projectile
         /// </summary>
-        public CustomSprite Design;
+        public Container Design;
 
         /// <summary>
         /// Speed of the projectile
@@ -88,11 +86,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
-            InternalChild = new Box
-            {
-                Size = new Vector2(16),
-                Colour = Colour4.Black
-            };
+
+            Design = parameters.Design;
             Speed = parameters.Speed;
             Direction = parameters.Direction;
             Lifetime = parameters.Lifetime;
@@ -105,6 +100,9 @@ namespace GentrysQuest.Game.Entity.Drawables
             TakesHolderDamage = parameters.TakesHolderDamage;
         }
 
+        [BackgroundDependencyLoader]
+        private void load() => AutoSizeAxes = Axes.Both;
+
         /// <summary>
         /// This sets up the projectile for shooting.
         /// Sets the affiliation and which then sets up the hitbox.
@@ -116,6 +114,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             Hits = 0;
             Position = shooter.Position;
             Affiliation = shooter.Affiliation;
+            if (Design != null) AddInternal(Design);
             AddInternal(HitBox = new HitBox(this));
             started = true;
             if (TakesHolderDamage) Damage += (int)shooter.GetBase().Stats.Attack.Current.Value;

@@ -12,6 +12,9 @@ namespace GentrysQuest.Game.Entity.Drawables;
 /// </summary>
 public partial class DrawablePlayableEntity : DrawableEntity
 {
+    private const double FLASH_INTERVAL = 100;
+    private const float FLASH_LOW_ALPHA = 0.35f;
+
     /// <summary>
     /// A container that manages mouse clicks
     /// Since it's a playable entity you should be able to click
@@ -24,10 +27,18 @@ public partial class DrawablePlayableEntity : DrawableEntity
     private bool left;
     private bool right;
 
+    private double invincibilityFlashStartTime;
+    private double invincibilityFlashEndTime;
+
     public DrawablePlayableEntity(Character entity)
         : base(entity, AffiliationType.Player, false)
     {
         entity.OnLevelUp += delegate { Notification.Create("Leveled up!", NotificationType.Informative); };
+        entity.OnDamage += delegate
+        {
+            invincibilityFlashStartTime = Clock.CurrentTime;
+            invincibilityFlashEndTime = invincibilityFlashStartTime + Character.INVINCIBILITY_TIME;
+        };
         if (entity.Secondary != null) entity.Secondary.User = this;
         if (entity.Utility != null) entity.Utility.User = this;
         if (entity.Ultimate != null) entity.Ultimate.User = this;
@@ -115,5 +126,15 @@ public partial class DrawablePlayableEntity : DrawableEntity
         }
 
         if (Direction != Vector2.Zero) Move(Direction.Normalized(), GetSpeed());
+
+        if (Clock.CurrentTime < invincibilityFlashEndTime)
+        {
+            int flashIndex = (int)((Clock.CurrentTime - invincibilityFlashStartTime) / FLASH_INTERVAL);
+            Alpha = flashIndex % 2 == 0 ? FLASH_LOW_ALPHA : 1;
+            return;
+        }
+
+        if (Alpha != 1)
+            Alpha = 1;
     }
 }
