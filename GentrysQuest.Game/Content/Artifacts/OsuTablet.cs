@@ -10,6 +10,8 @@ namespace GentrysQuest.Game.Content.Artifacts
         public override List<StatType> ValidMainAttributes { get; set; } = [StatType.CritRate];
         public override string Name { get; set; } = "Osu Tablet";
 
+        public override int? ContentID { get; set; } = 2;
+
         public override string Description { get; protected set; } = "Brayden's Osu Tablet. "
                                                                      + "[condition]Every 10 hits[/condition][details]-1 for the star rating[/details] "
                                                                      + "guarantees you to hit a [type]critical attack[/type] with an additional "

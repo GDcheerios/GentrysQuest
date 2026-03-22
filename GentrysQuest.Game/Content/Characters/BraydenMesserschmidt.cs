@@ -8,6 +8,8 @@ namespace GentrysQuest.Game.Content.Characters
 {
     public class BraydenMesserschmidt : Character
     {
+        public override int? ContentID { get; set; } = 2;
+
         public BraydenMesserschmidt()
         {
             Name = "Brayden Messerschmidt";

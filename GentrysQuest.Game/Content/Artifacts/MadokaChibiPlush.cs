@@ -11,6 +11,8 @@ namespace GentrysQuest.Game.Content.Artifacts
         public override string Description { get; protected set; } = "Brayden's trusty old Madoka Chibi Plush! "
                                                                      + "[condition]When hit[/condition] you have a [unit]10% chance[/unit] [details]+ 5% per stack[/details] to not take damage.";
 
+        public override int? ContentID { get; set; } = 1;
+
         public override void OnEquip(Entity.Entity entity) => entity.OnGetHit += handleHit;
 
         public override void OnUnequip(Entity.Entity entity) => entity.OnGetHit -= handleHit;
