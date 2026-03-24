@@ -17,6 +17,8 @@ namespace GentrysQuest.Game.Location
         public Vector2 SpawnPoint { get; protected set; } = Vector2.Zero;
         private DrawableMap drawableInstance = null;
 
+        public virtual int? ContentID { get; protected set; } = null;
+
         /// <summary>
         /// The maximum number of enemies that can spawn on the map.
         /// </summary>

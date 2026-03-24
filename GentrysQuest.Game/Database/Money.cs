@@ -6,7 +6,7 @@ namespace GentrysQuest.Game.Database
     public class Money
     {
         public bool InfiniteMoney = false;
-        private IUser user;
+        private readonly IUser user;
 
         public Bindable<int> Amount;
 
@@ -21,8 +21,13 @@ namespace GentrysQuest.Game.Database
         public void Spend(int amount)
         {
             if (!InfiniteMoney) Amount.Value -= amount;
+            user.AddStatistic(new Statistic(StatTypes.MoneySpent, amount));
         }
 
-        public void Hand(int amount) => Amount.Value += amount;
+        public void Hand(int amount)
+        {
+            Amount.Value += amount;
+            user.AddStatistic(new Statistic(StatTypes.MoneyGained, amount));
+        }
     }
 }

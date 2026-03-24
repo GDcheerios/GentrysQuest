@@ -9,6 +9,7 @@ public abstract class StatusEffect
 {
     protected static int Identifier = 0;
     public int ID;
+    public virtual int? ContentID { get; set; } = null;
 
     protected StatusEffect(int duration = 1, int stack = 1)
     {
@@ -43,6 +44,11 @@ public abstract class StatusEffect
     /// Who this Effect is effecting
     /// </summary>
     protected Entity Effector { get; private set; }
+
+    /// <summary>
+    /// Who this effect was inflicted by
+    /// </summary>
+    public Entity EffectedBy { get; set; } = null;
 
     /// <summary>
     /// If it's something that's based on a condition

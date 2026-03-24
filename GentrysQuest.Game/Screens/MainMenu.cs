@@ -3,6 +3,7 @@ using GentrysQuest.Game.Content.Music;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Users;
@@ -43,6 +44,9 @@ namespace GentrysQuest.Game.Screens
 
         [Resolved]
         private DiscordRpc discordRpc { get; set; }
+
+        [Resolved]
+        private GqWebSocketClient websocket { get; set; }
 
         public MainMenuScreen(bool keepIntroSong = false)
         {
@@ -104,6 +108,8 @@ namespace GentrysQuest.Game.Screens
             playButton.FadeIn(200);
             quitButton.FadeIn(200);
             user.Value.Save();
+            _ = websocket.DisconnectAsync();
+            APIAccess.ClearUserSession();
             user.Value = null;
         }
 

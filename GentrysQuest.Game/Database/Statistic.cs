@@ -1,109 +1,69 @@
+using System;
+using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Location;
+
 namespace GentrysQuest.Game.Database
 {
-    public class Statistic : IStatistic
+    public class Statistic
     {
-        public Statistic(StatTypes statType, float scoreReward = 0)
+        public Statistic(StatTypes statType, int amount = 0)
         {
             StatType = statType;
-            ScoreReward = scoreReward;
+            ScoreReward = 0;
+            Value = amount;
 
             switch (statType)
             {
-                case StatTypes.Score:
-                    Name = "Score";
+                case StatTypes.Heal:
+                    Name = "heal";
+                    ScoreReward = 1;
                     break;
 
-                case StatTypes.Hits:
-                    Name = "Hits";
+                case StatTypes.PlayerDamage:
+                    Name = "player_damage";
+                    ScoreReward = 1;
                     break;
 
-                case StatTypes.Damage:
-                    Name = "Damage";
+                case StatTypes.EnemyDamage:
+                    Name = "enemy_damage";
+                    ScoreReward = 2;
                     break;
 
-                case StatTypes.MostDamage:
-                    Name = "Most Damage";
+                case StatTypes.Kill:
+                    Name = "kill";
+                    ScoreReward = 100;
                     break;
 
-                case StatTypes.Crits:
-                    Name = "Crits";
-                    break;
-
-                case StatTypes.Kills:
-                    Name = "Kills";
-                    break;
-
-                case StatTypes.DamageTaken:
-                    Name = "Damage Taken";
-                    break;
-
-                case StatTypes.MostDamageTaken:
-                    Name = "Most Damage Taken";
-                    break;
-
-                case StatTypes.HitsTaken:
-                    Name = "Hits taken";
-                    break;
-
-                case StatTypes.ConsecutiveCrits:
-                    Name = "Consecutive Crits";
-                    break;
-
-                case StatTypes.CritsTaken:
-                    Name = "Crits Taken";
-                    break;
-
-                case StatTypes.Deaths:
-                    Name = "Deaths";
-                    break;
-
-                case StatTypes.MoneySpentOnce:
-                    Name = "Biggest Purchase";
-                    break;
-
-                case StatTypes.MoneyGainedOnce:
-                    Name = "Biggest Earning";
-                    break;
-
-                case StatTypes.MoneySpent:
-                    Name = "Money Spent";
+                case StatTypes.Death:
+                    Name = "death";
                     break;
 
                 case StatTypes.MoneyGained:
-                    Name = "Money Earned";
+                    Name = "money_gained";
+                    ScoreReward = 1;
                     break;
 
-                case StatTypes.HealthGained:
-                    Name = "Health Recovered";
+                case StatTypes.MoneySpent:
+                    Name = "money_spent";
+                    ScoreReward = 1;
                     break;
 
-                case StatTypes.HealthGainedOnce:
-                    Name = "Biggest Health Recovery";
-                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(statType), statType, null);
             }
         }
 
-        public string Name { get; }
+        public string Name { get; set; }
         public StatTypes StatType { get; }
-        public float Value { get; protected set; } = 0;
-        public float ScoreReward { get; }
-        public bool IsConsecutive { get; protected set; } = false;
-        public virtual void Add(float amount) => Value += amount;
-
-        public string Summary()
-        {
-            return $"{Name}: {Value}";
-        }
-
-        public void Result(IStatistic otherStatistic)
-        {
-            if (otherStatistic.IsConsecutive) Value = (Value > otherStatistic.Value) ? Value : otherStatistic.Value;
-            else Value += otherStatistic.Value;
-        }
-
-        public bool Bigger(int amount)
-        {
-            return amount > Value;
-        }
+        public float Value { get; set; } = 0;
+        public Enemy Enemy { get; set; } = null;
+        public Character Character { get; set; } = null;
+        public Weapon Weapon { get; set; } = null;
+        public Map Map { get; set; } = null;
+        public int? Visitation { get; set; } = null;
+        public StatusEffect StatusEffect { get; set; } = null;
+        public int? Leaderboard { get; set; } = null;
+        public int ScoreReward { get; set; }
     }
 }

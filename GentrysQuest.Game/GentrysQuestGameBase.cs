@@ -28,6 +28,9 @@ namespace GentrysQuest.Game
         [Cached]
         private InputHandler inputHandler = new();
 
+        [Cached]
+        private GqWebSocketClient websocketClient = new();
+
         /// <summary>
         /// The Game's current user
         /// </summary>
@@ -52,6 +55,14 @@ namespace GentrysQuest.Game
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
             _ = new GameClock(Clock);
             Add(AudioManager.Instance);
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+                websocketClient.Dispose();
+
+            base.Dispose(isDisposing);
         }
     }
 }

@@ -23,12 +23,6 @@ namespace GentrysQuest.Game.Users
         Experience Experience { get; set; }
 
         /// <summary>
-        /// User statistics
-        /// </summary>
-        // [JsonProperty("statistics")]
-        // public StatTracker Stats { get; set; }
-
-        /// <summary>
         /// How much money the user has
         /// </summary>
         [JsonProperty("money")]
@@ -90,6 +84,13 @@ namespace GentrysQuest.Game.Users
         Character EquippedCharacter { get; set; }
 
         /// <summary>
+        /// Determines whether gameplay is in normal progression or temporary event mode.
+        /// Event mode should not persist item changes to online inventory.
+        /// </summary>
+        [JsonIgnore]
+        UserSessionMode SessionMode { get; set; }
+
+        /// <summary>
         /// Loads the user's data
         /// </summary>
         Task Load();
@@ -116,5 +117,11 @@ namespace GentrysQuest.Game.Users
         /// </summary>
         /// <param name="entity">The entity to be removed</param>
         Task RemoveItem(EntityBase entity);
+
+        /// <summary>
+        /// Add a statistic to the user's data.
+        /// </summary>
+        /// <param name="statistic">The statistic</param>
+        Task<Statistic> AddStatistic(Statistic statistic);
     }
 }

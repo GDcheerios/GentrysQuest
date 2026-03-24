@@ -1,4 +1,5 @@
 using System;
+using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Overlays.Notifications;
@@ -23,6 +24,9 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
+
+        [Resolved]
+        private GqWebSocketClient websocket { get; set; }
 
         private const int INPUT_HEIGHT = 40;
 
@@ -94,11 +98,11 @@ namespace GentrysQuest.Game.Graphics.UserInterface.Login
                         {
                             loadingIndicator.ChangeStatus("Authenticating");
                             await APIAccess.SetUserToken(loginRequest.Response.Token);
-                            await APIAccess.EnsureApiKeyAsync();
+                            await websocket.ConnectAndAuthenticateAsync();
                         }
 
                         loadingIndicator.ChangeStatus("Loading data");
-                        OnlineUser retrievedUser = new OnlineUser(loginRequest.Response.Data!);
+                        OnlineUser retrievedUser = new OnlineUser(loginRequest.Response.Data!, websocket);
                         await retrievedUser.Load();
 
                         user.Value = retrievedUser;

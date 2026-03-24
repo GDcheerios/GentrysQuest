@@ -1,5 +1,8 @@
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
 using NUnit.Framework;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Screens;
 
@@ -8,9 +11,16 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
     [TestFixture]
     public partial class TestSceneMainMenu : GentrysQuestTestScene
     {
-        // Add visual tests to ensure correct behaviour of your game: https://github.com/ppy/osu-framework/wiki/Development-and-Testing
-        // You can make changes to classes associated with the tests and they will recompile and update immediately.
         private MainMenuScreen mainMenu;
+
+        [Cached]
+        private GameMenuOverlay gameMenuOverlay { get; set; } = new();
+
+        [Cached]
+        private ProfileButton profileButton { get; set; } = new();
+
+        [Cached]
+        private ScreenManager screenManager { get; set; } = new ScreenManager(new ScreenStack());
 
         public TestSceneMainMenu()
         {

@@ -22,12 +22,7 @@ namespace GentrysQuest.Game.Content.Enemies
             ArtifactChoices.GuaranteeDrop = false;
             ArtifactChoices.MultipleDrop = false;
 
-            ArtifactChoices.AddChoice(new ElHefe());
-            ArtifactChoices.AddChoice(new EmptyGachaContainer());
-            ArtifactChoices.AddChoice(new EnergyDrink());
-            ArtifactChoices.AddChoice(new OsuTablet());
-            ArtifactChoices.AddChoice(new MadokaChibiPlush());
-            ArtifactChoices.AddChoice(new Keyboard());
+            ArtifactChoices.AddChoice(new RandomArtifact());
         }
     }
 }

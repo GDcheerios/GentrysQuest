@@ -129,13 +129,15 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             AddSliderStep("Amount", 0, 1000, 100, i => amount = i);
             AddStep("Damage", () =>
             {
-                entity.Damage(amount);
-                enemy.Damage(amount);
+                DamageDetails details = new DamageDetails { Damage = amount };
+                entity.Damage(details);
+                enemy.Damage(details);
             });
             AddStep("Crit", () =>
             {
-                entity.Crit((int)(amount * 1.5));
-                enemy.Crit((int)(amount * 1.5));
+                DamageDetails details = new DamageDetails { Damage = (int)(amount * 1.5), IsCrit = true };
+                entity.Damage(details);
+                enemy.Damage(details);
             });
             AddStep("Heal", () =>
             {

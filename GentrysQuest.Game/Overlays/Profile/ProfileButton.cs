@@ -1,4 +1,6 @@
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -30,6 +32,9 @@ namespace GentrysQuest.Game.Overlays.Profile
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
+
+        [Resolved]
+        private GqWebSocketClient websocket { get; set; }
 
         public ProfileButton() => Depth = -1;
 
@@ -205,6 +210,8 @@ namespace GentrysQuest.Game.Overlays.Profile
         private void signOutUser()
         {
             user.Value?.Save();
+            _ = websocket.DisconnectAsync();
+            APIAccess.ClearUserSession();
             user.Value = null;
         }
 

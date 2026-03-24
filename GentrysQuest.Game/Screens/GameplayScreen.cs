@@ -1,4 +1,5 @@
 ﻿using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Entity.Weapon;
@@ -8,16 +9,21 @@ using GentrysQuest.Game.Screens.Gameplay;
 using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Screens
 {
     public partial class GameplayScreen : GqScreen
     {
+        protected virtual UserSessionMode SessionMode => UserSessionMode.Normal;
         private SpriteText scoreText;
+        private int score;
+        private int displayedScore;
         private DrawablePlayableEntity playerEntity;
         private GameplayHud gameplayHud;
         private bool started = false;
+        protected int? ID { get; set; }
 
         private const double FAILED_SPAWN_RETRY_MS = 500;
 
@@ -45,15 +51,34 @@ namespace GentrysQuest.Game.Screens
         /// </summary>
         private double? pauseStartTime;
 
-        private IUser user;
+        protected IUser User;
 
         [Resolved]
         private GameMenuOverlay gameMenuOverlay { get; set; }
+
+        private int DisplayedScore
+        {
+            get => displayedScore;
+            set
+            {
+                displayedScore = value;
+                updateScoreText(displayedScore);
+            }
+        }
 
         [BackgroundDependencyLoader]
         private void load()
         {
             AddInternal(mapScene);
+            AddInternal(scoreText = new SpriteText
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Margin = new MarginPadding { Top = 24, Right = 24 },
+                Font = FontUsage.Default.With(size: 38, weight: "SemiBold"),
+                Depth = -2
+            });
+            updateScoreText(0);
         }
 
         public void LoadGameplay(IUser user, Map map)
@@ -69,7 +94,36 @@ namespace GentrysQuest.Game.Screens
             mapScene.AddPlayer(new DrawablePlayableEntity(user.EquippedCharacter));
             mapScene.GetPlayer().SetupClickContainer();
 
-            this.user = user;
+            User = user;
+            User.SessionMode = SessionMode;
+            score = 0;
+            DisplayedScore = 0;
+            this.TransformTo(nameof(DisplayedScore), DisplayedScore, 0);
+
+            user.EquippedCharacter.OnDamage += (details) =>
+            {
+                var statistic = new Statistic(StatTypes.PlayerDamage, details.Damage)
+                {
+                    Enemy = details.Sender as Enemy,
+                    Character = User.EquippedCharacter,
+                    Weapon = details.Receiver.Weapon,
+                    Leaderboard = ID,
+                    Map = map
+                };
+                registerStatistic(statistic);
+
+                if (user.EquippedCharacter.IsDead)
+                {
+                    registerStatistic(new Statistic(StatTypes.Death, 1)
+                    {
+                        Enemy = details.Sender as Enemy,
+                        Character = User.EquippedCharacter,
+                        Weapon = details.Receiver.Weapon,
+                        Leaderboard = ID,
+                        Map = map
+                    });
+                }
+            };
 
             AddInternal(gameplayHud = new GameplayHud());
             gameplayHud.SetEntity(user.EquippedCharacter);
@@ -91,18 +145,40 @@ namespace GentrysQuest.Game.Screens
 
             foreach (Enemy enemy in spawnedEnemies)
             {
-                enemy.SetRelativeLevel(user.EquippedCharacter.Experience.CurrentLevel());
+                enemy.SetRelativeLevel(User.EquippedCharacter.Experience.CurrentLevel());
                 enemy.Heal();
                 enemy.AddEffect(new Paused(duration: 2000) { IsInfinite = false });
+                enemy.OnDamage += (details) =>
+                {
+                    registerStatistic(new Statistic(StatTypes.EnemyDamage, details.Damage)
+                        {
+                            Character = User.EquippedCharacter,
+                            Enemy = enemy,
+                            Weapon = details.Sender.Weapon,
+                            Leaderboard = ID,
+                            Map = mapScene.GetMap().Reference
+                        }
+                    );
+                };
                 enemy.OnDeath += () =>
                 {
+                    registerStatistic(new Statistic(StatTypes.Kill, 1)
+                        {
+                            Character = User.EquippedCharacter,
+                            Enemy = enemy,
+                            Weapon = User.EquippedCharacter?.Weapon,
+                            Leaderboard = ID,
+                            Map = mapScene.GetMap().Reference
+                        }
+                    );
+
                     foreach (Artifact artifact in enemy.GetArtifactReward())
                     {
-                        user.MoneyHandler.Hand(enemy.GetMoneyReward());
+                        User.MoneyHandler.Hand(enemy.GetMoneyReward());
                         Weapon weapon = enemy.GetWeaponReward();
-                        if (weapon != null) user.AddItem(weapon);
+                        if (weapon != null) User.AddItem(weapon);
                         artifact.Initialize(MathBase.GetStarRating(enemy.Difficulty));
-                        user.AddItem(artifact);
+                        User.AddItem(artifact);
                     }
                 };
             }
@@ -131,5 +207,18 @@ namespace GentrysQuest.Game.Screens
 
             return base.UpdateSubTree();
         }
+
+        private void registerStatistic(Statistic statistic)
+        {
+            _ = User.AddStatistic(statistic);
+            int scoreIncrease = (int)(statistic.ScoreReward * statistic.Value);
+            if (scoreIncrease <= 0) scoreIncrease = statistic.ScoreReward;
+            if (scoreIncrease <= 0) return;
+
+            score += scoreIncrease;
+            this.TransformTo(nameof(DisplayedScore), score, 350, Easing.OutQuint);
+        }
+
+        private void updateScoreText(int value) => scoreText.Text = $"{value:N0} score";
     }
 }

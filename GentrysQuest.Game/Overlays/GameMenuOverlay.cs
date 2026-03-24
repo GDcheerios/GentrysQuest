@@ -1,6 +1,8 @@
 using System;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Input;
+using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Overlays.GameMenu.GachaTab;
 using GentrysQuest.Game.Overlays.Inventory;
@@ -25,7 +27,7 @@ namespace GentrysQuest.Game.Overlays
 
         // buttons or something
         public readonly GqMenuButton BackButton;
-        public readonly GqMenuButton WeeklyEvent;
+        public readonly GqMenuButton EventButton;
         public readonly GqMenuButton TravelButton;
         public readonly GqMenuButton InventoryButton;
         public readonly GqMenuButton GachaButton;
@@ -45,7 +47,7 @@ namespace GentrysQuest.Game.Overlays
         /// <summary>
         /// The weekly event overlay
         /// </summary>
-        public readonly WeeklyEventOverlay WeeklyEventOverlay = new();
+        public readonly EventOverlay EventOverlay = new();
 
         public readonly GachaContainer GachaContainer = new();
 
@@ -65,6 +67,9 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private TitleText title { get; set; }
+
+        [Resolved]
+        private GqWebSocketClient websocket { get; set; }
 
         public GameMenuOverlay()
         {
@@ -87,11 +92,11 @@ namespace GentrysQuest.Game.Overlays
                             Height = 1,
                             AutoSizeAxes = Axes.Both,
                             Spacing = new Vector2(24, 0),
-                            Y = 220,
+                            Y = 200,
                             Children =
                             [
                                 BackButton = new GqMenuButton("Quit"),
-                                WeeklyEvent = new GqMenuButton("Weekly Event"),
+                                EventButton = new GqMenuButton("Weekly Event"),
                                 TravelButton = new GqMenuButton("Travel"),
                                 InventoryButton = new GqMenuButton("Inventory"),
                                 GachaButton = new GqMenuButton("Gacha"),
@@ -100,15 +105,17 @@ namespace GentrysQuest.Game.Overlays
                         },
                         focusContainer = new Container
                         {
+                            Name = "Focus Container",
                             RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.9f, 0.75f),
-                            Y = 300,
+                            Size = new Vector2(0.8f, 0.6f),
+                            FillMode = FillMode.Stretch,
+                            Y = 280,
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Children =
                             [
                                 InventoryOverlay,
-                                WeeklyEventOverlay,
+                                EventOverlay,
                                 GachaContainer
                             ]
                         }
@@ -119,10 +126,12 @@ namespace GentrysQuest.Game.Overlays
             BackButton.SetAction(delegate
             {
                 user.Value.Save();
+                _ = websocket.DisconnectAsync();
+                APIAccess.ClearUserSession();
                 user.Value = null;
                 screenManager.SetScreen(new MainMenuScreen());
             });
-            WeeklyEvent.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
+            EventButton.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
             InventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
             GachaButton.SetAction(delegate { state.Value = SelectionState.Gacha; });
             TravelButton.SetAction(delegate { state.Value = SelectionState.Travel; });
@@ -202,15 +211,14 @@ namespace GentrysQuest.Game.Overlays
             this.FadeIn();
             navBar.X = -2;
             navBar.MoveToX(0, 150, Easing.Out);
-            if (user.Value is GuestUser) WeeklyEvent.FadeTo(0.5f, 250, Easing.OutQuint);
-            else WeeklyEvent.FadeTo(1, 250, Easing.OutQuint);
+            if (user.Value is GuestUser) EventButton.FadeTo(0.5f, 250, Easing.OutQuint);
+            else EventButton.FadeTo(1, 250, Easing.OutQuint);
         }
 
         public void Disappear()
         {
             InventoryOverlay.Hide();
-            WeeklyEventOverlay.Hide();
-            WeeklyEventOverlay.EndLeaderboard();
+            EventOverlay.Hide();
             GachaContainer.AnimateHide();
             navBar.MoveToX(1, 150, Easing.In);
             title?.MoveToY(0, 150, Easing.In).FadeOut(150, Easing.In);
@@ -226,8 +234,7 @@ namespace GentrysQuest.Game.Overlays
         private void handleState(ValueChangedEvent<SelectionState> stateChange)
         {
             InventoryOverlay.Hide();
-            WeeklyEventOverlay.Hide();
-            WeeklyEventOverlay.EndLeaderboard();
+            EventOverlay.Hide();
             GachaContainer.AnimateHide();
 
             switch (state.Value)
@@ -244,8 +251,7 @@ namespace GentrysQuest.Game.Overlays
                         return;
                     }
 
-                    WeeklyEventOverlay.Show();
-                    WeeklyEventOverlay.ReloadLeaderboard();
+                    EventOverlay.Show();
                     break;
 
                 case SelectionState.Travel:

@@ -71,7 +71,7 @@ namespace GentrysQuest.Game.Content.Weapons
             OnHitEntity += details =>
             {
                 Entity.Entity receiver = details.Receiver;
-                if (details.GetHitAmount() == 1) receiver.Damage((int)receiver.Stats.Health.GetPercentFromTotal((float)(1 + Holder.Difficulty * 2.5)));
+                // if (details.GetHitAmount() == 1) receiver.Damage((int)receiver.Stats.Health.GetPercentFromTotal((float)(1 + Holder.Difficulty * 2.5)));
             };
 
             #endregion

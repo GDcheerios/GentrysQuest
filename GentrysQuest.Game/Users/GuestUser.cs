@@ -8,6 +8,7 @@ using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Overlays.Notifications;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Users
 {
@@ -22,8 +23,6 @@ namespace GentrysQuest.Game.Users
         public string Name { get; set; }
 
         public Experience Experience { get; set; } = new Experience();
-
-        // public StatTracker Stats { get; set; } = new StatTracker();
         public int StartupAmount { get; set; }
         public int Money { get; set; } = 0;
         public Bindable<int> Placement { get; set; } = new();
@@ -36,6 +35,7 @@ namespace GentrysQuest.Game.Users
         public List<Artifact> Artifacts { get; set; } = [];
         public List<Weapon> Weapons { get; set; } = [];
         public Character EquippedCharacter { get; set; } = null;
+        public UserSessionMode SessionMode { get; set; } = UserSessionMode.Normal;
 
         public Task Load()
         {
@@ -117,6 +117,12 @@ namespace GentrysQuest.Game.Users
                     break;
             }
 
+            return null;
+        }
+
+        public Task<Statistic> AddStatistic(Statistic statistic)
+        {
+            Logger.Log("Adding statistic to guest user");
             return null;
         }
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
+using osu.Framework.Graphics.Colour;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity
@@ -26,7 +27,7 @@ namespace GentrysQuest.Game.Entity
         // Stats
         public Stats Stats = new();
         public StatModifierCollection StatModifiers { get; } = new();
-        public Dictionary<Entity, int> EnemyHitCounter = new();
+        public Dictionary<Entity, int> HitCounter = new();
 
         // Equips
         [CanBeNull]
@@ -52,6 +53,7 @@ namespace GentrysQuest.Game.Entity
         public Entity()
         {
             CurrentTenacity = (int)Stats.Tenacity.Total();
+            Stats.Health.Current.ValueChanged += delegate { OnHealthEvent?.Invoke(); };
             CalculateXpRequirement();
         }
 
@@ -61,7 +63,9 @@ namespace GentrysQuest.Game.Entity
 
         public delegate void EntityHealthEvent(int amount);
 
-        public delegate void EntityHitEvent(DamageDetails details);
+        public delegate void EntityHealthDisplayEvent(string text, ColourInfo colour = default);
+
+        public delegate void EntityDamageEvent(DamageDetails details);
 
         public delegate void ProjectileAdditionEvent(ProjectileParameters parameters);
 
@@ -77,9 +81,7 @@ namespace GentrysQuest.Game.Entity
 
         // Health events
         public event EntityEvent OnHealthEvent;
-        public event EntityHealthEvent OnDamage;
-        public event EntityHealthEvent OnHeal;
-        public event EntityHealthEvent OnCrit;
+        public event EntityHealthDisplayEvent OnHealthDisplay;
 
         // Equipment events
         public event SwapWeaponEvent OnSwapWeapon;
@@ -87,8 +89,9 @@ namespace GentrysQuest.Game.Entity
 
         // Combat events
         public event EntityEvent OnAttack;
-        public event EntityHitEvent OnHitEntity;
-        public event EntityHitEvent OnGetHit;
+        public event EntityDamageEvent OnHitEntity;
+        public event EntityDamageEvent OnGetHit;
+        public event EntityDamageEvent OnDamage;
 
         // Other Events
         public event EntityEvent OnUpdateStats;
@@ -128,29 +131,15 @@ namespace GentrysQuest.Game.Entity
 
         public int AfterDefense(int amount) => (int)(amount * (100 / (Stats.Defense.Current.Value * DefenseModifier)));
 
-        public virtual void Damage(int amount = 1)
+        public virtual void Damage(DamageDetails details)
         {
-            if (Invincible) return;
-
-            if (IsDodging) return;
-
             IsFullHealth = false;
-            Stats.Health.UpdateCurrentValue(-amount * DamageModifier);
+            int amount = (int)(details.Damage * DamageModifier);
+            Stats.Health.UpdateCurrentValue(-amount);
             if (Stats.Health.Current.Value <= 0 && !IsDead) Die();
-            OnHealthEvent?.Invoke();
-            OnDamage?.Invoke(amount);
+            OnDamage?.Invoke(details);
             LastDamageTime = GameClock.CurrentTime;
         }
-
-        public void DamageWithDefense(int amount) => Damage(AfterDefense(amount));
-
-        public virtual void Crit(int amount = 1)
-        {
-            Damage(amount);
-            OnCrit?.Invoke(amount);
-        }
-
-        public void CritWithDefense(int amount) => Crit(AfterDefense(amount));
 
         public void HitEntity(DamageDetails details) => OnHitEntity?.Invoke(details);
         public void OnHit(DamageDetails details) => OnGetHit?.Invoke(details);
@@ -160,7 +149,6 @@ namespace GentrysQuest.Game.Entity
             Stats.Health.UpdateCurrentValue(amount * HealingModifier);
             IsFullHealth = Stats.Health.Current.Value == Stats.Health.Total();
             OnHealthEvent?.Invoke();
-            OnHeal?.Invoke((int)(amount * HealingModifier));
         }
 
         public void Heal()
@@ -168,8 +156,9 @@ namespace GentrysQuest.Game.Entity
             int amount = (int)Stats.Health.Total();
             Stats.Health.UpdateCurrentValue(amount);
             OnHealthEvent?.Invoke();
-            OnHeal?.Invoke(amount);
         }
+
+        public void DisplayHealthEvent(string text, ColourInfo colour = default) => OnHealthDisplay?.Invoke(text, colour);
 
         public void SetWeapon([CanBeNull] Weapon.Weapon weapon)
         {
@@ -219,10 +208,11 @@ namespace GentrysQuest.Game.Entity
 
         public bool HasTenacity() => CurrentTenacity > 0;
 
-        public void AddEffect(StatusEffect statusEffect)
+        public void AddEffect(StatusEffect statusEffect, Entity effectedBy = null)
         {
             bool inList = false;
             statusEffect.SetEffector(this);
+            statusEffect.EffectedBy = effectedBy;
 
             foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()))
             {

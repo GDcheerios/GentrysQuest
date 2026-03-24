@@ -17,9 +17,9 @@ public class Character : Entity
         UpdateStats();
     }
 
-    public override void Damage(int amount)
+    public override void Damage(DamageDetails details)
     {
-        if (LastDamageTime + INVINCIBILITY_TIME < GameClock.CurrentTime) base.Damage(amount);
+        if (LastDamageTime + INVINCIBILITY_TIME < GameClock.CurrentTime) base.Damage(details);
     }
 
     public override void Heal(int amount)

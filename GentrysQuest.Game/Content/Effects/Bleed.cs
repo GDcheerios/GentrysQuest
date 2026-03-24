@@ -1,6 +1,7 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Content.Effects
@@ -22,7 +23,14 @@ namespace GentrysQuest.Game.Content.Effects
             if (ElapsedTime() > Interval * CurrentStep)
             {
                 CurrentStep++;
-                Effector.Damage((int)((3 + Effector.Experience.CurrentLevel() * Stack) * Effector.EffectModifier));
+                DamageDetails damageDetails = new DamageDetails
+                {
+                    Receiver = Effector,
+                    StatusEffect = this,
+                    Damage = (int)((3 + Effector.Experience.CurrentLevel() * Stack) * Effector.EffectModifier),
+                };
+                Effector.Damage(damageDetails);
+                Effector.DisplayHealthEvent($"{damageDetails.Damage}", ColourInfo.GradientVertical(EffectColor, Colour4.Black));
             }
         }
     }

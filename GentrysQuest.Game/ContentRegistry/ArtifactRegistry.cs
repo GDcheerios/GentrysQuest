@@ -12,7 +12,8 @@ namespace GentrysQuest.Game.ContentRegistry
             ["Osu Tablet"] = () => new OsuTablet(),
             ["Madoka Chibi Plush"] = () => new MadokaChibiPlush(),
             ["Keyboard"] = () => new Keyboard(),
-            ["El Hefe"] = () => new ElHefe()
+            ["El Hefe"] = () => new ElHefe(),
+            ["Random Artifact"] = () => new RandomArtifact()
         };
 
         public static Artifact Create(string key)

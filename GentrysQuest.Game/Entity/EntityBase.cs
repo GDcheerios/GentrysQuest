@@ -6,7 +6,16 @@ namespace GentrysQuest.Game.Entity
 {
     public abstract class EntityBase
     {
+        /// <summary>
+        /// This is the ID of the instance.
+        /// </summary>
         public int ID { get; set; }
+
+        /// <summary>
+        /// This is the ID of the entity in the content.
+        /// </summary>
+        public virtual int? ContentID { get; set; } = null;
+
         public virtual string Name { get; set; } = "Entity";
         public virtual StarRating StarRating { get; protected set; } = new StarRating(1);
         public virtual string Description { get; protected set; } = "This is a description";

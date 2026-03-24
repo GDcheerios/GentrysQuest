@@ -1,6 +1,7 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Content.Effects;
@@ -24,7 +25,14 @@ public class Burn(int duration = 1, int stack = 1) : StatusEffect(duration, stac
         if (ElapsedTime() > Interval * CurrentStep)
         {
             CurrentStep++;
-            Effector.Damage((int)Effector.Stats.Health.GetPercentFromTotal(Stack));
+            DamageDetails damageDetails = new DamageDetails
+            {
+                Receiver = Effector,
+                StatusEffect = this,
+                Damage = (int)Effector.Stats.Health.GetPercentFromTotal(Stack)
+            };
+            Effector.Damage(damageDetails);
+            Effector.DisplayHealthEvent($"{damageDetails.Damage}", ColourInfo.GradientVertical(Colour4.White, EffectColor));
         }
     }
 }

@@ -26,6 +26,11 @@ namespace GentrysQuest.Game.Entity
         public Entity Receiver = null;
 
         /// <summary>
+        /// Effect cause
+        /// </summary>
+        public StatusEffect StatusEffect = null;
+
+        /// <summary>
         /// Where the receiver was hit from
         /// </summary>
         public Vector2 HitFromPosition = Vector2.Zero;
@@ -54,6 +59,6 @@ namespace GentrysQuest.Game.Entity
         /// Get the amount of times the sender has attacked the receiver
         /// </summary>
         /// <returns>The hit count of Receiver</returns>
-        public int GetHitAmount() => Sender.EnemyHitCounter[Receiver];
+        public int GetHitAmount() => Sender.HitCounter[Receiver];
     }
 }

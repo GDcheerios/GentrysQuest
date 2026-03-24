@@ -5,12 +5,14 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osuTK;
+using GentrysQuest.Game.Content.Artifacts;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
     public partial class ArtifactIcon : CompositeDrawable
     {
         private readonly Sprite icon;
+        private readonly Container randomIconContainer;
         private DrawableBuffIcon? buffIcon;
         private readonly Artifact? entityReference;
         private readonly StarRatingContainer starRatingContainer;
@@ -34,6 +36,12 @@ namespace GentrysQuest.Game.Entity.Drawables
                     Origin = Anchor.Centre
                 },
                 icon = new Sprite
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre
+                },
+                randomIconContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
@@ -73,7 +81,27 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             this.textureStore = textureStore;
 
-            if (entityReference != null)
+            if (entityReference is RandomArtifact randomArtifact)
+            {
+                icon.Texture = null;
+                randomIconContainer.Clear();
+
+                foreach (var shape in randomArtifact.IconShapes)
+                {
+                    randomIconContainer.Add(new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        RelativePositionAxes = Axes.Both,
+                        Size = shape.RelativeSize,
+                        Position = shape.RelativePosition - (shape.RelativeSize / 2f),
+                        Origin = Anchor.Centre,
+                        Anchor = Anchor.TopLeft,
+                        Colour = shape.Colour,
+                        Rotation = shape.Rotation
+                    });
+                }
+            }
+            else if (entityReference != null)
                 icon.Texture = textureStore.Get(entityReference.TextureMapping.Get("Icon"));
             else
                 icon.Texture = null;

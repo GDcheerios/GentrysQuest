@@ -9,6 +9,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Audio;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
@@ -126,9 +127,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             setDrawableWeapon();
             entity.OnSwapWeapon += _ => setDrawableWeapon();
-            entity.OnDamage += delegate(int amount) { addIndicator(amount, DamageType.Damage); };
-            entity.OnHeal += delegate(int amount) { addIndicator(amount, DamageType.Heal); };
-            entity.OnCrit += delegate(int amount) { addIndicator(amount, DamageType.Crit); };
+            entity.OnHealthDisplay += addIndicator;
             entity.OnDeath += delegate { Sprite.FadeOut(100); };
             entity.OnSpawn += delegate { Sprite.FadeIn(100); };
             entity.OnSpawn += delegate { lastRegenTime = Clock.CurrentTime; };
@@ -159,6 +158,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             lastRegenTime = Clock.CurrentTime;
             Entity.Heal((int)Entity.Stats.RegenStrength.Current.Value);
+            Entity.DisplayHealthEvent(Entity.Stats.RegenStrength.Current.Value.ToString(), ColourInfo.SingleColour(Colour4.Green));
         }
 
         public void ApplyKnockback(Vector2 direction, float force, int duration, KnockbackType type)
@@ -214,53 +214,29 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage
         /// </summary>
-        /// <param name="amount">The amount of health change</param>
-        /// <param name="type">The type of damage</param>
-        private void addIndicator(int amount, DamageType type)
+        /// <param name="text">The text that will display</param>
+        /// <param name="colourInfo">The color of the indicator</param>
+        private void addIndicator(string text, ColourInfo colourInfo)
         {
-            Colour4 colour = default;
-            byte size = 50;
-
-            switch (type)
+            const byte size = 50;
+            AddInternal(new Indicator(text)
             {
-                case DamageType.Heal:
-                    colour = Colour4.LimeGreen;
-                    break;
-
-                case DamageType.Damage:
-                    colour = Colour4.White;
-                    break;
-
-                case DamageType.Crit:
-                    colour = Colour4.Red;
-                    size = 52;
-                    break;
-            }
-
-            Indicator indicatorReference;
-            AddInternal(indicatorReference = new Indicator(amount)
-            {
-                Colour = colour,
+                Colour = colourInfo,
                 Font = FontUsage.Default.With(size: size),
                 Shadow = true
             });
-            Scheduler.AddDelayed(() =>
-            {
-                RemoveInternal(indicatorReference, false);
-            }, indicatorReference.FadeOut());
         }
 
         public void Dodge()
         {
-            if (Entity.CanDodge)
-            {
-                OnDodge?.Invoke();
-                Entity.CanDodge = false;
-                Entity.IsDodging = true;
-                Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, DODGE_TIME);
-                Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, DODGE_INTERVAL);
-                ApplyKnockback(Direction, (int)(BASE_DODGE_SPEED + GetSpeed()), DODGE_TIME, KnockbackType.StopsMovement);
-            }
+            if (!Entity.CanDodge) return;
+
+            OnDodge?.Invoke();
+            Entity.CanDodge = false;
+            Entity.IsDodging = true;
+            Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, DODGE_TIME);
+            Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, DODGE_INTERVAL);
+            ApplyKnockback(Direction, (int)(BASE_DODGE_SPEED + GetSpeed()), DODGE_TIME, KnockbackType.StopsMovement);
         }
 
         public void HideBar() => EntityBar.Hide();

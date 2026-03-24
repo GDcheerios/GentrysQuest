@@ -1,11 +1,14 @@
-using GentrysQuest.Game.Content.Artifacts;
 using GentrysQuest.Game.Content.Characters;
+using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
-using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Overlays.Results;
+using GentrysQuest.Game.Screens;
+using GentrysQuest.Game.Screens.Gameplay;
+using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -14,18 +17,24 @@ using Box = osu.Framework.Graphics.Shapes.Box;
 
 namespace GentrysQuest.Game.Overlays.GameMenu
 {
-    public partial class WeeklyEventOverlay : CompositeDrawable
+    public partial class EventOverlay : CompositeDrawable
     {
         private readonly MainGqButton playButton;
         private readonly OnlineResultsLeaderboard leaderboard;
         private Container detailsContainer;
         private TaggedTextContainer descriptionText;
 
+        [Resolved]
+        private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
+
         private readonly string eventName;
         private readonly string eventDescription;
-        private readonly int eventID = 1;
+        public const int EVENT_ID = 1;
 
-        public WeeklyEventOverlay()
+        public EventOverlay()
         {
             playButton = new MainGqButton("Play")
             {
@@ -33,65 +42,30 @@ namespace GentrysQuest.Game.Overlays.GameMenu
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
             };
-            leaderboard = new OnlineResultsLeaderboard(eventID)
-            {
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                RelativeSizeAxes = Axes.Both,
-                Size = new Vector2(0.5f, 0.8f),
-            };
 
             #region EventDetails
 
-            eventName = "Brayden Gaming";
-            eventDescription = "Play as Brayden's peak set. "
-                               + "You start with [stat]5 star[/stat] Brayden Messerschmidt equipment, all at [stat]level 100[/stat]";
+            eventName = "March Gameplay Test";
+            eventDescription = "This is a gameplay testing event for the month of march.";
 
             playButton.SetAction(delegate
             {
-                //TODO: Rewrite
-                Character character = new BraydenMesserschmidt();
-                character.Experience.Level.Current.Value = 100;
-                BraydensOsuPen braydensOsuPen = new BraydensOsuPen();
-                levelLoop(100, braydensOsuPen);
-                character.SetWeapon(braydensOsuPen);
+                if (user.Value != null)
+                    user.Value.SessionMode = UserSessionMode.Event;
 
-                OsuTablet osuTablet = new OsuTablet();
-                osuTablet.Initialize(5);
+                GMoney character = new GMoney();
+                user.Value!.AddItem(character);
+                user.Value.EquippedCharacter = character;
+                character.SetWeapon(new Sword());
 
-                MadokaChibiPlush osuChibiPlush1 = new MadokaChibiPlush();
-                osuChibiPlush1.Initialize(5);
-                MadokaChibiPlush osuChibiPlush2 = new MadokaChibiPlush();
-                osuChibiPlush2.Initialize(5);
-                MadokaChibiPlush osuChibiPlush3 = new MadokaChibiPlush();
-                osuChibiPlush3.Initialize(5);
-                MadokaChibiPlush osuChibiPlush4 = new MadokaChibiPlush();
-                osuChibiPlush4.Initialize(5);
+                EventGameplayScreen eventScreen = new EventGameplayScreen();
 
-                levelLoop(19, osuTablet);
-                levelLoop(19, osuChibiPlush1);
-                levelLoop(19, osuChibiPlush2);
-                levelLoop(19, osuChibiPlush3);
-                levelLoop(19, osuChibiPlush4);
-
-                character.Artifacts.Equip(osuTablet, 0);
-                character.Artifacts.Equip(osuChibiPlush1, 1);
-                character.Artifacts.Equip(osuChibiPlush2, 2);
-                character.Artifacts.Equip(osuChibiPlush3, 3);
-                character.Artifacts.Equip(osuChibiPlush4, 4);
+                screenManager.SetScreen(eventScreen);
+                eventScreen.LoadGameplay(user.Value, new TestMap());
             });
 
             #endregion
         }
-
-        private void levelLoop(int amount, EntityBase entity)
-        {
-            for (int i = 0; i < amount; i++) entity.LevelUp();
-        }
-
-        public void EndLeaderboard() => leaderboard.LeaderboardPanels.Clear();
-
-        public void ReloadLeaderboard() => leaderboard.Load();
 
         [BackgroundDependencyLoader]
         private void load()
@@ -99,7 +73,6 @@ namespace GentrysQuest.Game.Overlays.GameMenu
             InternalChildren =
             [
                 playButton,
-                leaderboard,
                 detailsContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,

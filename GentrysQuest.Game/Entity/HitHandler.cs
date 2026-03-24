@@ -1,20 +1,8 @@
-// * Name              : GentrysQuest.Game
-//  * Author           : Brayden J Messerschmidt
-//  * Created          : 07/29/2024
-//  * Course           : CIS 169 C#
-//  * Version          : 1.0
-//  * OS               : Windows 11 22H2
-//  * IDE              : Jet Brains Rider 2023
-//  * Copyright        : This is my work.
-//  * Description      : desc.
-//  * Academic Honesty : I attest that this is my original work.
-//  * I have not used unauthorized source code, either modified or
-//  * unmodified. I have not given other fellow student(s) access
-//  * to my program.
-
 using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Utils;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osuTK;
 
 namespace GentrysQuest.Game.Entity;
@@ -63,23 +51,48 @@ public class HitHandler
 
     private void applyDamage()
     {
-        if (Details.IgnoreDefense)
+        string damageText = "0";
+        ColourInfo damageDisplay = ColourInfo.SingleColour(Colour4.White);
+
+        if (Details.IsCrit)
         {
-            if (Details.IsCrit) receiverBase.Crit(Details.Damage);
-            else receiverBase.Damage(Details.Damage);
-        }
-        else
-        {
-            if (Details.IsCrit) receiverBase.CritWithDefense(Details.Damage);
-            else receiverBase.DamageWithDefense(Details.Damage);
+            Details.Damage += (int)MathBase.GetPercent(Details.Damage, sender.Stats.CritDamage.GetCurrent());
+            damageDisplay = ColourInfo.SingleColour(Colour4.Red);
         }
 
-        receiverBase.RemoveTenacity();
+        if (!Details.IgnoreDefense) Details.Damage = receiverBase.AfterDefense(Details.Damage);
+
+        switch (receiverBase.Invincible)
+        {
+            case true:
+                damageText = "Missed";
+                damageDisplay = ColourInfo.SingleColour(Colour4.Gray);
+                break;
+
+            default:
+            {
+                if (receiverBase.IsDodging)
+                {
+                    damageText = "Dodged";
+                    damageDisplay = ColourInfo.SingleColour(Colour4.Gray);
+                }
+                else
+                {
+                    receiverBase.Damage(Details);
+                    receiverBase.RemoveTenacity();
+                    damageText = Details.Damage.ToString();
+                }
+
+                break;
+            }
+        }
+
+        receiverBase.DisplayHealthEvent(damageText, damageDisplay);
     }
 
     private void applyHitCount()
     {
-        if (!sender.EnemyHitCounter.TryAdd(receiverBase, 1)) sender.EnemyHitCounter[receiverBase]++;
+        if (!sender.HitCounter.TryAdd(receiverBase, 1)) sender.HitCounter[receiverBase]++;
     }
 
     private void applyKnockback()
@@ -117,10 +130,7 @@ public class HitHandler
         switch (sender)
         {
             case Character character:
-                if (receiverBase.IsDead)
-                {
-                    sender.AddXp(receiverBase.GetXpReward());
-                }
+                if (receiverBase.IsDead) sender.AddXp(receiverBase.GetXpReward());
 
                 break;
         }
