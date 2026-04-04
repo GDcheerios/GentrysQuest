@@ -32,6 +32,7 @@ namespace GentrysQuest.Game.Screens
         private GameplayHud gameplayHud;
         private bool started = false;
         private bool ending;
+        private bool deathStatisticRecorded;
         protected int? ID { get; set; }
 
         private const double FAILED_SPAWN_RETRY_MS = 500;
@@ -129,6 +130,7 @@ namespace GentrysQuest.Game.Screens
             score = 0;
             DisplayedScore = 0;
             ending = false;
+            deathStatisticRecorded = false;
             gameMenuOverlay.SetAccessLocked(false);
 
             if (user is OnlineUser onlineUser)
@@ -172,8 +174,9 @@ namespace GentrysQuest.Game.Screens
                 };
                 registerStatistic(statistic);
 
-                if (user.EquippedCharacter.IsDead)
+                if (user.EquippedCharacter.IsDead && !deathStatisticRecorded)
                 {
+                    deathStatisticRecorded = true;
                     registerStatistic(new Statistic(StatTypes.Death, 1)
                     {
                         Enemy = details.Sender as Enemy,
@@ -185,7 +188,33 @@ namespace GentrysQuest.Game.Screens
                 }
             };
 
-            user.EquippedCharacter.OnDeath += () => _ = EndAsync(GameplayEndReason.Death);
+            user.EquippedCharacter.OnHeal += amount =>
+            {
+                registerStatistic(new Statistic(StatTypes.Heal, amount)
+                {
+                    Character = User.EquippedCharacter,
+                    Weapon = User.EquippedCharacter?.Weapon,
+                    Leaderboard = ID,
+                    Map = map
+                });
+            };
+
+            user.EquippedCharacter.OnDeath += () =>
+            {
+                if (!deathStatisticRecorded)
+                {
+                    deathStatisticRecorded = true;
+                    registerStatistic(new Statistic(StatTypes.Death, 1)
+                    {
+                        Character = User.EquippedCharacter,
+                        Weapon = User.EquippedCharacter?.Weapon,
+                        Leaderboard = ID,
+                        Map = map
+                    });
+                }
+
+                _ = EndAsync(GameplayEndReason.Death);
+            };
 
             AddInternal(gameplayHud = new GameplayHud());
             gameplayHud.SetEntity(user.EquippedCharacter);
