@@ -1,5 +1,12 @@
+using GentrysQuest.Game.Audio;
+using GentrysQuest.Game.Database;
+using GentrysQuest.Game.Input;
+using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Users;
+using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
@@ -13,21 +20,49 @@ namespace GentrysQuest.Game
         // It allows for caching global dependencies that should be accessible to tests, or changing
         // the screen scaling for all components including the test browser and framework overlays.
         protected override Container<Drawable> Content { get; }
+        private GameClock gameClock;
+
+        [Cached]
+        private DiscordRpc discordRpc = new("1115885237910634587");
+
+        [Cached]
+        private InputHandler inputHandler = new();
+
+        [Cached]
+        private GqWebSocketClient websocketClient = new();
+
+        /// <summary>
+        /// The Game's current user
+        /// </summary>
+        [Cached]
+        protected Bindable<IUser> user { get; } = new();
+        // Cached so that it can be accessed by other classes
+        // Bindable types let us listen for changes to the variable
 
         protected GentrysQuestGameBase()
         {
-            // Ensure game and tests scale with window size and screen DPI.
             base.Content.Add(Content = new DrawSizePreservingFillContainer
             {
-                // You may want to change TargetDrawSize to your "default" resolution, which will decide how things scale and position when using absolute coordinates.
                 TargetDrawSize = new Vector2(1000, 1000)
             });
+            base.Content.Add(inputHandler);
+            DatabaseManager.CheckDatabase();
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
+            _ = new GameClock(Clock);
+            Add(AudioManager.Instance);
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+                websocketClient.Dispose();
+
+            base.Dispose(isDisposing);
         }
     }
 }

@@ -10,9 +10,8 @@ namespace GentrysQuest.Game.Graphics.TextStyles
         {
             Text = text;
             Colour = Color4.Black;
-            Anchor = Anchor.Centre;
-            Origin = Anchor.BottomCentre;
-            Y = -200;
+            Origin = Anchor.Centre;
+            Depth = -100;
             Font = FontUsage.Default.With(size: 120);
         }
     }

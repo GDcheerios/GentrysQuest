@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using GentrysQuest.Game.Entity.Weapon;
-using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Utils;
+using osu.Framework.Graphics.Containers;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -9,7 +10,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// Design of the projectile
         /// </summary>
-        public CustomSprite Design;
+        public Container Design;
 
         /// <summary>
         /// Speed of the projectile
@@ -34,7 +35,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// The amount of times the projectile can pass through enemies
         /// </summary>
-        public int PassthroughAmount = 0;
+        public int PassthroughAmount = 1;
 
         /// <summary>
         /// projectile damage
@@ -44,7 +45,7 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// How it affects
         /// </summary>
-        public OnHitEffect OnHitEffect = null;
+        public List<OnHitEffect> OnHitEffects = null;
 
         /// <summary>
         /// If the damage takes defense into account

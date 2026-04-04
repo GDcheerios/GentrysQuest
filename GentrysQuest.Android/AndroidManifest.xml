@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.gdcheerios.gentrysquest"
-          android:installLocation="auto">
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34"/>
-    <application
-            android:allowBackup="true"
-            android:label="Gentry's Quest"
-            android:supportsRtl="true">
-    </application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:allowBackup="true" android:label="Gentry's Quest" android:supportsRtl="true">
+  </application>
+  <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

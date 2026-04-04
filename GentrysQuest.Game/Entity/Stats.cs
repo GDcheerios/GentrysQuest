@@ -4,16 +4,16 @@
     /// Stat management class /// </summary>
     public class Stats
     {
-        public readonly Stat Health = new IntStat("Health", StatType.Health, 100, false);
-        public readonly Stat Attack = new IntStat("Attack", StatType.Attack, 10);
-        public readonly Stat Defense = new IntStat("Defense", StatType.Defense, 100);
-        public readonly Stat CritRate = new IntStat("CritRate", StatType.CritRate, 1);
-        public readonly Stat CritDamage = new IntStat("CritDamage", StatType.CritDamage, 20);
-        public readonly Stat Speed = new("Speed", StatType.Speed, 1);
-        public readonly Stat AttackSpeed = new("AttackSpeed", StatType.AttackSpeed, 1);
-        public readonly Stat RegenSpeed = new("RegenSpeed", StatType.RegenSpeed, 0);
-        public readonly Stat RegenStrength = new IntStat("RegenStrength", StatType.RegenStrength, 1);
-        public readonly Stat Tenacity = new IntStat("Tenacity", StatType.Tenacity, 3);
+        public Stat Health = new HealthStat(100);
+        public Stat Attack = new IntStat("Attack", StatType.Attack, 10);
+        public Stat Defense = new IntStat("Defense", StatType.Defense, 100);
+        public Stat CritRate = new IntStat("CritRate", StatType.CritRate, 1);
+        public Stat CritDamage = new IntStat("CritDamage", StatType.CritDamage, 20);
+        public Stat Speed = new("Speed", StatType.Speed, 1);
+        public Stat AttackSpeed = new("AttackSpeed", StatType.AttackSpeed, 1);
+        public Stat RegenSpeed = new("RegenSpeed", StatType.RegenSpeed, 0);
+        public Stat RegenStrength = new IntStat("RegenStrength", StatType.RegenStrength, 1);
+        public Stat Tenacity = new IntStat("Tenacity", StatType.Tenacity, 3);
         private readonly Stat[] statGrouping;
 
         public Stats()
@@ -43,6 +43,16 @@
             return null;
         }
 
+        public Stat GetStat(StatType statType)
+        {
+            foreach (Stat stat in statGrouping)
+            {
+                if (stat.Type == statType) return stat;
+            }
+
+            return null;
+        }
+
         public void Boost(int percent)
         {
             foreach (Stat stat in statGrouping) stat.Add(stat.GetPercentFromDefault(percent));
@@ -55,10 +65,7 @@
         /// </summary>
         public void Restore()
         {
-            foreach (Stat stat in statGrouping)
-            {
-                stat.RestoreValue();
-            }
+            foreach (Stat stat in statGrouping) stat.RestoreValue();
         }
 
         /// <summary>
@@ -78,7 +85,7 @@
 
             foreach (Stat stat in statGrouping)
             {
-                points += stat.point;
+                points += stat.Point;
             }
 
             return points;

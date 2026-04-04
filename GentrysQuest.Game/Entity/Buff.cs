@@ -1,4 +1,5 @@
 ﻿using System;
+using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Bindables;
 
@@ -43,6 +44,26 @@ namespace GentrysQuest.Game.Entity
             IsPercent = isPercent;
         }
 
+        public Buff(JsonBuff jsonBuff) => LoadJson(jsonBuff);
+
+        public JsonBuff ToJson()
+        {
+            return new JsonBuff
+            {
+                BuffID = StatType,
+                IsPercent = IsPercent,
+                Level = Level
+            };
+        }
+
+        public void LoadJson(JsonBuff jsonBuff)
+        {
+            StatType = jsonBuff.BuffID;
+            IsPercent = jsonBuff.IsPercent;
+            Level = jsonBuff.Level;
+            updateStats();
+        }
+
         private void updateStats()
         {
             double value = 0;
@@ -56,7 +77,7 @@ namespace GentrysQuest.Game.Entity
                     value = 100;
                     starRating = 125;
                     level = 150;
-                    percentDiffer = 65;
+                    percentDiffer = 50;
                     break;
 
                 case StatType.Attack:
@@ -129,6 +150,8 @@ namespace GentrysQuest.Game.Entity
 
         private void handleValue(double value, double starRating, double level, double percentDiffer)
         {
+            if (ParentEntity == null) return;
+
             switch (ParentEntity)
             {
                 case Weapon.Weapon weapon:

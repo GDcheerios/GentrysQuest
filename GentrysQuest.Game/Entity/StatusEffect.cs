@@ -7,8 +7,15 @@ namespace GentrysQuest.Game.Entity;
 
 public abstract class StatusEffect
 {
+    protected static int Identifier = 0;
+    public int ID;
+    public virtual int? ContentID { get; set; } = null;
+
     protected StatusEffect(int duration = 1, int stack = 1)
     {
+        Identifier++;
+        ID = Identifier;
+
         Duration = duration;
         Stack = stack;
     }
@@ -39,6 +46,11 @@ public abstract class StatusEffect
     protected Entity Effector { get; private set; }
 
     /// <summary>
+    /// Who this effect was inflicted by
+    /// </summary>
+    public Entity EffectedBy { get; set; } = null;
+
+    /// <summary>
     /// If it's something that's based on a condition
     /// </summary>
     public abstract bool IsInfinite { get; set; }
@@ -51,7 +63,7 @@ public abstract class StatusEffect
     /// <summary>
     /// is it effecting?
     /// </summary>
-    public bool Effecting = false;
+    public bool Active = false;
 
     /// <summary>
     /// The time between effect
@@ -88,6 +100,27 @@ public abstract class StatusEffect
         Time = 0;
         StartTime = null;
         Stack = 1;
+        Active = false;
+    }
+
+    /// <summary>
+    /// Restarts duration tracking without changing stacks.
+    /// </summary>
+    public virtual void RestartLifetime(double time)
+    {
+        StartTime = time;
+        Time = time;
+        CurrentStep = 1;
+    }
+
+    /// <summary>
+    /// Clears lifetime anchor so it is re-based on next update tick.
+    /// </summary>
+    public virtual void RestartLifetime()
+    {
+        StartTime = null;
+        Time = 0;
+        CurrentStep = 1;
     }
 
     /// <summary>

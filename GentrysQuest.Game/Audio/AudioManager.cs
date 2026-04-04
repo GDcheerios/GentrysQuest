@@ -1,64 +1,95 @@
-﻿using System;
+﻿using GentrysQuest.Game.Audio.Music;
 using JetBrains.Annotations;
+using osu.Framework.Allocation;
 using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
+using osu.Framework.Audio.Track;
+using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Audio;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Audio
 {
-    public static class AudioManager
+    public partial class AudioManager : CompositeComponent
     {
-        private static readonly Volume gameVolume = new Volume(0.5);
-        private static readonly Volume musicVolume = new Volume(0.25);
-        private static readonly Volume soundVolume = new Volume(0.25);
+        private static AudioManager instance;
+        public static AudioManager Instance => instance ??= new AudioManager();
+        private ITrackStore trackStore;
+        private ISampleStore sampleStore;
+
+        public delegate void PlayMusicEvent();
+
+        public event PlayMusicEvent OnPlayMusic;
+
+        private readonly Bindable<double> gameVolume = new(1);
+        private readonly Bindable<double> musicVolume = new(1);
+        private readonly Bindable<double> soundVolume = new(1);
+
+        [BackgroundDependencyLoader]
+        private void load(ITrackStore trackStore, ISampleStore sampleStore)
+        {
+            RelativeSizeAxes = Axes.Both;
+            this.trackStore = trackStore;
+            this.sampleStore = sampleStore;
+        }
 
         [CanBeNull]
-        private static DrawableTrack gameMusic;
+        private DrawableTrack gameMusic;
+
+        public ISong CurrentSong;
 
         private const int FADE_TIME = 5000;
 
-        public static void ChangeMusic(DrawableTrack track)
+        public void ChangeMusic(ISong song)
         {
+            CurrentSong = song;
+            OnPlayMusic?.Invoke();
+            var oldMusic = gameMusic;
+
+            DrawableTrack track = new DrawableTrack(trackStore.Get(song.FileName));
             track.Looping = true;
+            gameMusic = track;
 
-            Action modifyTrack = () =>
-            {
-                gameMusic = track;
-                gameMusic.Start();
-                gameMusic.VolumeTo(musicVolume.Amount, FADE_TIME);
-            };
+            AddInternal(gameMusic);
+            gameMusic.Volume.Value = musicVolume.Value;
+            gameMusic.Start();
+            oldMusic?.Expire();
+        }
 
-            if (gameMusic == null)
+        public void StopMusic() => gameMusic?.Stop();
+
+        public void FadeOutMusic(int time = FADE_TIME)
+        {
+            Logger.Log($"Fade out music for {time}ms");
+            if (gameMusic == null) return;
+
+            gameMusic.ClearTransforms();
+
+            if (time <= 0)
             {
-                gameMusic = track;
-                gameMusic.VolumeTo(0);
-                gameMusic.Start();
-                gameMusic.VolumeTo(musicVolume.Amount, FADE_TIME);
+                gameMusic.Volume.Value = 0;
             }
             else
             {
-                gameMusic.VolumeTo(0, FADE_TIME).Then().Finally(_ => modifyTrack());
+                gameMusic.VolumeTo(0, time);
             }
         }
 
-        public static void PlaySound(DrawableSample sample)
+        public void FadeInMusic(int time = FADE_TIME)
         {
-            sample.VolumeTo(soundVolume.Amount);
-            sample.Play();
+            if (gameMusic != null)
+            {
+                gameMusic.Volume.Value = 0;
+                gameMusic.VolumeTo(musicVolume.Value, time);
+            }
         }
 
-        public static void ChangeMusicVolume(int percent) { musicVolume.Amount = (double)percent / 100 / gameVolume.Amount; }
-
-        private static void adjustMusicVolume() { ChangeMusicVolume((int)musicVolume.Amount * 100); }
-
-        public static void ChangeSoundVolume(int percent) { soundVolume.Amount = (double)percent / 100 / gameVolume.Amount; }
-
-        private static void adjustSoundVolume() { ChangeSoundVolume((int)soundVolume.Amount * 100); }
-
-        public static void ChangeGameVolume(int percent)
+        public void PlaySound(DrawableSample sample)
         {
-            gameVolume.Amount = (double)percent / 100;
-            adjustMusicVolume();
-            adjustSoundVolume();
+            sample.Volume.Value = soundVolume.Value;
+            sample.Play();
         }
     }
 }

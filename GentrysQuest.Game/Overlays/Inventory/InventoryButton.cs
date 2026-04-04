@@ -9,7 +9,7 @@ using osuTK;
 
 namespace GentrysQuest.Game.Overlays.Inventory
 {
-    public partial class InventoryButton : GQButton
+    public partial class InventoryButton : GqButton
     {
         private SpriteText buttonText;
         private Action action;
@@ -22,9 +22,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
             Masking = true;
             CornerExponent = 2;
             CornerRadius = 10;
-            // BorderColour = Colour4.Black;
-            // BorderThickness = 2;
-            Size = new Vector2(200, 100);
+            Size = new Vector2(200, 50);
             InternalChildren = new Drawable[]
             {
                 background = new Box
@@ -50,6 +48,7 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         protected override bool OnClick(ClickEvent e)
         {
+            background.FadeColour(new Colour4(42, 42, 42, 255), 0, Easing.OutQuint);
             background.FlashColour(Colour4.Gray, 500, Easing.In);
             return base.OnClick(e);
         }
@@ -57,5 +56,10 @@ namespace GentrysQuest.Game.Overlays.Inventory
         public void SetText(string text) => buttonText.Text = text;
 
         public void SetTextColor(Colour4 colour) => buttonText.Colour = colour;
+
+        public void Highlight()
+        {
+            background.FadeColour(Colour4.Gray, 300).Then().FadeColour(new Colour4(42, 42, 42, 255), 300).Loop();
+        }
     }
 }

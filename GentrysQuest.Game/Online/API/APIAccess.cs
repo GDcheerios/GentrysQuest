@@ -1,35 +1,48 @@
+using System;
 using System.Threading.Tasks;
 using GentrysQuest.Game.Online.API.Requests;
+using GentrysQuest.Game.Online.API.Requests.Responses;
 
 namespace GentrysQuest.Game.Online.API
 {
     public class APIAccess
     {
-        private static string token;
-        public static EndpointConfiguration Endpoint;
-
-        public APIAccess()
-        {
+        private static string userToken;
+        private static APIKey apiKey;
+        public static EndpointConfiguration Endpoint { get; } =
 #if DEBUG
-            Endpoint = new DevelopmentEndpointConfiguration();
+            new DevelopmentEndpointConfiguration();
 #else
-            Endpoint = new ProductionEndpointConfiguration();
+            new ProductionEndpointConfiguration();
 #endif
-        }
 
-        public static async Task GrabToken()
+        public static Task SetUserToken(string token) => Task.FromResult(userToken = token);
+
+        public static async Task EnsureApiKeyAsync()
         {
-            if (token == null)
+            if (string.IsNullOrEmpty(userToken)) throw new InvalidOperationException("User token not set.");
+
+            var referenceTime = DateTimeOffset.UtcNow;
+            var needsNewKey =
+                apiKey == null ||
+                apiKey.ExpiresAt != null && apiKey.ExpiresAt.Value <= referenceTime;
+
+            if (needsNewKey)
             {
-                var tokenRequest = new GetTokenRequest();
-                await tokenRequest.PerformAsync();
-                token = tokenRequest.Response;
+                var req = new GetApiKeyRequest(userToken);
+                await req.PerformAsync();
+                apiKey = req.Response;
             }
         }
 
-        public static async Task DeleteToken()
+        public static APIKey GetApiKey() => apiKey;
+
+        public static string GetUserToken() => userToken;
+
+        public static void ClearUserSession()
         {
-            if (token != null) await new DeleteTokenRequest(token).PerformAsync();
+            userToken = null;
+            apiKey = null;
         }
     }
 }

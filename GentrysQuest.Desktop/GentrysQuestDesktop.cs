@@ -20,11 +20,6 @@ namespace GentrysQuest.Desktop;
 
 public partial class GentrysQuestDesktop : GentrysQuestGame
 {
-    public GentrysQuestDesktop(bool arcadeMode)
-        : base(arcadeMode)
-    {
-    }
-
     public override void SetHost(GameHost host)
     {
         base.SetHost(host);
@@ -34,6 +29,6 @@ public partial class GentrysQuestDesktop : GentrysQuestGame
             host.Window.SetIconFromStream(iconStream);
 
         host.Window.CursorState |= CursorState.Hidden;
-        host.Window.Title = Name;
+        host.Window.Title = "Gentry's Quest";
     }
 }

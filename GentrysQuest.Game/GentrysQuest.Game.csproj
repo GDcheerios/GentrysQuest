@@ -11,8 +11,10 @@
     <ProjectReference Include="..\GentrysQuest.Resources\GentrysQuest.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2024.720.0" />
-    <PackageReference Include="ppy.osu.Framework.iOS" Version="2024.702.0" />
+    <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
+    <PackageReference Include="ppy.osu.Framework" Version="2025.1118.1" />
+    <PackageReference Include="ppy.osu.Framework.iOS" Version="2025.1021.0" />
+    <PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GentrysQuest.Desktop\game.ico">
@@ -20,5 +22,8 @@
       <PackagePath></PackagePath>
       <Link>game.ico</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Locations\" />
   </ItemGroup>
 </Project>

@@ -1,116 +1,173 @@
+using System;
+using JetBrains.Annotations;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osuTK;
 
 namespace GentrysQuest.Game.Entity.Drawables
 {
-    // TODO: Add way to display percentage
     public partial class StatDrawable : CompositeDrawable
     {
-        private const int DURATION = 500;
-        public string Identifier;
-        private bool isPercent;
-        public new string Name { get; private set; }
-        private readonly Box backgroundBox;
-        private readonly SpriteText nameText;
-        private readonly SpriteText valueText;
-        private readonly SpriteText changedToValue;
-        private readonly SpriteIcon arrowIndicator;
-        private readonly Box newIndicationBox;
-        private readonly SpriteText newIndicationText;
+        private const int DURATION = 100;
 
-        public StatDrawable(string name, float value, bool isMain, string identifier = null, bool isPercent = false)
+        public string Identifier { get; private set; }
+        public Bindable<double> Value { get; private set; } = new();
+        public Bindable<double> AdditionalValue { get; private set; } = new();
+
+        private bool isPercent;
+
+        private Box backgroundBox;
+        private Box newIndicationBox;
+        private SpriteText nameText;
+        private SpriteText additionalValueText;
+        private SpriteText valueText;
+        private SpriteText changedToValue;
+        private SpriteIcon arrowIndicator;
+        private SpriteText newIndicationText;
+        private Container nameContainer;
+        private Container valueContainer;
+        private Container additionalValueContainer;
+
+        private const float CORNER_RADIUS = 10;
+        private Colour4 backgroundColour = Colour4.DarkGray;
+
+        public StatDrawable(string name, [CanBeNull] string identifier = null)
         {
-            this.isPercent = isPercent;
             Identifier = identifier ?? name;
             Name = name;
+        }
+
+        public StatDrawable(Stat stat)
+        {
+            isPercent = stat.IsPercent;
+            Name = stat.Name;
+            Identifier = stat.Name;
+            Value.Value = stat.Total();
+            AdditionalValue.Value = stat.GetAdditional();
+        }
+
+        public StatDrawable(Buff attribute, [CanBeNull] string identifier = null)
+        {
+            isPercent = attribute.IsPercent;
+            var name = attribute.StatType.ToString();
+            Identifier = identifier ?? name;
+            Name = name;
+            Value.Value = attribute.Value.Value;
+            AdditionalValue.Value = attribute.Level;
+        }
+
+        private void setUpdateEvent()
+        {
+            string percentText = isPercent ? "%" : " ";
+            Value.ValueChanged += _ => valueText.Text = Math.Round(Value.Value, 2) + percentText;
+            AdditionalValue.ValueChanged += _ => additionalValueText.Text = Math.Round(AdditionalValue.Value, 2).ToString();
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
             RelativeSizeAxes = Axes.X;
-            Size = new Vector2(0.98f, isMain ? 100 : 50);
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
-            Margin = new MarginPadding { Top = 3 };
-            InternalChildren = new Drawable[]
-            {
-                backgroundBox = new Box
+            Height = 25;
+            InternalChildren =
+            [
+                new Container
                 {
+                    Masking = true,
+                    CornerRadius = 10,
+                    CornerExponent = 2,
                     RelativeSizeAxes = Axes.Both,
-                    Colour = new Colour4(0, 0, 0, 180)
-                },
-                newIndicationBox = new Box
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    Colour = Colour4.Gold,
-                    RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(1, 0.1f)
-                },
-                newIndicationText = new SpriteText
-                {
-                    Text = "new",
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.BottomCentre,
-                    Font = FontUsage.Default.With(size: 16),
-                    Colour = Colour4.Gold,
-                },
-                nameText = new SpriteText
-                {
-                    Text = name,
-                    Margin = new MarginPadding { Left = 5 },
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                },
-                new FillFlowContainer
-                {
-                    Direction = FillDirection.Horizontal,
-                    AutoSizeAxes = Axes.X,
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
-                    Children = new Drawable[]
-                    {
-                        changedToValue = new SpriteText
+                    Children =
+                    [
+                        nameContainer = new Container
                         {
-                            Text = "" + value + percentText,
-                            Anchor = Anchor.CentreRight,
-                            Margin = new MarginPadding { Left = 20, Right = 20 },
-                            Origin = Anchor.CentreRight
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.Both,
+                            RelativePositionAxes = Axes.X,
+                            Width = 1,
+                            Children =
+                            [
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = backgroundColour,
+                                },
+                                nameText = new SpriteText
+                                {
+                                    Text = Name,
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Font = FontUsage.Default.With(size: 20)
+                                }
+                            ],
                         },
-                        arrowIndicator = new SpriteIcon
+                        additionalValueContainer = new Container
                         {
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight,
-                            Icon = FontAwesome.Solid.LongArrowAltRight,
-                            Colour = Colour4.Gray,
-                            Size = new Vector2(64)
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.Both,
+                            RelativePositionAxes = Axes.X,
+                            X = 0.35f,
+                            Width = 0,
+                            Children =
+                            [
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = backgroundColour
+                                },
+                                additionalValueText = new SpriteText
+                                {
+                                    Text = "",
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Font = FontUsage.Default.With(size: 20)
+                                }
+                            ],
                         },
-                        valueText = new SpriteText
+                        valueContainer = new Container
                         {
-                            Text = "" + value + percentText,
-                            Anchor = Anchor.CentreRight,
-                            Margin = new MarginPadding { Right = 20 },
-                            Origin = Anchor.CentreRight
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.Both,
+                            RelativePositionAxes = Axes.X,
+                            X = 0.70f,
+                            Width = 0,
+                            Children =
+                            [
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = backgroundColour,
+                                },
+                                valueText = new SpriteText
+                                {
+                                    Text = "",
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Font = FontUsage.Default.With(size: 20)
+                                }
+                            ],
                         },
-                    }
+                    ]
                 }
-            };
+            ];
 
-            if (isMain)
-            {
-                int size = 52;
-                nameText.Font = FontUsage.Default.With(size: size);
-                valueText.Font = FontUsage.Default.With(size: size);
-                changedToValue.Font = FontUsage.Default.With(size: size);
-            }
-
-            newIndicationBox.Hide();
-            newIndicationText.Hide();
-            arrowIndicator.ScaleTo(new Vector2(0, 1));
-            changedToValue.ScaleTo(new Vector2(0, 1));
+            string percentText = isPercent ? "%" : " ";
+            this.FadeColour(Colour4.White, DURATION);
+            nameContainer.Delay(DURATION * 2).ResizeWidthTo(0.33f, DURATION);
+            additionalValueContainer.Delay(DURATION * 3).Then().ResizeWidthTo(0.33f, DURATION).Then()
+                                    .Finally(_ => additionalValueText.Text = AdditionalValue.Value.ToString());
+            valueContainer.Delay(DURATION * 4).Then().ResizeWidthTo(0.33f, DURATION).Then()
+                          .Finally(_ => valueText.Text = Value.Value + percentText);
+            setUpdateEvent();
         }
 
         /// <summary>
-        /// Notification for new stat
+        /// Displays a notification to indicate it's a new stat.
         /// </summary>
         public void NewDisplay()
         {
@@ -118,20 +175,20 @@ namespace GentrysQuest.Game.Entity.Drawables
             newIndicationText.FadeIn(100);
         }
 
-        public void UpdateValue(float newValue)
+        public void UpdateValue(double value)
         {
-            if (valueText.Text == $"{newValue}{percentText}") return;
-
-            valueText.Text = changedToValue.Text + percentText;
-            backgroundBox.FlashColour(new Colour4(255, 255, 255, 100), DURATION);
-            changedToValue.Text = "" + newValue + percentText;
-            changedToValue.ScaleTo(1, DURATION * 0.2);
-            arrowIndicator.ScaleTo(1, DURATION * 0.2);
-            changedToValue.FadeColour(Colour4.Gold, DURATION * 0.2);
-            valueText.FlashColour(Colour4.Gold, DURATION * 0.5);
-            nameText.FlashColour(Colour4.Gold, DURATION * 0.5);
+            Colour4 colour = Value.Value < value ? Colour4.LightYellow : Colour4.LightBlue;
+            Value.Value = value;
+            string percentText = isPercent ? "%" : " ";
+            this.FadeColour(colour, DURATION);
+            nameContainer.ResizeWidthTo(1, DURATION).Then()
+                         .Delay(DURATION * 2).ResizeWidthTo(0.33f, DURATION);
+            additionalValueContainer.ResizeWidthTo(0, DURATION).FadeOut(DURATION).Then()
+                                    .Delay(DURATION * 3).Then().ResizeWidthTo(0.33f, DURATION).FadeIn(DURATION).Then()
+                                    .Finally(_ => additionalValueText.Text = Math.Round(AdditionalValue.Value, 2).ToString());
+            valueContainer.ResizeWidthTo(0, DURATION).FadeOut(DURATION).Then()
+                          .Delay(DURATION * 4).Then().ResizeWidthTo(0.33f, DURATION).FadeIn(DURATION).Then()
+                          .Finally(_ => valueText.Text = Value.Value + percentText);
         }
-
-        private string percentText => $"{(isPercent ? '%' : ' ')}";
     }
 }

@@ -1,43 +1,127 @@
+using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Entity.Weapon;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osuTK;
 
 namespace GentrysQuest.Game.Content.Weapons
 {
     public class Bow : Weapon
     {
-        public override string Type { get; } = "Bow";
-        public override int Distance { get; set; } = 1000;
+        public override string Type => "Bow";
+        public override int Distance => 1000;
         public override string Name { get; set; } = "Bow";
         public override string Description { get; protected set; } = "Just a bow.";
-        public override bool IsGeneralDamageMode { get; protected set; } = false;
+        public override bool IsGeneralDamageMode => false;
+
+        private readonly AttackAnimationRegistry animationRegistry = new();
+        public override AttackKeyframe RestingEvent { get; protected set; } = new AttackKeyframe(100) { Distance = 100 };
+
+        private int currentDamage = 10;
+        private int projectileSpeed = 15;
+
+        private string currentAnimation = "aim1";
 
         public Bow()
         {
-            Damage.SetDefaultValue(20);
+            TextureMapping = new();
 
-            AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Size = new Vector2(0.5f), Distance = 50, MovementSpeed = 0.5f });
-            AttackPattern.Add(new AttackPatternEvent(500) { Size = new Vector2(0.5f), Distance = 40, MovementSpeed = 0.1f });
-            AttackPattern.Add(new AttackPatternEvent(10) { Size = new Vector2(0.5f), Distance = 30, MovementSpeed = 0 });
-            AttackPattern.Add(new AttackPatternEvent(750)
+            animationRegistry.RegisterAnimation("aim1");
+            animationRegistry.AddKeyframe(new AttackKeyframe(200) { Distance = 80 });
+
+            animationRegistry.RegisterAnimation("aim2");
+            animationRegistry.AddKeyframe(new AttackKeyframe(300) { Distance = 60 });
+
+            animationRegistry.RegisterAnimation("aim3");
+            animationRegistry.AddKeyframe(new AttackKeyframe(500) { Distance = 40 });
+
+            animationRegistry.RegisterAnimation("aim4");
+            animationRegistry.AddKeyframe(new AttackKeyframe(10) { Distance = 20 });
+
+            animationRegistry.RegisterAnimation("aim5");
+            animationRegistry.AddKeyframe(new AttackKeyframe(10) { Distance = 20 });
+        }
+
+        private void playAnimation(string animation)
+        {
+            if (currentAnimation == animation) return;
+
+            currentAnimation = animation;
+            DrawableInstance.StopAnimation();
+            DrawableInstance.PlayAnimation(animationRegistry.GetAnimation(animation));
+        }
+
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (!IsClicking) return;
+
+            playAnimation("aim1");
+
+            switch (HoldDuration())
             {
-                Size = new Vector2(0.5f),
+                case > 2000:
+                    playAnimation("aim4");
+                    currentDamage = 85;
+                    projectileSpeed = 40;
+                    break;
+
+                case > 1000:
+                    playAnimation("aim3");
+                    currentDamage = 45;
+                    projectileSpeed = 30;
+                    break;
+
+                case > 500:
+                    playAnimation("aim2");
+                    currentDamage = 30;
+                    projectileSpeed = 25;
+                    break;
+
+                case > 200:
+                    currentDamage = 20;
+                    projectileSpeed = 20;
+                    break;
+            }
+        }
+
+        public override void OnRelease()
+        {
+            if (!IsClicking) return;
+
+            base.OnRelease();
+            AttackAnimation shootAnimation = new AttackAnimation();
+            shootAnimation.AddEvent(new AttackKeyframe
+            {
                 Distance = 50,
-                HitboxSize = new Vector2(0),
-                MovementSpeed = 0f,
                 Projectiles =
                 [
                     new ProjectileParameters
                     {
-                        Speed = 15,
+                        Design = new Container
+                        {
+                            Size = new Vector2(16),
+                            Child = new Box
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Colour = Colour4.Black
+                            }
+                        },
+                        Damage = currentDamage,
+                        Speed = projectileSpeed,
                         PassthroughAmount = 1,
-                        Damage = (int)Damage.Current.Value,
-                        TakesHolderDamage = true,
-                        TakesDefense = true
                     }
                 ]
             });
+            shootAnimation.AddEvent(new AttackKeyframe(100) { Distance = 100 });
+            Holder.AddEffect(new Disarm(300));
+            DrawableInstance.StopAnimation();
+            DrawableInstance.PlayAnimation(shootAnimation);
+            currentDamage = 20;
+            projectileSpeed = 15;
         }
     }
 }

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using osuTK;
+
 namespace GentrysQuest.Game.Entity
 {
     public class DamageDetails
@@ -22,6 +25,40 @@ namespace GentrysQuest.Game.Entity
         /// </summary>
         public Entity Receiver = null;
 
-        public int GetHitAmount() => Sender.EnemyHitCounter[Receiver];
+        /// <summary>
+        /// Effect cause
+        /// </summary>
+        public StatusEffect StatusEffect = null;
+
+        /// <summary>
+        /// Where the receiver was hit from
+        /// </summary>
+        public Vector2 HitFromPosition = Vector2.Zero;
+
+        /// <summary>
+        /// Where the receiver was hit at
+        /// </summary>
+        public Vector2 HitAtPosition = Vector2.Zero;
+
+        /// <summary>
+        /// Current effects applied to this hit
+        /// </summary>
+        public List<StatusEffect> StatusEffects = new();
+
+        /// <summary>
+        /// If this attack ignores defense
+        /// </summary>
+        public bool IgnoreDefense = false;
+
+        /// <summary>
+        /// If the attack was dodged or not.
+        /// </summary>
+        public bool WasDodged = false;
+
+        /// <summary>
+        /// Get the amount of times the sender has attacked the receiver
+        /// </summary>
+        /// <returns>The hit count of Receiver</returns>
+        public int GetHitAmount() => Sender.HitCounter[Receiver];
     }
 }

@@ -2,8 +2,24 @@ namespace GentrysQuest.Game.Audio.Music
 {
     public interface ISong
     {
+        /// <summary>
+        /// The song name
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// The artist name
+        /// </summary>
         string ArtistName { get; }
+
+        /// <summary>
+        /// The file name
+        /// </summary>
+        string FileName { get; }
+
+        /// <summary>
+        /// How we manage song events
+        /// </summary>
         TimingPointsHandler TimingPoints { get; }
     }
 }

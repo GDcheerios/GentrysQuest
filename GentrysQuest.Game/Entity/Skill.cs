@@ -1,9 +1,11 @@
 using System;
+using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Entity
 {
-    public abstract class Skill(Entity skillHaver)
+    public abstract class Skill
     {
         public Action OnAct;
 
@@ -25,19 +27,18 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// The time since last start
         /// </summary>
-        public double TimeActed = 0;
+        public double LastUseTime { get; protected set; }
 
         /// <summary>
         /// How much longer until the skill is ready to use again
         /// </summary>
         /// <returns></returns>
-        public int PercentToDone = 0;
+        public int PercentToDone { get; protected set; }
 
         /// <summary>
-        /// Who has this skill?
-        /// I know haver isn't a word...
+        /// The parent to this skill
         /// </summary>
-        public Entity SkillHaver { get; } = skillHaver;
+        public DrawableEntity User { get; set; }
 
         /// <summary>
         /// How many uses of the skill you have
@@ -52,23 +53,32 @@ namespace GentrysQuest.Game.Entity
         /// <summary>
         /// How this skill works
         /// </summary>
-        public virtual void Act()
+        public void Act()
         {
-            if (UsesAvailable > 0 || PercentToDone >= 100)
-            {
-                UsesAvailable--;
-                PercentToDone = 0;
-            }
+            if (!CanUse()) return;
+
+            LastUseTime = GameClock.CurrentTime;
+            UsesAvailable--;
+            PercentToDone = 0;
+            OnAct?.Invoke();
+            SkillDo();
         }
+
+        /// <summary>
+        /// Defines what the skill does
+        /// </summary>
+        protected abstract void SkillDo();
 
         /// <summary>
         /// The texture mapping for this skill
         /// </summary>
         public TextureMapping TextureMapping { get; protected set; } = new();
 
-        public void SetPercent(double currentTime)
+        public bool CanUse() => PercentToDone == 100 || UsesAvailable > 0;
+
+        public void Update()
         {
-            var elapsedTime = currentTime - TimeActed;
+            var elapsedTime = GameClock.CurrentTime - LastUseTime;
 
             if (PercentToDone < 100 && UsesAvailable < MaxStack) { PercentToDone = (int)((elapsedTime / (float)Cooldown) * 100); }
             else
@@ -77,7 +87,7 @@ namespace GentrysQuest.Game.Entity
                 {
                     UsesAvailable++;
                     PercentToDone = 0;
-                    TimeActed = currentTime;
+                    LastUseTime = GameClock.CurrentTime;
                 }
                 else PercentToDone = 100;
             }

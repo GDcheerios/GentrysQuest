@@ -1,5 +1,5 @@
+using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Overlays.Notifications;
-using GentrysQuest.Game.Screens.Gameplay;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Input.Events;
 using osuTK;
@@ -12,11 +12,14 @@ namespace GentrysQuest.Game.Entity.Drawables;
 /// </summary>
 public partial class DrawablePlayableEntity : DrawableEntity
 {
+    private const double FLASH_INTERVAL = 100;
+    private const float FLASH_LOW_ALPHA = 0.35f;
+
     /// <summary>
     /// A container that manages mouse clicks
     /// Since it's a playable entity you should be able to click
     /// </summary>
-    private GameplayClickContainer clickContainer;
+    private ClickContainer clickContainer;
 
     // Movement information
     private bool up;
@@ -24,13 +27,24 @@ public partial class DrawablePlayableEntity : DrawableEntity
     private bool left;
     private bool right;
 
+    private double invincibilityFlashStartTime;
+    private double invincibilityFlashEndTime;
+
     public DrawablePlayableEntity(Character entity)
         : base(entity, AffiliationType.Player, false)
     {
-        entity.OnLevelUp += delegate { NotificationContainer.Instance.AddNotification(new Notification("Leveled up!", NotificationType.Informative)); };
+        entity.OnLevelUp += delegate { Notification.Create("Leveled up!", NotificationType.Informative); };
+        entity.OnDamage += delegate
+        {
+            invincibilityFlashStartTime = Clock.CurrentTime;
+            invincibilityFlashEndTime = invincibilityFlashStartTime + Character.INVINCIBILITY_TIME;
+        };
+        if (entity.Secondary != null) entity.Secondary.User = this;
+        if (entity.Utility != null) entity.Utility.User = this;
+        if (entity.Ultimate != null) entity.Ultimate.User = this;
     }
 
-    public void SetupClickContainer() => AddInternal(clickContainer = new GameplayClickContainer(this));
+    public void SetupClickContainer() => AddInternal(clickContainer = new ClickContainer(this)); // Add clickable container to the player scene
 
     public void RemoveClickContainer()
     {
@@ -64,21 +78,11 @@ public partial class DrawablePlayableEntity : DrawableEntity
                 break;
 
             case Key.Space:
-                if (Entity.Utility?.PercentToDone == 100 || Entity.Utility?.UsesAvailable > 0)
-                {
-                    Entity.Utility?.Act();
-                    if (Entity.Utility != null) Entity.Utility.TimeActed = Clock.CurrentTime;
-                }
-
+                Entity.Utility?.Act();
                 break;
 
             case Key.R:
-                if (Entity.Ultimate?.PercentToDone == 100 || Entity.Ultimate?.UsesAvailable > 0)
-                {
-                    Entity.Ultimate?.Act();
-                    if (Entity.Ultimate != null) Entity.Ultimate.TimeActed = Clock.CurrentTime;
-                }
-
+                Entity.Ultimate?.Act();
                 break;
         }
 
@@ -122,5 +126,15 @@ public partial class DrawablePlayableEntity : DrawableEntity
         }
 
         if (Direction != Vector2.Zero) Move(Direction.Normalized(), GetSpeed());
+
+        if (Clock.CurrentTime < invincibilityFlashEndTime)
+        {
+            int flashIndex = (int)((Clock.CurrentTime - invincibilityFlashStartTime) / FLASH_INTERVAL);
+            Alpha = flashIndex % 2 == 0 ? FLASH_LOW_ALPHA : 1;
+            return;
+        }
+
+        if (Alpha != 1)
+            Alpha = 1;
     }
 }

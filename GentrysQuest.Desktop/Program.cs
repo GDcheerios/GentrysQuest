@@ -9,7 +9,7 @@ namespace GentrysQuest.Desktop
         public static async Task Main()
         {
             using (GameHost host = Host.GetSuitableDesktopHost(@"Gentry's Quest"))
-            using (osu.Framework.Game game = new GentrysQuestDesktop(true))
+            using (osu.Framework.Game game = new GentrysQuestDesktop())
                 host.Run(game);
         }
     }

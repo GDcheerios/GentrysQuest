@@ -2,31 +2,33 @@ using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Content.Skills;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
+using osu.Framework.Logging;
 
 namespace GentrysQuest.Game.Content.Characters
 {
     public class BraydenMesserschmidt : Character
     {
+        public override int? ContentID { get; set; } = 2;
+
         public BraydenMesserschmidt()
         {
             Name = "Brayden Messerschmidt";
             StarRating = new StarRating(5);
             Description = "An osu player who formed a contract with ppy(Dean Herbert) to not talk to females.";
 
-            Stats.Speed.point = 1;
-            Stats.AttackSpeed.point = 1;
-            Stats.CritRate.point = 1;
-            Stats.CritDamage.point = 1;
+            Stats.Speed.Point = 1;
+            Stats.AttackSpeed.Point = 1;
+            Stats.CritRate.Point = 1;
+            Stats.CritDamage.Point = 1;
 
-            Secondary = new CircleThrow(this);
-            Utility = new Teleport(this);
+            Secondary = new CircleThrow();
+            Utility = new Teleport();
 
-            OnSwapWeapon += checkWeapon;
-            OnLevelUp += checkWeapon;
-            Artifacts.OnChangeArtifact += checkWeapon;
+            OnUpdateStats += checkWeapon;
 
-            TextureMapping.Add("Icon", "brayden_idle.png");
-            TextureMapping.Add("Idle", "brayden_idle.png");
+            TextureMapping = new();
+            TextureMapping.Add("Icon", "characters_brayden_idle.png");
+            TextureMapping.Add("Idle", "characters_brayden_idle.png");
 
             AudioMapping.Add("Spawn", "Brayden_Messerschmidt_Spawn.mp3");
             AudioMapping.Add("Damage", "Brayden_Messerschmidt_Damage.mp3");
@@ -34,11 +36,12 @@ namespace GentrysQuest.Game.Content.Characters
 
         private void checkWeapon()
         {
-            RemoveEffect("Brayden Boost");
+            Logger.Log("I'm checking the weapon");
+            RemoveEffect("Chosen One");
 
             if (Weapon != null && Weapon.GetType() == typeof(BraydensOsuPen))
             {
-                AddEffect(new BraydenBoost
+                AddEffect(new ChosenOne
                 {
                     Stack = 1 + Difficulty
                 });

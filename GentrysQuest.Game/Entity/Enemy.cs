@@ -1,14 +1,17 @@
 using System;
+using System.Collections.Generic;
 
 namespace GentrysQuest.Game.Entity;
 
 public class Enemy : Entity
 {
     public WeaponChoices WeaponChoices = new();
+    public ArtifactChoices ArtifactChoices = new();
 
     public Enemy()
         : base()
     {
+        UpdateStats();
     }
 
     public override void UpdateStats()
@@ -16,18 +19,17 @@ public class Enemy : Entity
         int level = Experience.CurrentLevel();
 
         Stats.Health.SetDefaultValue(
-            Math.Pow(Difficulty, 3) * (2000 * (Stats.Health.point + 1)) +
-            level * 100 * (Stats.Health.point + 1)
+            Math.Pow(Difficulty, 3) * (2000 * (Stats.Health.Point + 1)) +
+            level * 100 * (Stats.Health.Point + 1)
         );
 
-        Stats.Attack.SetDefaultValue(
-            CalculatePointBenefit(Math.Pow(Difficulty, 3) * 15, Stats.Attack.point, 20) +
-            CalculatePointBenefit(level * 1, Stats.Attack.point, 5)
-        );
+        int damage = (level + 1) * Stats.Attack.Point;
+        damage += (int)(10 * Difficulty * level);
+        Stats.Attack.SetDefaultValue(damage);
 
         Stats.Defense.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 30, Stats.Defense.point, 18) +
-            CalculatePointBenefit(level * 1, Stats.Defense.point, 2)
+            CalculatePointBenefit(Difficulty * 30, Stats.Defense.Point, 18) +
+            CalculatePointBenefit(level * 1, Stats.Defense.Point, 2)
         );
 
         Stats.CritRate.SetDefaultValue(20);
@@ -35,15 +37,65 @@ public class Enemy : Entity
         Stats.CritDamage.SetDefaultValue(Difficulty * 20);
 
         Stats.Speed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.Speed.point, 0.2)
+            CalculatePointBenefit(0, Stats.Speed.Point, 0.2)
         );
 
         Stats.AttackSpeed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.AttackSpeed.point, 0.3)
+            CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
         );
+
+        RemoveStatModifierSourcesByPrefix("equipment:");
+
+        if (Weapon != null)
+        {
+            if (Weapon.Buff.IsPercent)
+                SetStatModifierSource("equipment:weapon", StatModifier.PercentOfDefault(Weapon.Buff.StatType, Weapon.Buff.Value.Value));
+            else
+                SetStatModifierSource("equipment:weapon", StatModifier.Flat(Weapon.Buff.StatType, Weapon.Buff.Value.Value));
+        }
+
+        RebuildStatAdditionalValues();
 
         base.UpdateStats();
     }
 
+    public void SetRelativeLevel(int level)
+    {
+        int minimumLevel = Math.Max(1, level - 3);
+        int maximumLevel = Math.Max(minimumLevel, level + 3);
+        int relativeLevel = Random.Shared.Next(minimumLevel, maximumLevel + 1);
+
+        Experience.Level.Current.Value = relativeLevel;
+        Difficulty = (byte)(relativeLevel / 20);
+        UpdateStats();
+    }
+
     public void SetWeapon() => SetWeapon(WeaponChoices.GetChoice());
+    public List<Artifact> GetArtifactReward() => ArtifactChoices.GetChoice();
+
+    public Enemy Copy()
+    {
+        var copy = new Enemy
+        {
+            Difficulty = this.Difficulty,
+            WeaponChoices = this.WeaponChoices,
+            ArtifactChoices = this.ArtifactChoices
+        };
+
+        copy.Experience.Level.Current.Value = this.Experience.CurrentLevel();
+
+        copy.Stats.Health.Point = this.Stats.Health.Point;
+        copy.Stats.Attack.Point = this.Stats.Attack.Point;
+        copy.Stats.Defense.Point = this.Stats.Defense.Point;
+        copy.Stats.CritRate.Point = this.Stats.CritRate.Point;
+        copy.Stats.CritDamage.Point = this.Stats.CritDamage.Point;
+        copy.Stats.Speed.Point = this.Stats.Speed.Point;
+        copy.Stats.AttackSpeed.Point = this.Stats.AttackSpeed.Point;
+
+        if (this.Weapon != null) copy.SetWeapon(this.Weapon);
+
+        copy.UpdateStats();
+
+        return copy;
+    }
 }

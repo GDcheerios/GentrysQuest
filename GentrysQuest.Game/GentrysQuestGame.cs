@@ -1,30 +1,94 @@
-﻿using GentrysQuest.Game.Overlays.Notifications;
-using GentrysQuest.Game.Screens.LoadingScreen;
+﻿using GentrysQuest.Game.Audio;
+using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.Notifications;
+using GentrysQuest.Game.Overlays.Profile;
+using GentrysQuest.Game.Screens;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Screens;
+using Character = SharpFNT.Character;
 
 namespace GentrysQuest.Game
 {
-    public partial class GentrysQuestGame(bool arcadeMode) : GentrysQuestGameBase
+    public partial class GentrysQuestGame : GentrysQuestGameBase
     {
-        private ScreenStack screenStack;
+        /// <summary>
+        /// The current equipped character
+        /// </summary>
+        [Cached]
+        private readonly Bindable<Character> equippedCharacter = new();
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            // Add your top-level game components here.
-            // A screen stack and sample screen has been provided for convenience, but you can replace it if you don't want to use screens.
-            Child = screenStack = new ScreenStack { RelativeSizeAxes = Axes.Both };
-            Add(NotificationContainer.Instance);
-            Add(new CursorContainer());
-        }
+        // Screen stack
+        private ScreenStack screenStack;
+        private LoadingScreen loadingScreen;
+        private IntroScreen introScreenScreen;
+        private MainMenuScreen mainMenuScreen;
+        private GameplayScreen gameplayScreenScreen;
+
+        // Main buttons
+        /// <summary>
+        /// The profile button that will display
+        /// all the main profile details and bring
+        /// user to the profile
+        /// </summary>
+        private ProfileButton profileButton;
+
+        // overlay stuff
+        private TopRightContainer topRightContainer;
+        private NotificationManager notificationManager = new NotificationManager();
+        private AudioOverlay audioOverlay;
+
+        private ScreenManager screenManager;
+
+        [Cached]
+        private TitleText titleText = new("Gentry's Quest") { Anchor = Anchor.TopCentre, Y = 300 };
+
+        private GameMenuOverlay gameMenuOverlay;
+
+        // Dependency management
+        private DependencyContainer dependencies;
+
+        protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent) =>
+            dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            screenStack.Push(new LoadingScreen());
+            Child = screenStack = new ScreenStack(); // I need to see
+            screenManager = new ScreenManager(screenStack);
+            dependencies.CacheAs(screenManager);
+
+            // overlays
+            Add(titleText);
+            titleText.Hide();
+
+            // Cursor
+            Add(new GqCursorContainer());
+
+            audioOverlay = new AudioOverlay { Depth = -4 };
+            AudioManager.Instance.OnPlayMusic += delegate { audioOverlay.DisplaySong(AudioManager.Instance.CurrentSong); };
+
+            profileButton = new ProfileButton();
+            Add(profileButton);
+            profileButton.Hide();
+
+            // Notifications and other corner stuff
+            Notification.ProvideManager(notificationManager);
+            Add(topRightContainer = new TopRightContainer());
+            topRightContainer.AddOverlay(audioOverlay);
+            topRightContainer.AddOverlay(notificationManager);
+
+            dependencies.CacheAs(profileButton);
+
+            // Game menu
+            Add(gameMenuOverlay = new GameMenuOverlay());
+            gameMenuOverlay.Disappear();
+            dependencies.CacheAs(gameMenuOverlay);
+
+            screenManager.SetScreen(new LoadingScreen(new IntroScreen(true)));
         }
     }
 }

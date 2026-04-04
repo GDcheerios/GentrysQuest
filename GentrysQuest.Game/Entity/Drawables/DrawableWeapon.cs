@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
-using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Entity.Weapon;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -14,20 +15,44 @@ namespace GentrysQuest.Game.Entity.Drawables
     public partial class DrawableWeapon : CompositeDrawable, IDrawableEntity
     {
         protected readonly Weapon.Weapon Weapon;
-        protected readonly DrawableEntity Holder;
         protected readonly DamageQueue DamageQueue = new();
+        public DrawableEntity User { get; set; }
         public Sprite Sprite { get; set; }
         public HitBox HitBox { get; set; }
         public AffiliationType Affiliation { get; set; }
+        public List<Particle> Particles { get; set; }
+
+        /// <summary>
+        /// Used to obtain the base weapon object
+        /// </summary>
+        /// <returns>The base weapon object</returns>
+        public Weapon.Weapon GetBase() => Weapon;
+
         public float Distance;
         public Vector2 PositionHolder;
-        private OnHitEffect onHitEffect;
+        public List<OnHitEffect> OnHitEffects;
         private bool doesDamage;
+
+        /// <summary>
+        /// if the weapon is ready for resting pattern
+        /// </summary>
+        private bool readyForRest;
+
+        /// <summary>
+        /// The delay to make animations smooth
+        /// </summary>
+        private const int FADE_DELAY = 50;
+
+        /// <summary>
+        /// if an animation is currently playing
+        /// </summary>
+        public bool AnimationPlaying = false;
 
         public DrawableWeapon(DrawableEntity entity, AffiliationType affiliation)
         {
-            Holder = entity;
-            Weapon = entity.GetEntityObject().Weapon;
+            User = entity;
+            Weapon = entity.GetBase().Weapon;
+            Weapon!.DrawableInstance = this;
             Affiliation = affiliation;
             HitBox = new HitBox(this);
             Size = new Vector2(1f);
@@ -47,36 +72,8 @@ namespace GentrysQuest.Game.Entity.Drawables
                     },
                     HitBox
                 };
-                Weapon.CanAttack = true;
+                readyForRest = true;
             }
-
-            Disable();
-        }
-
-        public void Disable()
-        {
-            HitBox.Disable();
-            Hide();
-        }
-
-        public void Enable()
-        {
-            HitBox.Enable();
-            Show();
-        }
-
-        public void Disable(int timeMs)
-        {
-            HitBox.Disable();
-            this.FadeOut(timeMs);
-            this.ScaleTo(0, timeMs);
-        }
-
-        public void Enable(int timeMs)
-        {
-            HitBox.Enable();
-            this.FadeIn(timeMs);
-            this.ScaleTo(1, timeMs);
         }
 
         [BackgroundDependencyLoader]
@@ -84,180 +81,155 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             Sprite.Colour = Colour4.White;
             Sprite.Texture = textures.Get(Weapon.TextureMapping.Get("Base"));
+            GetBase().SkillRef.TextureMapping.Add("Icon", GetBase().TextureMapping.Get("Icon"));
         }
 
-        public Weapon.Weapon GetWeaponObject() { return Weapon; }
+        private bool weaponExists() => Weapon != null;
 
-        public void Attack(float direction)
+        /// <summary>
+        /// Drawable weapon logic for attacking.
+        /// </summary>
+        /// <param name="direction">Attack direction</param>
+        public void OnClick(float direction) => Weapon.OnClick(direction);
+
+        public void OnRelease() => Weapon.OnRelease();
+
+        public void AddParticle(Particle particle) => Particles.Add(particle);
+
+        private float getDirection() => User.DirectionLooking + 90;
+
+        public void PlayAnimation(AttackAnimation caseHolder)
         {
+            if (AnimationPlaying) return;
+
+            Weapon.AttackAmount++;
             DamageQueue.Clear();
-            Weapon.CanAttack = false;
-            Enable(100);
-            Weapon.AttackAmount += 1;
-            AttackPatternCaseHolder caseHolder = Weapon.AttackPattern.GetCase(Weapon.AttackAmount);
-            Weapon.Holder.Attack(); // Call the holder base method to handle events.
+            readyForRest = false;
 
-            if (caseHolder == null)
-            {
-                Weapon.AttackAmount = 1;
-                caseHolder = Weapon.AttackPattern.GetCase(Weapon.AttackAmount);
-            }
-
-            var patterns = caseHolder.GetEvents();
+            AnimationPlaying = true;
+            float direction = getDirection();
+            var list = caseHolder.GetEvents();
             double delay = 0;
 
-            foreach (AttackPatternEvent pattern in patterns)
+            foreach (var t in list)
             {
-                double speed = pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
+                double speed = getPatternSpeed(t);
+                var patternEvent = t;
                 Scheduler.AddDelayed(() =>
-                {
-                    this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
-                    this.TransformTo(nameof(PositionHolder), pattern.Position, speed, pattern.Transition);
-                    this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);
-                    HitBox.ScaleTo(pattern.HitboxSize, duration: speed, pattern.Transition);
-                    this.TransformTo(nameof(Distance), pattern.Distance, speed, pattern.Transition);
-                    if (pattern.ResetHitBox) DamageQueue.Clear();
-                    Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
-                    Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
-                    onHitEffect = pattern.OnHitEffect;
-                    doesDamage = pattern.DoesDamage;
-
-                    if (!HitBox.Enabled) return;
-
-                    if (pattern.Projectiles == null) return;
-
-                    foreach (var projectile in pattern.Projectiles.Select(parameters => new Projectile(parameters)))
                     {
-                        projectile.Position *= Distance;
-                        projectile.Direction += direction - 90;
-                        Holder.QueuedProjectiles.Add(projectile);
-                    }
-                }, delay);
+                        playKeyframe(patternEvent, direction, speed);
+                    }, delay
+                );
+
                 delay += speed;
             }
 
-            Scheduler.AddDelayed(() => // Add delay to enable weapon attacking
-            {
-                Disable(100);
-            }, delay + 50);
-
+            GetBase().SkillRef.SetCooldown(delay);
+            GetBase().SkillRef.Act();
             Scheduler.AddDelayed((() =>
             {
-                Weapon.CanAttack = true;
-            }), delay + 110);
+                readyForRest = true;
+                AnimationPlaying = false;
+            }), delay + FADE_DELAY);
+        }
+
+        private double getPatternSpeed(AttackKeyframe pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
+
+        /// <summary>
+        /// Rests the weapon.
+        /// </summary>
+        public void RestWeapon()
+        {
+            if (Weapon.RestingEvent != null)
+            {
+                playKeyframe(Weapon.RestingEvent, User.DirectionLooking + 90, getPatternSpeed(Weapon.RestingEvent), true);
+            }
+            else
+            {
+                AttackKeyframe restingPattern = new AttackKeyframe(100) { Size = Vector2.Zero };
+                playKeyframe(restingPattern, direction: User.DirectionLooking, getPatternSpeed(restingPattern), true);
+            }
+        }
+
+        public void StopAnimation()
+        {
+            AnimationPlaying = false;
+            readyForRest = true;
+        }
+
+        /// <summary>
+        /// Handles pattern transition.
+        /// </summary>
+        /// <param name="pattern">The pattern</param>
+        /// <param name="direction">Direction to handle to</param>
+        /// <param name="speed">speed modifier to the pattern</param>
+        /// <param name="resting">if this is a resting pattern</param>
+        private void playKeyframe(AttackKeyframe pattern, float direction, double speed, bool resting = false)
+        {
+            HitBox.Enable();
+            if (pattern.Event != null) pattern.RunEvent();
+            this.TransformTo(nameof(PositionHolder), pattern.Position, speed, pattern.Transition);
+            this.ResizeTo(pattern.Size, duration: speed, pattern.Transition);
+            HitBox.ScaleTo(pattern.HitboxSize, duration: speed, pattern.Transition);
+            this.TransformTo(nameof(Distance), pattern.Distance, speed, pattern.Transition);
+
+            if (pattern.ForcedMovement)
+            {
+                User.ApplyKnockback(
+                    MathBase.GetAngleToVector(pattern.ForcedMovementDirection + User.DirectionLooking),
+                    pattern.ForcedMovementStrength,
+                    (int)speed,
+                    KnockbackType.StopsMovement
+                );
+            }
+
+            switch (resting)
+            {
+                case true:
+                    HitBox.Disable();
+                    this.RotateTo(pattern.Direction + direction, speed, pattern.Transition);
+                    break;
+
+                case false:
+                {
+                    this.RotateTo(pattern.Direction + direction, duration: speed, pattern.Transition);
+                    if (pattern.ResetHitBox) DamageQueue.Clear();
+                    Weapon.Damage.Add(Weapon.Damage.GetPercentFromTotal(pattern.DamagePercent));
+                    Weapon.Holder.SpeedModifier = pattern.MovementSpeed;
+                    OnHitEffects = pattern.OnHitEffects;
+                    doesDamage = pattern.DoesDamage;
+                    Weapon.KnockbackMultiplier = pattern.KnockbackMultiplier;
+                    break;
+                }
+            }
+
+            if (!doesDamage) HitBox.Disable();
+
+            if (!HitBox.Enabled) return; // don't need to continue if there's no hitbox
+
+            if (pattern.Projectiles == null) return; // don't need to continue if there's no projectiles
+
+            foreach (var projectile in pattern.Projectiles.Select(parameters => new Projectile(parameters)))
+            {
+                projectile.Position *= Distance;
+                projectile.Direction += direction - 90;
+                User.QueuedProjectiles.Add(projectile);
+            }
         }
 
         protected override void Update()
         {
             base.Update();
+            Weapon.OnUpdate();
+            if (readyForRest) RestWeapon();
 
-            if (!Weapon.CanAttack)
-            {
-                Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
+            Position = MathBase.RotateVector(PositionHolder, Rotation - 180) + MathBase.GetAngleToVector(Rotation - 90) * Distance;
 
-                foreach (var hitbox in HitBoxScene.GetIntersections(HitBox))
-                {
-                    if (!DamageQueue.Check(hitbox) && Weapon.IsGeneralDamageMode && hitbox.GetType() != typeof(CollisonHitBox) && doesDamage)
-                    {
-                        DamageDetails details = new DamageDetails();
-                        DrawableEntity receiver = null;
-                        Entity receiverBase = null;
-                        bool isValid = true;
-                        bool isCrit = false;
+            GetBase().SkillRef.Update();
 
-                        switch (hitbox.GetParent())
-                        {
-                            case DrawableEntity drawableEntity:
-                                receiver = drawableEntity;
-                                receiverBase = receiver.GetEntityObject();
-                                break;
+            if (!AnimationPlaying) return;
 
-                            default:
-                                isValid = false;
-                                break;
-                        }
-
-                        if (!isValid) continue;
-
-                        int damage = (int)(Weapon.Damage.Current.Value + Weapon.Holder.Stats.Attack.Current.Value);
-
-                        if (Weapon.Holder.Stats.CritRate.Current.Value > MathBase.RandomInt(0, 100))
-                        {
-                            isCrit = true;
-                            damage += (int)MathBase.GetPercent(damage,
-                                Weapon.Holder.Stats.CritDamage.Current.Value
-                            );
-                            details.IsCrit = true;
-                            receiverBase.CritWithDefense(damage);
-                        }
-                        else
-                        {
-                            receiverBase.DamageWithDefense(damage);
-                        }
-
-                        receiverBase.RemoveTenacity();
-                        details.Damage = damage;
-                        details.Receiver = receiverBase;
-                        details.Sender = Weapon.Holder;
-
-                        Vector2 direction = MathBase.GetDirection(Weapon.Holder.positionRef, receiver.Position);
-                        float knockbackForce = (float)(1 + Weapon.Damage.GetDefault() / 100);
-                        if (isCrit) knockbackForce *= 1.5f;
-                        if (receiverBase.HasTenacity()) receiver.ApplyKnockback(direction, 0.54f, 100, KnockbackType.StopsMovement);
-                        else receiver.ApplyKnockback(direction, knockbackForce, (int)knockbackForce * 200, KnockbackType.Stuns);
-
-                        if (!details.Sender.EnemyHitCounter.TryAdd(details.Receiver, 1)) details.Sender.EnemyHitCounter[details.Receiver]++;
-
-                        receiverBase.OnHit(details);
-                        if (onHitEffect != null && onHitEffect.Applies()) receiverBase.AddEffect(onHitEffect.Effect);
-                        Weapon.HitEntity(details);
-
-                        switch (receiverBase)
-                        {
-                            case Character character:
-                                GameData.CurrentStats.AddToStat(StatTypes.HitsTaken);
-                                if (isCrit) GameData.CurrentStats.AddToStat(StatTypes.CritsTaken);
-                                break;
-
-                            case Entity:
-                                GameData.CurrentStats.AddToStat(StatTypes.Hits);
-                                break;
-                        }
-
-                        switch (Weapon.Holder)
-                        {
-                            case Character character:
-                                if (receiverBase.IsDead)
-                                {
-                                    GameData.CurrentStats.AddToStat(StatTypes.Hits);
-                                    if (isCrit) GameData.CurrentStats.AddToStat(StatTypes.Crits);
-                                    GameData.CurrentStats.AddToStat(StatTypes.Damage, damage);
-                                    GameData.CurrentStats.AddToStat(StatTypes.MostDamage, damage);
-                                    int money = receiverBase.GetMoneyReward();
-                                    GameData.CurrentStats.AddToStat(StatTypes.MoneyGained, money);
-                                    GameData.CurrentStats.AddToStat(StatTypes.MoneyGainedOnce, money);
-                                    Weapon.Holder.AddXp(receiverBase.GetXpReward());
-                                    GameData.Money.Hand(money);
-
-                                    Weapon.Weapon reward = receiverBase.GetWeaponReward();
-                                    if (reward != null) GameData.Add(reward);
-
-                                    GameData.CurrentStats.AddToStat(StatTypes.Kills);
-                                }
-
-                                break;
-                        }
-
-                        DamageQueue.Add(hitbox);
-                    }
-                }
-            }
-
-            else
-            {
-                Weapon.UpdateStats();
-                Weapon.Holder.SpeedModifier = 1;
-            }
+            if (doesDamage && Weapon.IsGeneralDamageMode) _ = new DamageFrameHandler(HitBoxScene.GetIntersections(HitBox), DamageQueue, User.GetBase(), this);
         }
     }
 }

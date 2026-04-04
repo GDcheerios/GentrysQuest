@@ -11,6 +11,7 @@ namespace GentrysQuest.Game.Entity.Drawables
     {
         public Bindable<bool> isEnabled = new Bindable<bool>();
         private LimitedInt indicator;
+        private const int DURATION = 150;
 
         public StarRatingDrawable(int indicator)
         {
@@ -32,7 +33,7 @@ namespace GentrysQuest.Game.Entity.Drawables
             if (!valueChangedEvent.NewValue)
             {
                 this.FadeColour(ColourInfo.GradientVertical(Colour4.DarkGray, Colour4.LightGray), 50);
-                this.FadeTo(0.5f, 100);
+                this.FadeTo(0.5f, DURATION);
             }
         }
 
@@ -41,8 +42,8 @@ namespace GentrysQuest.Game.Entity.Drawables
             if (indication >= indicator.Value)
             {
                 isEnabled.Value = true;
-                this.Delay(delay).Then().FadeColour(color, 100);
-                this.Delay(delay).Then().FadeTo(1, 100);
+                this.Delay(delay).Then().FadeColour(color, DURATION);
+                this.Delay(delay).Then().FadeTo(1, DURATION);
             }
             else isEnabled.Value = false;
         }

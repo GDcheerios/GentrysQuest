@@ -1,0 +1,185 @@
+using GentrysQuest.Game.Audio;
+using GentrysQuest.Game.Content.Music;
+using GentrysQuest.Game.Graphics;
+using GentrysQuest.Game.Graphics.TextStyles;
+using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
+using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.Profile;
+using GentrysQuest.Game.Users;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
+using osu.Framework.Screens;
+using osuTK;
+
+namespace GentrysQuest.Game.Screens
+{
+    public partial class MainMenuScreen : GqScreen
+    {
+        private readonly Box background;
+
+        [Resolved]
+        private TitleText title { get; set; }
+
+        private readonly MainGqButton playButton;
+        private readonly MainGqButton quitButton;
+        private readonly bool keepBgm;
+
+        [Resolved]
+        private GameMenuOverlay gameMenuOverlay { get; set; }
+
+        [Resolved]
+        private ProfileButton profileButton { get; set; }
+
+        [Resolved]
+        private Bindable<IUser> user { get; set; }
+
+        [Resolved]
+        private ScreenManager screenManager { get; set; }
+
+        [Resolved]
+        private DiscordRpc discordRpc { get; set; }
+
+        [Resolved]
+        private GqWebSocketClient websocket { get; set; }
+
+        public MainMenuScreen(bool keepIntroSong = false)
+        {
+            keepBgm = keepIntroSong;
+            InternalChildren = new Drawable[]
+            {
+                background = new Box
+                {
+                    Colour = ColourInfo.GradientVertical(
+                        new Colour4(72, 72, 72, 255),
+                        new Colour4(58, 58, 58, 255)
+                    ),
+                    RelativeSizeAxes = Axes.Both,
+                },
+                new FillFlowContainer
+                {
+                    AutoSizeAxes = Axes.Y,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Y = 100,
+                    Spacing = new Vector2(0, 50),
+                    Direction = FillDirection.Vertical,
+                    Children =
+                    [
+                        playButton = new MainGqButton("Play")
+                        {
+                            Size = new Vector2(300, 150),
+                            Origin = Anchor.Centre
+                        },
+                        quitButton = new MainGqButton("Quit")
+                        {
+                            Size = new Vector2(300, 150),
+                            Origin = Anchor.Centre
+                        }
+                    ]
+                }
+            };
+            playButton.SetAction(PressPlay);
+            quitButton.SetAction(delegate
+            {
+                Game.Exit();
+            });
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            if (user.Value != null) Schedule(_ => EnterSelection(), 0);
+        }
+
+        public void PressPlay()
+        {
+            if (user.Value == null) profileButton.GoSelection();
+            else
+            {
+                EnterGame();
+            }
+        }
+
+        public void PressBack()
+        {
+            gameMenuOverlay.Disappear();
+            title.FadeIn(200);
+            resetTitle();
+            playButton.FadeIn(200);
+            quitButton.FadeIn(200);
+            user.Value.Save();
+            _ = websocket.DisconnectAsync();
+            APIAccess.ClearUserSession();
+            user.Value = null;
+        }
+
+        public void EnterSelection()
+        {
+            title.FadeOut(200);
+            gameMenuOverlay.Appear();
+            playButton.FadeOut(200);
+            quitButton.FadeOut(200);
+            resetTitle();
+        }
+
+        public void ExitSelection()
+        {
+            title.FadeIn(200);
+            gameMenuOverlay.Disappear();
+            playButton.FadeIn(200);
+            quitButton.FadeIn(200);
+            resetTitle();
+        }
+
+        public void EnterGame()
+        {
+            title.FadeIn(200);
+            playButton.FadeOut(200);
+            quitButton.FadeOut(200);
+            Scheduler.AddDelayed(gameMenuOverlay.Appear, 450);
+            Scheduler.AddDelayed(
+                delegate
+                {
+                    title.MoveToY(100, 200, Easing.In);
+                    title.ScaleTo(0.5f, 200, Easing.Out);
+                    title.FadeOut(200);
+                }, 200
+            );
+        }
+
+        public override void OnEntering(ScreenTransitionEvent e)
+        {
+            Logger.Log("Entering Main Menu");
+            base.OnEntering(e);
+            profileButton.Show();
+            gameMenuOverlay.Disappear();
+            title.Delay(120).Then().FadeIn(120).MoveToY(300);
+            discordRpc.UpdatePresence("Main Menu", "");
+        }
+
+        public override void OnSuspending(ScreenTransitionEvent e)
+        {
+            base.OnSuspending(e);
+            this.FadeOut(500, Easing.OutQuint);
+        }
+
+        private void resetTitle()
+        {
+            title.MoveToY(300, 200, Easing.Out);
+            title.ScaleTo(1, 200, Easing.Out);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            title.FadeIn();
+            if (!keepBgm) AudioManager.Instance.ChangeMusic(new GentrysQuestAmbient());
+        }
+    }
+}

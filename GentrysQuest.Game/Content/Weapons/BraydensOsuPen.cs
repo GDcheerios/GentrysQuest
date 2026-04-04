@@ -11,17 +11,34 @@ namespace GentrysQuest.Game.Content.Weapons
     public class BraydensOsuPen : Weapon
     {
         public override string Type { get; } = "Pen";
-        public override int Distance { get; set; } = 200;
+        public override int Distance { get; } = 200;
         public override string Name { get; set; } = "Brayden's Osu Pen";
 
         public override string Description { get; protected set; } = "The man himself, Brayden's osu pen!\n"
-                                                                     + "When [condition]held by the true wielder[/condition], gain a [unit]20%[/unit][details]+ 20 per difficulty[/details] increase in all your stats. "
-                                                                     + "On the last attack you have a [unit]20%[/unit] chance to [type]bleed[/type] enemies for [unit]6 seconds[/unit]. "
-                                                                     + "On a [condition]critical hit[/condition] you get a small boost of speed";
+                                                                     + "On a spinning attack you have a [unit]20%[/unit] chance to [type]bleed[/type] enemies for [unit]6 seconds[/unit]. ";
 
         public override StarRating StarRating { get; protected set; } = new(5);
 
         public override List<StatType> ValidBuffs { get; set; } = [StatType.CritDamage];
+
+        private readonly AttackAnimationRegistry attackRegistry = new AttackAnimationRegistry();
+
+        private bool didSpin;
+
+        /// <summary>
+        /// How long until this weapon considers the attack as spin attack
+        /// </summary>
+        private const double spin_time = 250;
+
+        public override AttackKeyframe RestingEvent { get; protected set; } = new AttackKeyframe(50)
+        {
+            Direction = -105
+        };
+
+        private string nextAnimation = "first";
+        private AttackKeyframe lastFromFirst;
+        private AttackKeyframe lastFromSecond;
+        private AttackKeyframe lastFromSpin;
 
         public BraydensOsuPen()
         {
@@ -36,70 +53,96 @@ namespace GentrysQuest.Game.Content.Weapons
             #region AttackPattern
 
             const int distance = 35;
-            var time = (int)MathBase.SecondToMs(1.2); // seconds
-            const float movement_speed = 0.5f;
+            var time = (int)MathBase.SecondToMs(0.3); // seconds
             Vector2 hbSize = new Vector2(0.1f, 1);
-            OnHitEffect lastComboEffect = new OnHitEffect(20)
+            OnHitEffect lastComboEffect = new OnHitEffect(20) { Effect = new Bleed(new Second(6)) };
+
+            attackRegistry.RegisterAnimation("first");
+            attackRegistry.AddKeyframe(new AttackKeyframe
             {
-                Effect = new Bleed(new Second(6))
-            };
-
-            AttackPattern.AddCase(1);
-            AttackPattern.Add(new AttackPatternEvent { Direction = -90, Distance = distance, HitboxSize = hbSize, MovementSpeed = movement_speed });
-            AttackPattern.Add(new AttackPatternEvent(time / 4)
-                { Direction = -45, Distance = distance, HitboxSize = hbSize, Transition = Easing.InQuart, MovementSpeed = movement_speed, DoesDamage = false });
-            AttackPattern.Add(new AttackPatternEvent(time / 2)
-                { Direction = 90, Distance = distance, Transition = Easing.OutQuart, HitboxSize = hbSize, MovementSpeed = movement_speed });
-
-            AttackPattern.AddCase(2);
-            AttackPattern.Add(new AttackPatternEvent { Direction = 90, Distance = distance, HitboxSize = hbSize, MovementSpeed = movement_speed });
-            AttackPattern.Add(new AttackPatternEvent(time / 4)
-                { Direction = 45, Distance = distance, HitboxSize = hbSize, Transition = Easing.InQuart, MovementSpeed = movement_speed, DoesDamage = false });
-            AttackPattern.Add(new AttackPatternEvent(time / 2)
-                { Direction = -90, Distance = distance, Transition = Easing.OutQuart, HitboxSize = hbSize, MovementSpeed = movement_speed });
-
-            AttackPattern.AddCase(3);
-            AttackPattern.Add(new AttackPatternEvent { Direction = -90, Distance = distance, HitboxSize = hbSize, MovementSpeed = movement_speed });
-            AttackPattern.Add(new AttackPatternEvent(time / 8)
-            {
-                Direction = -45,
+                Direction = -90,
                 Distance = distance,
                 HitboxSize = hbSize,
-                Transition = Easing.InQuart,
-                MovementSpeed = movement_speed,
-                DoesDamage = false,
-                OnHitEffect = lastComboEffect
             });
-            AttackPattern.Add(new AttackPatternEvent(time / 4)
-                { Direction = 90, Distance = distance, HitboxSize = hbSize, MovementSpeed = movement_speed, OnHitEffect = lastComboEffect });
-            AttackPattern.Add(new AttackPatternEvent(time / 2)
+
+            lastFromFirst = new AttackKeyframe(time)
+            {
+                Direction = 90,
+                Distance = distance,
+                Transition = Easing.OutCirc,
+                HitboxSize = hbSize,
+                Event = () =>
+                {
+                    nextAnimation = "second";
+                    RestingEvent = lastFromFirst;
+                }
+            };
+
+            attackRegistry.AddKeyframe(lastFromFirst);
+
+            attackRegistry.RegisterAnimation("second");
+            attackRegistry.AddKeyframe(new AttackKeyframe
+                { Direction = 90, Distance = distance, HitboxSize = hbSize });
+
+            lastFromSecond = new AttackKeyframe(time)
+            {
+                Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize, Event = () =>
+                {
+                    nextAnimation = "first";
+                    RestingEvent = lastFromSecond;
+                }
+            };
+            attackRegistry.AddKeyframe(lastFromSecond);
+
+            attackRegistry.RegisterAnimation("spin");
+            attackRegistry.AddKeyframe(new AttackKeyframe { Direction = -90, Distance = distance, HitboxSize = hbSize });
+            attackRegistry.AddKeyframe(new AttackKeyframe(1000)
             {
                 Direction = 360,
                 Distance = distance,
                 HitboxSize = hbSize,
                 Transition = Easing.OutQuart,
-                MovementSpeed = movement_speed,
-                OnHitEffect = lastComboEffect,
-                ResetHitBox = true
+                OnHitEffects = [lastComboEffect],
+                ResetHitBox = true,
+                Event = () =>
+                {
+                    nextAnimation = "first";
+                    RestingEvent = lastFromFirst;
+                }
             });
-
-            #endregion
-
-            #region cases
-
-            OnHitEntity += details =>
-            {
-                if (details.IsCrit) Holder.AddEffect(new Swiftness());
-            };
 
             #endregion
 
             #region TextureMapping
 
+            TextureMapping = new();
             TextureMapping.Add("Icon", "brayden_osu_pen_base.png");
             TextureMapping.Add("Base", "brayden_osu_pen_base.png");
 
             #endregion
+        }
+
+        public override void OnRelease()
+        {
+            base.OnRelease();
+
+            if (didSpin)
+            {
+                didSpin = false;
+                return;
+            }
+
+            DrawableInstance.PlayAnimation(attackRegistry.GetAnimation(nextAnimation));
+        }
+
+        public override void OnUpdate()
+        {
+            if (HoldDuration() > spin_time)
+            {
+                DrawableInstance.PlayAnimation(attackRegistry.GetAnimation("spin"));
+                EndAttack();
+                didSpin = true;
+            }
         }
     }
 }

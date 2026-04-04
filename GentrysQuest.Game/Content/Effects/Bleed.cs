@@ -1,6 +1,7 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 
 namespace GentrysQuest.Game.Content.Effects
@@ -14,7 +15,7 @@ namespace GentrysQuest.Game.Content.Effects
 
         public override Colour4 EffectColor { get; protected set; } = Colour4.DarkRed;
         public override IconUsage Icon { get; protected set; } = FontAwesome.Solid.Splotch;
-        public override bool IsInfinite { get; set; } = false;
+        public override bool IsInfinite { get; set; }
         public override double Interval { get; protected set; } = new Second(0.5);
 
         public override void Handle()
@@ -22,7 +23,14 @@ namespace GentrysQuest.Game.Content.Effects
             if (ElapsedTime() > Interval * CurrentStep)
             {
                 CurrentStep++;
-                Effector.Damage(3 + Effector.Experience.CurrentLevel() * Stack);
+                DamageDetails damageDetails = new DamageDetails
+                {
+                    Receiver = Effector,
+                    StatusEffect = this,
+                    Damage = (int)((3 + Effector.Experience.CurrentLevel() * Stack) * Effector.EffectModifier),
+                };
+                Effector.Damage(damageDetails);
+                Effector.DisplayHealthEvent($"{damageDetails.Damage}", ColourInfo.GradientVertical(EffectColor, Colour4.Black));
             }
         }
     }

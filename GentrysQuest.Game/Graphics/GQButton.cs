@@ -8,13 +8,13 @@ using osu.Framework.Input.Events;
 
 namespace GentrysQuest.Game.Graphics
 {
-    public partial class GQButton : Button
+    public partial class GqButton : Button
     {
         public AudioMapping Sounds = new();
         private ISampleStore samples;
         private Action action;
 
-        public GQButton()
+        public GqButton()
         {
             Sounds.Add("Default_Hover", "sounds_menu_dHover.mp3");
             Sounds.Add("Default_Click", "sounds_menu_dClick.mp3");
@@ -29,7 +29,7 @@ namespace GentrysQuest.Game.Graphics
         {
             string sound = "Default_Hover";
             if (hasSound("Hover")) sound = "Hover";
-            AudioManager.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
+            AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
             return base.OnHover(e);
         }
 
@@ -37,7 +37,7 @@ namespace GentrysQuest.Game.Graphics
         {
             string sound = "Default_Click";
             if (hasSound("Click")) sound = "Click";
-            AudioManager.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
+            AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Sounds.Get(sound))));
             action?.Invoke();
             return base.OnClick(e);
         }

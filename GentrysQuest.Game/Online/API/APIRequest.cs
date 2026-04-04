@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Online.API
         protected static readonly HttpClient Client = new();
 
         public abstract string Target { get; }
-        public string Uri => $@"{APIAccess.Endpoint}/api/{Target}";
+        public string Uri => $@"{APIAccess.Endpoint}/{Target}";
         public void Fail(Exception exception) => Logger.Log(exception.ToString(), LoggingTarget.Network);
         protected virtual HttpMethod Method => HttpMethod.Get;
     }
@@ -23,7 +23,7 @@ namespace GentrysQuest.Game.Online.API
 
         public async Task PerformAsync()
         {
-            var endpoint = $@"{APIAccess.Endpoint.APIEndpointUrl}/api/{Target}";
+            var endpoint = $@"{APIAccess.Endpoint.ServerUrl}/{Target}";
             Logger.Log($"Trying request @ {endpoint}", LoggingTarget.Network);
 
             try
@@ -35,13 +35,11 @@ namespace GentrysQuest.Game.Online.API
                 {
                     response.EnsureSuccessStatusCode();
                     var data = await response.Content.ReadAsStringAsync();
-                    Logger.Log(data, LoggingTarget.Network);
-                    Logger.Log(data.GetType().ToString(), LoggingTarget.Network);
                     if (typeof(T) == typeof(string)) Response = data as T;
                     else Response = JsonConvert.DeserializeObject<T>(data);
                 }
 
-                Logger.Log($"successful with {Response}", LoggingTarget.Network);
+                Logger.Log($"successful with {requestMessage}", LoggingTarget.Network);
             }
             catch (HttpRequestException e)
             {

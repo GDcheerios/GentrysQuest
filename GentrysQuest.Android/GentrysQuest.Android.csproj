@@ -1,26 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>GentrysQuest.Android</RootNamespace>
-    <AssemblyName>GentrysQuest.Android</AssemblyName>
-    <Version>0.0.0</Version>
-    <ApplicationVersion Condition=" '$(ApplicationVersion)' == '' ">1</ApplicationVersion>
-    <ApplicationDisplayVersion Condition=" '$(ApplicationDisplayVersion)' == '' ">$(Version)</ApplicationDisplayVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <ApplicationId>com.GDcheerios.GentrysQuest</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+    <AndroidSdkDirectory>C:\Users\GDcheerios\AppData\Local\Android\Sdk</AndroidSdkDirectory>
+    <JavaSdkDirectory>C:\Program Files\Java\jdk-17</JavaSdkDirectory>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2024.720.0" />
-    <PackageReference Include="ppy.osu.Framework.Android" Version="2024.702.0" />
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.70" />
+    <PackageReference Include="ppy.osu.Framework" Version="2025.321.0" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.50" />
+    <PackageReference Include="ppy.osu.Framework.Android" Version="2025.321.0" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.1"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GentrysQuest.Game\GentrysQuest.Game.csproj" />
+    <ProjectReference Include="..\GentrysQuest.Game\GentrysQuest.Game.csproj"/>
   </ItemGroup>
-  <PropertyGroup>
-    <AndroidSdkDirectory>C:\Users\GDcheerios\AppData\Local\Android\sdk</AndroidSdkDirectory>
-  </PropertyGroup>
 </Project>

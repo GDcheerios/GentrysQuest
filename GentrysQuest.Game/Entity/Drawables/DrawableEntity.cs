@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Utils;
-using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Audio;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
@@ -27,6 +27,8 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// </summary>
         protected readonly Entity Entity;
 
+        public const int SIZE = 100;
+
         /// <summary>
         /// The entity sprite
         /// </summary>
@@ -35,7 +37,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <summary>
         /// The overhead of the entity
         /// </summary>
-        private readonly DrawableEntityBar entityBar;
+        public readonly DrawableEntityBar EntityBar;
 
         /// <summary>
         /// The visual weapon
@@ -43,29 +45,34 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableWeapon Weapon;
 
         public AffiliationType Affiliation { get; set; }
-        public List<Projectile> QueuedProjectiles { get; set; } = new();
+        public List<Particle> Particles { get; set; } = [];
+        public List<Projectile> QueuedProjectiles { get; set; } = [];
 
         public HitBox HitBox { get; set; }
         public CollisonHitBox ColliderBox;
 
         public int DirectionLooking;
         public Vector2 Direction = Vector2.Zero;
+        public Vector2 FocusedPosition = Vector2.Zero;
         private Vector2 knockbackDirection;
         private float knockbackForce;
         private double knockbackDuration;
         private double knockbackTimeRemaining;
 
-        /// <summary>
-        /// The entity list to check when attacking
-        /// </summary>
-        [CanBeNull]
-        protected List<DrawableEntity> EntitiesHitCheckList;
-
         // stat modifiers
         /// <summary>
         /// The base speed variable for all entities
         /// </summary>
-        protected const double SPEED_MAIN = 0.35;
+        protected const double SPEED_MAIN = 0.2;
+
+        private const int DODGE_TIME = 250;
+        private const int DODGE_INTERVAL = 1000;
+        private const int BASE_DODGE_SPEED = 3;
+
+        /// <summary>
+        /// The center of this DrawableEntity
+        /// </summary>
+        private static readonly Vector2 CENTER = new((int)(SIZE / 2));
 
         /// <summary>
         /// When doing some math you might need this
@@ -73,12 +80,12 @@ namespace GentrysQuest.Game.Entity.Drawables
         public const float SLOWING_FACTOR = 0.01f;
 
         private double lastRegenTime;
-        private double lastHitTime;
 
         // Movement events
         public delegate void Movement(Vector2 direction, double speed);
 
         public event Movement OnMove;
+        public event Action OnDodge;
 
         /// <summary>
         /// A drawable entity
@@ -89,51 +96,41 @@ namespace GentrysQuest.Game.Entity.Drawables
         public DrawableEntity(Entity entity, AffiliationType affiliationType = AffiliationType.None, bool showInfo = true)
         {
             entity.UpdateStats();
-            entity.Stats.Restore();
             Entity = entity;
             Affiliation = affiliationType;
-            Size = new Vector2(100);
+            Size = new Vector2(SIZE);
             HitBox = new HitBox(this);
             ColliderBox = new CollisonHitBox(this);
             Colour = Colour4.White;
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
+            AlwaysPresent = true;
             InternalChildren = new Drawable[]
             {
                 Sprite = new Sprite
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
-                entityBar = new DrawableEntityBar(Entity),
+                EntityBar = new DrawableEntityBar(entity),
                 HitBox,
                 ColliderBox
             };
 
             if (!showInfo)
             {
-                entityBar.HealthProgressBar.Hide();
-                entityBar.HealthText.Hide();
-                entityBar.EntityLevel.Hide();
-                entityBar.StatusEffects.Anchor = Anchor.CentreLeft;
-                entityBar.StatusEffects.Origin = Anchor.CentreLeft;
+                EntityBar.HealthProgressBar.Hide();
+                EntityBar.HealthText.Hide();
+                EntityBar.EntityLevel.Hide();
+                EntityBar.StatusEffects.Anchor = Anchor.CentreLeft;
+                EntityBar.StatusEffects.Origin = Anchor.CentreLeft;
             }
 
-            if (Entity.Weapon != null) Weapon = new DrawableWeapon(this, Affiliation);
-            Entity.OnSwapWeapon += setDrawableWeapon;
-            entity.OnDamage += delegate(int amount) { addIndicator(amount, DamageType.Damage); };
-            entity.OnHeal += delegate(int amount) { addIndicator(amount, DamageType.Heal); };
-            entity.OnCrit += delegate(int amount) { addIndicator(amount, DamageType.Crit); };
-            entity.OnDamage += delegate { lastHitTime = Clock.CurrentTime; };
+            setDrawableWeapon();
+            entity.OnSwapWeapon += _ => setDrawableWeapon();
+            entity.OnHealthDisplay += addIndicator;
             entity.OnDeath += delegate { Sprite.FadeOut(100); };
             entity.OnSpawn += delegate { Sprite.FadeIn(100); };
             entity.OnSpawn += delegate { lastRegenTime = Clock.CurrentTime; };
-            entity.OnEffect += delegate
-            {
-                foreach (var effect in Entity.Effects.Where(effect => !effect.IsInfinite))
-                {
-                    effect.StartTime ??= Clock.CurrentTime;
-                }
-            };
             entity.OnAddProjectile += parameters =>
             {
                 Projectile projectile = new Projectile(parameters);
@@ -147,19 +144,21 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             // textures
             Sprite.Colour = Colour4.White;
-            Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            if (Entity.TextureMapping != null) Sprite.Texture = textures.Get(Entity.TextureMapping.Get("Idle"));
+            AddInternal(Entity.DrawableTexture);
 
             // sounds
-            Entity.OnSpawn += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };
-            Entity.OnDamage += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Damage")))); };
-            Entity.OnLevelUp += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Levelup")))); };
-            Entity.OnDeath += delegate { AudioManager.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Death")))); };
+            Entity.OnSpawn += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Spawn")))); };
+            Entity.OnDamage += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Damage")))); };
+            Entity.OnLevelUp += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Levelup")))); };
+            Entity.OnDeath += delegate { AudioManager.Instance.PlaySound(new DrawableSample(samples.Get(Entity.AudioMapping.Get("Death")))); };
         }
 
         private void regen()
         {
             lastRegenTime = Clock.CurrentTime;
             Entity.Heal((int)Entity.Stats.RegenStrength.Current.Value);
+            Entity.DisplayHealthEvent(Entity.Stats.RegenStrength.Current.Value.ToString(), ColourInfo.SingleColour(Colour4.Green));
         }
 
         public void ApplyKnockback(Vector2 direction, float force, int duration, KnockbackType type)
@@ -180,7 +179,7 @@ namespace GentrysQuest.Game.Entity.Drawables
 
                 case KnockbackType.Stuns:
                     Entity.AddEffect(new Stun(duration + 300));
-                    Weapon.Disable(50);
+                    Weapon?.RestWeapon();
                     break;
 
                 default:
@@ -191,75 +190,57 @@ namespace GentrysQuest.Game.Entity.Drawables
         public void Move(Vector2 direction, double speed)
         {
             float value = (float)(Clock.ElapsedFrameTime * speed);
-            ColliderBox.Position += (direction * 0.06f) * value;
+            Vector2 delta = (direction * 0.05f) * value;
 
-            if (!HitBoxScene.Collides(ColliderBox)) OnMove?.Invoke(direction, speed);
+            if (!float.IsNaN(delta.X) && !float.IsNaN(delta.Y)) ColliderBox.Position += delta;
+
+            if (!HitBoxScene.Collides(ColliderBox)) { OnMove?.Invoke(direction, speed); }
         }
 
         /// <summary>
-        /// Attacks towards a direction
+        /// Passes attack info down to children
         /// </summary>
         /// <param name="position">Location of the attack</param>
-        public void Attack(Vector2 position)
+        public virtual void DoAttack(Vector2 position)
         {
             if (!Entity.CanAttack) return;
 
-            Vector2 center = new Vector2(50);
-            double angle = MathBase.GetAngle(Position + center, position);
-            if (Weapon.GetWeaponObject().CanAttack) Weapon.Attack((float)angle + 90);
+            double angle = MathBase.GetAngle(Position + CENTER, position);
+            Weapon?.OnClick((float)angle + 90);
         }
+
+        public virtual void OnRelease() => Weapon?.OnRelease();
 
         /// <summary>
         /// Adds an indicator text for when this entity heals/takes damage
         /// </summary>
-        /// <param name="amount">The amount of health change</param>
-        /// <param name="type">The type of damage</param>
-        private void addIndicator(int amount, DamageType type)
+        /// <param name="text">The text that will display</param>
+        /// <param name="colourInfo">The color of the indicator</param>
+        private void addIndicator(string text, ColourInfo colourInfo)
         {
-            Colour4 colour = default;
-            byte size = 50;
-
-            switch (type)
+            const byte size = 50;
+            AddInternal(new Indicator(text)
             {
-                case DamageType.Heal:
-                    colour = Colour4.LimeGreen;
-                    break;
-
-                case DamageType.Damage:
-                    colour = Colour4.White;
-                    break;
-
-                case DamageType.Crit:
-                    colour = Colour4.Red;
-                    size = 52;
-                    break;
-            }
-
-            Indicator indicatorReference;
-            AddInternal(indicatorReference = new Indicator(amount)
-            {
-                Colour = colour,
+                Colour = colourInfo,
                 Font = FontUsage.Default.With(size: size),
                 Shadow = true
             });
-            Scheduler.AddDelayed(() =>
-            {
-                RemoveInternal(indicatorReference, false);
-            }, indicatorReference.FadeOut());
         }
 
         public void Dodge()
         {
-            if (Entity.CanDodge)
-            {
-                Entity.CanDodge = false;
-                Entity.IsDodging = true;
-                Entity.SpeedModifier = 3;
-                Scheduler.AddDelayed(() => { Entity.SpeedModifier = 1; }, 100);
-                Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, 100);
-                Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, 1000);
-            }
+            if (!Entity.CanDodge) return;
+
+            OnDodge?.Invoke();
+            Entity.CanDodge = false;
+            Entity.IsDodging = true;
+            Scheduler.AddDelayed(() => { Entity.IsDodging = false; }, DODGE_TIME);
+            Scheduler.AddDelayed(() => { Entity.CanDodge = true; }, DODGE_INTERVAL);
+            ApplyKnockback(Direction, (int)(BASE_DODGE_SPEED + GetSpeed()), DODGE_TIME, KnockbackType.StopsMovement);
         }
+
+        public void HideBar() => EntityBar.Hide();
+        public void ShowBar() => EntityBar.Show();
 
         private void setDrawableWeapon()
         {
@@ -277,17 +258,9 @@ namespace GentrysQuest.Game.Entity.Drawables
             }
         }
 
-        /// <summary>
-        /// Set the EntityHitList
-        /// should be used by some test class or by Gameplay class
-        /// </summary>
-        /// <param name="entities">The list of entities</param>
-        public void SetEntities(List<DrawableEntity> entities) => EntitiesHitCheckList = entities;
-
-        /// <summary>
         /// In some cases you'll want to get the entity reference for this drawable class
         /// <returns>The entity reference for this drawable</returns>
-        public Entity GetEntityObject() => Entity;
+        public Entity GetBase() => Entity;
 
         /// <summary>
         /// Manages the speed of the entity
@@ -295,27 +268,33 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// <returns></returns>
         public double GetSpeed() => (SPEED_MAIN * Entity.Stats.Speed.Current.Value * Entity.SpeedModifier) + Entity.PositionJump;
 
+        public void AddParticle(Particle particle) => Particles.Add(particle);
+
         protected override void Update()
         {
-            // Main update
+            // Main update logic
             base.Update();
-            Entity.positionRef = Position;
+            Entity.PositionRef = Position;
 
-            // Movement
+            // Movement logic
             Direction = Vector2.Zero;
 
-            if (knockbackTimeRemaining > 0)
+            //  Knockback logic
+            if (GetBase().CanKnockback)
             {
-                float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
-                Entity.SpeedModifier = knockbackForce * knockbackDelta;
-                Direction += knockbackDirection * knockbackForce;
-
-                knockbackTimeRemaining -= Clock.ElapsedFrameTime;
-
-                if (knockbackTimeRemaining < 0)
+                if (knockbackTimeRemaining > 0)
                 {
-                    knockbackTimeRemaining = 0;
-                    Entity.SpeedModifier = 1;
+                    float knockbackDelta = (float)(knockbackTimeRemaining / knockbackDuration);
+                    Entity.SpeedModifier = knockbackForce * knockbackDelta;
+                    Direction += knockbackDirection * knockbackForce;
+
+                    knockbackTimeRemaining -= Clock.ElapsedFrameTime;
+
+                    if (knockbackTimeRemaining < 0)
+                    {
+                        knockbackTimeRemaining = 0;
+                        Entity.SpeedModifier = 1;
+                    }
                 }
             }
 
@@ -326,26 +305,42 @@ namespace GentrysQuest.Game.Entity.Drawables
             Entity.Affect(Clock.CurrentTime);
 
             // Skills logic
-            Entity.Secondary?.SetPercent(Clock.CurrentTime);
-            Entity.Utility?.SetPercent(Clock.CurrentTime);
-            Entity.Ultimate?.SetPercent(Clock.CurrentTime);
+            Entity.Secondary?.Update();
+            Entity.Utility?.Update();
+            Entity.Ultimate?.Update();
 
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
 
-            if (new ElapsedTime(Clock.CurrentTime, lastHitTime) > new Second(0.5))
+            if (new ElapsedTime(Clock.CurrentTime, GetBase().LastTenacityTime) > new Second(0.5))
             {
                 Entity.AddTenacity();
-                lastHitTime = Clock.CurrentTime;
+                GetBase().LastTenacityTime = Clock.CurrentTime;
             }
 
             // Regen should always be at the bottom
+            // Skip if entity is dead or full health
             if (Entity.IsDead || Entity.IsFullHealth) return;
 
+            // Regen timer
             double elapsedRegenTime = Clock.CurrentTime - lastRegenTime;
+
+            // enemies should have no regen
+            // therefore we skip if stat is 0
             if (Entity.Stats.RegenSpeed.Current.Value == 0) return;
 
             if (elapsedRegenTime * Entity.Stats.RegenSpeed.Current.Value >= 1000) regen();
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            HitBoxScene.Remove(HitBox);
+            HitBoxScene.Remove(ColliderBox);
+
+            if (Weapon != null)
+                HitBoxScene.Remove(Weapon.HitBox);
+
+            base.Dispose(isDisposing);
         }
     }
 }
