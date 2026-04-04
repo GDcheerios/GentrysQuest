@@ -28,18 +28,41 @@ namespace GentrysQuest.Game.Online.API
 
             try
             {
-                HttpRequestMessage requestMessage = new HttpRequestMessage(Method, endpoint);
-                if (Method == HttpMethod.Post) requestMessage.Content = CreateContent();
+                bool retriedWithRefreshedApiKey = false;
 
-                using (var response = await Client.SendAsync(requestMessage))
+                while (true)
                 {
-                    response.EnsureSuccessStatusCode();
-                    var data = await response.Content.ReadAsStringAsync();
-                    if (typeof(T) == typeof(string)) Response = data as T;
-                    else Response = JsonConvert.DeserializeObject<T>(data);
+                    HttpRequestMessage requestMessage = new HttpRequestMessage(Method, endpoint);
+                    if (Method == HttpMethod.Post)
+                        requestMessage.Content = CreateContent();
+
+                    using (var response = await Client.SendAsync(requestMessage))
+                    {
+                        if (shouldRetryWithRefreshedApiKey(response, retriedWithRefreshedApiKey))
+                        {
+                            await APIAccess.EnsureApiKeyAsync(true);
+
+                            var refreshedApiKey = APIAccess.GetApiKey();
+                            if (refreshedApiKey != null)
+                            {
+                                Client.DefaultRequestHeaders.Authorization =
+                                    new System.Net.Http.Headers.AuthenticationHeaderValue(refreshedApiKey.GetHeader());
+
+                                retriedWithRefreshedApiKey = true;
+                                continue;
+                            }
+                        }
+
+                        response.EnsureSuccessStatusCode();
+                        var data = await response.Content.ReadAsStringAsync();
+                        if (typeof(T) == typeof(string)) Response = data as T;
+                        else Response = JsonConvert.DeserializeObject<T>(data);
+                    }
+
+                    break;
                 }
 
-                Logger.Log($"successful with {requestMessage}", LoggingTarget.Network);
+                Logger.Log($"successful with {endpoint}", LoggingTarget.Network);
             }
             catch (HttpRequestException e)
             {
@@ -54,5 +77,20 @@ namespace GentrysQuest.Game.Online.API
         }
 
         protected virtual HttpContent CreateContent() => null;
+
+        private static bool shouldRetryWithRefreshedApiKey(HttpResponseMessage response, bool alreadyRetried)
+        {
+            if (alreadyRetried || response.StatusCode != System.Net.HttpStatusCode.Unauthorized)
+                return false;
+
+            var currentAuth = Client.DefaultRequestHeaders.Authorization;
+            if (currentAuth == null)
+                return false;
+
+            if ("Bearer".Equals(currentAuth.Scheme, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return !string.IsNullOrWhiteSpace(APIAccess.GetUserToken());
+        }
     }
 }
