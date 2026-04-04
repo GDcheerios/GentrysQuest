@@ -142,7 +142,7 @@ namespace GentrysQuest.Game.Screens
                 {
                     Character = User.EquippedCharacter,
                     Enemy = details.Receiver as Enemy,
-                    Weapon = details.Sender.Weapon,
+                    Weapon = details.Sender?.Weapon,
                     Leaderboard = ID,
                     Map = map
                 });
@@ -298,7 +298,7 @@ namespace GentrysQuest.Game.Screens
                         {
                             Character = User.EquippedCharacter,
                             Enemy = enemy,
-                            Weapon = details.Sender.Weapon,
+                            Weapon = details.Sender?.Weapon,
                             Leaderboard = ID,
                             Map = mapScene.GetMap().Reference
                         }
