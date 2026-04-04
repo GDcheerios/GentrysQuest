@@ -8,9 +8,10 @@ namespace GentrysQuest.Desktop
 {
     public class DesktopGameUpdater : IGameUpdater
     {
-        private const string updateFeedUrlEnvVar = "https://github.com/GDcheerios/GentrysQuest";
-        private const string githubTokenEnvVar = "";
-        private const string githubPrereleaseEnvVar = "false";
+        private const string defaultUpdateFeedUrl = "https://github.com/GDcheeriosYT/GentrysQuest";
+        private const string updateFeedUrlEnvVar = "GENTRYSQUEST_UPDATE_FEED_URL";
+        private const string githubTokenEnvVar = "GENTRYSQUEST_GITHUB_TOKEN";
+        private const string githubPrereleaseEnvVar = "GENTRYSQUEST_INCLUDE_PRERELEASES";
 
         private VelopackAsset downloadedUpdate;
         private string updateFeedUrl;
@@ -18,6 +19,9 @@ namespace GentrysQuest.Desktop
         public async Task<UpdateCheckResult> CheckForUpdatesAsync()
         {
             updateFeedUrl = Environment.GetEnvironmentVariable(updateFeedUrlEnvVar);
+            if (string.IsNullOrWhiteSpace(updateFeedUrl))
+                updateFeedUrl = defaultUpdateFeedUrl;
+
             if (string.IsNullOrWhiteSpace(updateFeedUrl))
                 return UpdateCheckResult.NoUpdate;
 
@@ -62,7 +66,10 @@ namespace GentrysQuest.Desktop
             if (Uri.TryCreate(source, UriKind.Absolute, out Uri uri) &&
                 uri.Host.Contains("github.com", StringComparison.OrdinalIgnoreCase))
             {
-                string token = Environment.GetEnvironmentVariable(githubTokenEnvVar) ?? string.Empty;
+                string token = Environment.GetEnvironmentVariable(githubTokenEnvVar)
+                               ?? Environment.GetEnvironmentVariable("GITHUB_TOKEN")
+                               ?? Environment.GetEnvironmentVariable("GH_TOKEN")
+                               ?? string.Empty;
                 bool includePrereleases = bool.TryParse(
                     Environment.GetEnvironmentVariable(githubPrereleaseEnvVar),
                     out bool includePre) && includePre;
