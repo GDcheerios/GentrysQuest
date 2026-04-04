@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using GentrysQuest.Game.Graphics;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Updating;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
@@ -21,6 +22,9 @@ namespace GentrysQuest.Game.Screens
 
         [Resolved]
         private DiscordRpc discordRpc { get; set; }
+
+        [Resolved]
+        private IGameUpdater gameUpdater { get; set; }
 
         /// <summary>
         /// This is the main loading screen for the game.
@@ -72,9 +76,26 @@ namespace GentrysQuest.Game.Screens
             await Task.Delay(500);
         }
 
+        private async Task checkForUpdates()
+        {
+            status.Text = "Checking for updates";
+
+            UpdateCheckResult result = await gameUpdater.CheckForUpdatesAsync();
+            if (!result.UpdateDownloaded)
+                return;
+
+            status.Text = string.IsNullOrWhiteSpace(result.Version)
+                ? "Update found, restarting"
+                : $"Update {result.Version} found, restarting";
+
+            await Task.Delay(700);
+            gameUpdater.ApplyDownloadedUpdateAndRestart();
+        }
+
         protected override async void LoadComplete()
         {
             base.LoadComplete();
+            await checkForUpdates();
             await loadGameData();
 
             Scheduler.AddDelayed(() =>

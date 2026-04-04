@@ -5,6 +5,7 @@ using GentrysQuest.Game.Overlays;
 using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Overlays.Profile;
 using GentrysQuest.Game.Screens;
+using GentrysQuest.Game.Updating;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -60,6 +61,7 @@ namespace GentrysQuest.Game
             Child = screenStack = new ScreenStack(); // I need to see
             screenManager = new ScreenManager(screenStack);
             dependencies.CacheAs(screenManager);
+            dependencies.CacheAs<IGameUpdater>(CreateGameUpdater());
 
             // overlays
             Add(titleText);
@@ -90,5 +92,7 @@ namespace GentrysQuest.Game
 
             screenManager.SetScreen(new LoadingScreen(new IntroScreen(true)));
         }
+
+        protected virtual IGameUpdater CreateGameUpdater() => new NoOpGameUpdater();
     }
 }

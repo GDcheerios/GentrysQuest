@@ -14,12 +14,15 @@
 
 using System.Reflection;
 using GentrysQuest.Game;
+using GentrysQuest.Game.Updating;
 using osu.Framework.Platform;
 
 namespace GentrysQuest.Desktop;
 
 public partial class GentrysQuestDesktop : GentrysQuestGame
 {
+    protected override IGameUpdater CreateGameUpdater() => new DesktopGameUpdater();
+
     public override void SetHost(GameHost host)
     {
         base.SetHost(host);
