@@ -112,11 +112,7 @@ namespace GentrysQuest.Game.Screens
                 status.Origin = Anchor.Centre;
             }, 1500);
             Scheduler.AddDelayed(() => status.FadeOut(250), 2700);
-#if DEBUG
             Scheduler.AddDelayed(() => { screenManager.SetScreen(new MainMenuScreen()); }, 3000);
-#else
-            Scheduler.AddDelayed(() => { screenManager.SetScreen(new IntroScreen(false)); }, 3000);
-#endif
         }
     }
 }
