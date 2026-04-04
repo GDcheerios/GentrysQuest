@@ -22,12 +22,11 @@ namespace GentrysQuest.Game.Database
 
                 case StatTypes.PlayerDamage:
                     Name = "player_damage";
-                    ScoreReward = 1;
                     break;
 
                 case StatTypes.EnemyDamage:
                     Name = "enemy_damage";
-                    ScoreReward = 2;
+                    ScoreReward = 1;
                     break;
 
                 case StatTypes.Kill:
@@ -49,6 +48,15 @@ namespace GentrysQuest.Game.Database
                     ScoreReward = 1;
                     break;
 
+                case StatTypes.HitEnemy:
+                    Name = "hit_enemy";
+                    ScoreReward = 10;
+                    break;
+
+                case StatTypes.HitPlayer:
+                    Name = "hit_player";
+                    break;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(statType), statType, null);
             }
@@ -61,7 +69,7 @@ namespace GentrysQuest.Game.Database
         public Character Character { get; set; } = null;
         public Weapon Weapon { get; set; } = null;
         public Map Map { get; set; } = null;
-        public int? Visitation { get; set; } = null;
+        public string? Visitation { get; set; } = null;
         public StatusEffect StatusEffect { get; set; } = null;
         public int? Leaderboard { get; set; } = null;
         public int ScoreReward { get; set; }

@@ -35,11 +35,8 @@ namespace GentrysQuest.Game.Overlays
             guestButton.SetAction(OpenGuestMenu);
             logInButton = new PlayerCategoryButton("Log In")
             {
-                // Centre it while guest is disabled
-                // Anchor = Anchor.TopRight,
-                // Origin = Anchor.TopRight,
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
             };
             logInButton.SetAction(OpenLogInMenu);
             playButton = new MainGqButton("play")
@@ -108,8 +105,7 @@ namespace GentrysQuest.Game.Overlays
                     playButton
                 ]
             });
-            // Disable guest selection for now
-            // AddInternal(guestButton);
+            AddInternal(guestButton);
             AddInternal(logInButton);
         }
 

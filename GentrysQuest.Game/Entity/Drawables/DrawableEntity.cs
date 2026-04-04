@@ -335,6 +335,11 @@ namespace GentrysQuest.Game.Entity.Drawables
         protected override void Dispose(bool isDisposing)
         {
             HitBoxScene.Remove(HitBox);
+            HitBoxScene.Remove(ColliderBox);
+
+            if (Weapon != null)
+                HitBoxScene.Remove(Weapon.HitBox);
+
             base.Dispose(isDisposing);
         }
     }

@@ -137,7 +137,6 @@ namespace GentrysQuest.Game.Entity.Weapon
         {
             base.LevelUp();
             UpdateStats();
-            Buff.Improve();
             Holder?.UpdateStats();
         }
 
@@ -162,7 +161,14 @@ namespace GentrysQuest.Game.Entity.Weapon
             Buff = new Buff(jsonWeapon.Buff);
         }
 
-        public void UpdateStats() => Damage.SetAdditional((Experience.Level.Current.Value - 1) * (Difficulty + 1) * StarRating.Value);
+        public void UpdateStats()
+        {
+            int level = Experience.CurrentLevel() - 1;
+            int additionalDamage = level;
+            additionalDamage += (int)(1.05 * Difficulty * level);
+            additionalDamage += level * (StarRating.Value + 2);
+            Damage.SetAdditional(additionalDamage);
+        }
 
         /// <summary>
         /// On click logic.

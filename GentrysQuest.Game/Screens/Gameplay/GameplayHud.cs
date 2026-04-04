@@ -63,7 +63,7 @@ namespace GentrysQuest.Game.Screens.Gameplay
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
                     RelativePositionAxes = Axes.Both,
-                    Size = new Vector2(500, 200),
+                    Size = new Vector2(550, 200),
                     Margin = new MarginPadding { Right = 30, Bottom = 20 }
                 }
             ];

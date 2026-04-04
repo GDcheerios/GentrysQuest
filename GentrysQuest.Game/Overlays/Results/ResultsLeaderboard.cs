@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using GentrysQuest.Game.Scoring;
-using GentrysQuest.Game.Screens.Gameplay.Results;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -16,57 +15,42 @@ namespace GentrysQuest.Game.Overlays.Results
         public List<LeaderboardPlacement> Placements = new();
 
         protected SpriteText ScoreText;
+        public bool ScoreLeaderboard { get; set; } = true;
 
         public ResultsLeaderboard()
         {
-            InternalChildren = new Drawable[]
-            {
-                new FillFlowContainer
+            InternalChildren =
+            [
+                new Container
                 {
-                    Spacing = new Vector2(0, 20),
-                    AutoSizeAxes = Axes.Y,
-                    RelativeSizeAxes = Axes.X,
-                    Direction = FillDirection.Vertical,
-                    Children = new Drawable[]
-                    {
-                        new Container
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 80,
-                            Child = ScoreText = new SpriteText
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                Text = $"0 Score", //TODO: rewrite
-                                Colour = Colour4.Black,
-                                Font = FontUsage.Default.With(size: 42)
-                            },
-                        },
+                    RelativeSizeAxes = Axes.Both,
+                    Children =
+                    [
                         scrollContainer = new BasicScrollContainer
                         {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 500,
+                            ScrollbarVisible = false,
+                            RelativeSizeAxes = Axes.Both,
                             Child = LeaderboardPanels = new FillFlowContainer<LeaderboardPanel>
                             {
                                 Direction = FillDirection.Vertical,
                                 AutoSizeAxes = Axes.Y,
+                                Spacing = new Vector2(0, 10),
                                 RelativeSizeAxes = Axes.X
                             }
                         }
-                    }
+                    ]
                 }
-            };
+            ];
         }
 
         public void AddListing(LeaderboardPlacement placement)
         {
-            LeaderboardPanel panel = new LeaderboardPanel(placement);
+            LeaderboardPanel panel = new LeaderboardPanel(placement, ScoreLeaderboard);
             Placements.Add(placement);
             LeaderboardPanels.Add(panel);
-            panel.Scale = new Vector2(0, 1);
-            panel.ScaleTo(new Vector2(1, 1), 100);
+            panel.FadeInFromZero(100);
+            panel.RelativeSizeAxes = Axes.X;
+            panel.Width = 0.9f;
         }
     }
 }

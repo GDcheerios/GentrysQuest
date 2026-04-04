@@ -428,12 +428,10 @@ namespace GentrysQuest.Game.Overlays.Inventory
 
         private int getItemXp(EntityBase item)
         {
-            int xp = 0;
+            int xp = item.CalculateRequirement(item.Experience.CurrentLevel() - 1, item.StarRating.Value);
 
-            xp += (item.Experience.CurrentLevel() - 1) * 250;
-            xp += (int)Math.Pow(item.StarRating.Value, 1.2) * 500;
-            xp += item.Experience.CurrentLevel() / 4 * 1000;
-            xp += item.Difficulty * 10000;
+            xp += item.Experience.CurrentLevel() * 25;
+            xp += item.StarRating.Value * 100;
 
             return xp;
         }

@@ -5,7 +5,7 @@ namespace GentrysQuest.Game.Online
         public ProductionEndpointConfiguration()
         {
             ServerUrl = APIEndpointUrl = "https://gdcheerios.com";
-            WebsocketUrl = $@"wss://ws.gdcheerios.com:8765";
+            WebsocketUrl = $@"wss://gdcheerios.com/ws/";
             GQEndpointUrl = $@"{APIEndpointUrl}/api/gq";
             LeaderboardID = 3;
         }

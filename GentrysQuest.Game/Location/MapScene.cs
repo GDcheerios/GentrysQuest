@@ -51,7 +51,7 @@ namespace GentrysQuest.Game.Location
 
         public void RemovePlayer(DrawablePlayableEntity player)
         {
-            if (player != null) RemoveInternal(player, false);
+            if (player != null) RemoveInternal(player, true);
             this.player = null;
         }
 
@@ -66,7 +66,7 @@ namespace GentrysQuest.Game.Location
         public void RemoveEnemy(DrawableEnemyEntity enemyEntity)
         {
             enemies.Remove(enemyEntity);
-            RemoveInternal(enemyEntity, false);
+            RemoveInternal(enemyEntity, true);
         }
 
         public List<Enemy> SpawnEnemies()
@@ -125,13 +125,25 @@ namespace GentrysQuest.Game.Location
             map.Load(mapInfo);
             map.Position = GetSpawnPoint();
 
-            AddInternal(locationText = new LocationText(mapInfo.Name));
+            Scheduler.Add(_ => AddInternal(locationText = new LocationText(mapInfo.Name)), 1);
         }
 
         public void UnloadMap()
         {
+            foreach (DrawableEnemyEntity enemy in enemies.ToList())
+                RemoveEnemy(enemy);
+
+            foreach (Projectile projectile in projectiles.ToList())
+            {
+                RemoveInternal(projectile, true);
+                removeProjectile(projectile);
+            }
+
             map.Unload();
-            RemoveInternal(locationText, false);
+
+            if (locationText != null) RemoveInternal(locationText, true);
+            if (player != null) RemovePlayer(player);
+
             locationText = null;
         }
 

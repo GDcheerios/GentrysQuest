@@ -24,12 +24,10 @@ namespace GentrysQuest.Game.Screens
         private TextFlowContainer framework;
         private ISong introSong;
         private readonly List<ITextPart> osuText = new List<ITextPart>();
-        private readonly MainMenuScreen mainMenu;
         private readonly bool isBandits;
 
         public IntroScreen(bool isBandits)
         {
-            mainMenu = new MainMenuScreen(isBandits);
             this.isBandits = isBandits;
         }
 
@@ -106,7 +104,7 @@ namespace GentrysQuest.Game.Screens
                 .FadeOut(3000, Easing.Out)
                 .Finally(_ =>
                 {
-                    this.Push(mainMenu);
+                    this.Push(new MainMenuScreen());
                 });
         }
 

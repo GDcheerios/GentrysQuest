@@ -8,6 +8,8 @@ namespace GentrysQuest.Game.Database
         Kill = 4,
         Death = 5,
         MoneyGained = 6,
-        MoneySpent = 7
+        MoneySpent = 7,
+        HitEnemy = 8,
+        HitPlayer = 9
     }
 }

@@ -40,7 +40,6 @@ namespace GentrysQuest.Game
         private TopRightContainer topRightContainer;
         private NotificationManager notificationManager = new NotificationManager();
         private AudioOverlay audioOverlay;
-        private PlayerSelectContainer playerSelectContainer;
 
         private ScreenManager screenManager;
 

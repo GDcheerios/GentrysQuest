@@ -13,9 +13,9 @@ namespace GentrysQuest.Game.Content.Characters
             StarRating = new StarRating(starRating);
             TextureMapping = new();
 
-            Secondary = new Heal();
+            Secondary = new CircleThrow();
             Utility = new Teleport();
-            Ultimate = new Quicken();
+            Ultimate = new Heal();
         }
     }
 }

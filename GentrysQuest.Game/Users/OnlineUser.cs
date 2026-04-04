@@ -9,6 +9,7 @@ using GentrysQuest.Game.IO;
 using GentrysQuest.Game.Online;
 using GentrysQuest.Game.Online.API.Requests.Account;
 using GentrysQuest.Game.Online.API.Requests.Responses;
+using GentrysQuest.Game.Online.API.Requests.User;
 using GentrysQuest.Game.Overlays.Notifications;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -288,6 +289,13 @@ namespace GentrysQuest.Game.Users
             if (rankingItem?.Ranking == null) return;
 
             updateRanking(rankingItem.Ranking.ToObject<RankingResponse>());
+        }
+
+        public void RefreshRanking()
+        {
+            RefreshRankingRequest request = new RefreshRankingRequest(ID);
+            _ = request.PerformAsync();
+            updateRanking(request.Response);
         }
 
         private void addItemToLocalInventory(EntityBase entity)

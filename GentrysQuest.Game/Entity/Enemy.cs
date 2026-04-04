@@ -23,10 +23,9 @@ public class Enemy : Entity
             level * 100 * (Stats.Health.Point + 1)
         );
 
-        Stats.Attack.SetDefaultValue(
-            CalculatePointBenefit(Math.Pow(Difficulty, 3) * 15, Stats.Attack.Point, 20) +
-            CalculatePointBenefit(level * 1, Stats.Attack.Point, 5)
-        );
+        int damage = (level + 1) * Stats.Attack.Point;
+        damage += (int)(10 * Difficulty * level);
+        Stats.Attack.SetDefaultValue(damage);
 
         Stats.Defense.SetDefaultValue(
             CalculatePointBenefit(Difficulty * 30, Stats.Defense.Point, 18) +

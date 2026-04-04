@@ -137,5 +137,13 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             Hide();
         }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (HitBox != null)
+                HitBoxScene.Remove(HitBox);
+
+            base.Dispose(isDisposing);
+        }
     }
 }

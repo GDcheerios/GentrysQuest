@@ -43,6 +43,7 @@ namespace GentrysQuest.Game.Entity
 
         public virtual void LevelUp()
         {
+            Difficulty = (byte)(Experience.Level.Current.Value / 20);
             Experience.Level.AddLevel();
             CalculateXpRequirement();
             OnLevelUp?.Invoke();
@@ -50,9 +51,9 @@ namespace GentrysQuest.Game.Entity
 
         public int CalculateRequirement(int level, int starRating)
         {
-            int difficulty = (level / 20);
+            int difficulty = level / 20;
             int starRatingExperience = starRating * 25;
-            int levelExperience = level * 10;
+            int levelExperience = level * 100;
 
             return level * difficulty * difficulty * 100 + levelExperience + starRatingExperience;
         }

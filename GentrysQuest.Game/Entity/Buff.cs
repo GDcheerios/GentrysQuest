@@ -77,7 +77,7 @@ namespace GentrysQuest.Game.Entity
                     value = 100;
                     starRating = 125;
                     level = 150;
-                    percentDiffer = 65;
+                    percentDiffer = 50;
                     break;
 
                 case StatType.Attack:

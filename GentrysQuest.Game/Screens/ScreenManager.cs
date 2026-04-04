@@ -15,5 +15,7 @@ namespace GentrysQuest.Game.Screens
         }
 
         public void SetCustomScreen(GqScreen screen) => stack.Push(screen);
+
+        public void ExitCurrentScreen() => stack.Exit();
     }
 }

@@ -61,9 +61,9 @@ namespace GentrysQuest.Game.Overlays.Profile
                         Direction = FillDirection.Horizontal,
                         Children =
                         [
-                            profilePicture = new ProfilePicture(),
                             new Container
                             {
+                                Padding = new MarginPadding { Left = 10 },
                                 RelativeSizeAxes = Axes.Y,
                                 Width = 100,
                                 Child = nameText = new SpriteText
@@ -207,17 +207,18 @@ namespace GentrysQuest.Game.Overlays.Profile
                 .ScaleTo(1, 200, Easing.InQuint);
         }
 
-        private void signOutUser()
+        public void SignOutUser()
         {
             user.Value?.Save();
             _ = websocket.DisconnectAsync();
             APIAccess.ClearUserSession();
             user.Value = null;
+            Show();
         }
 
         public void GoSelection()
         {
-            signOutUser();
+            SignOutUser();
             isShowingSelection = true;
             selectContainer.Show();
         }

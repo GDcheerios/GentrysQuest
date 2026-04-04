@@ -2,7 +2,6 @@ using GentrysQuest.Game.Content.Characters;
 using GentrysQuest.Game.Content.Maps;
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Graphics;
-using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Overlays.Results;
 using GentrysQuest.Game.Screens;
 using GentrysQuest.Game.Screens.Gameplay;
@@ -13,16 +12,16 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using Box = osu.Framework.Graphics.Shapes.Box;
 
 namespace GentrysQuest.Game.Overlays.GameMenu
 {
     public partial class EventOverlay : CompositeDrawable
     {
         private readonly MainGqButton playButton;
-        private readonly OnlineResultsLeaderboard leaderboard;
-        private Container detailsContainer;
-        private TaggedTextContainer descriptionText;
+        private readonly MainGqButton endButton;
+        private EventGameplayScreen eventScreen;
+        private OnlineResultsLeaderboard resultsLeaderboard;
+        private EventStatisticsOverlay statisticsOverlay;
 
         [Resolved]
         private ScreenManager screenManager { get; set; }
@@ -31,8 +30,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
         private Bindable<IUser> user { get; set; }
 
         private readonly string eventName;
-        private readonly string eventDescription;
-        public const int EVENT_ID = 1;
+        public const int EVENT_ID = 4;
 
         public EventOverlay()
         {
@@ -40,29 +38,19 @@ namespace GentrysQuest.Game.Overlays.GameMenu
             {
                 Size = new Vector2(300, 100),
                 Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre
+            };
+
+            endButton = new MainGqButton("End")
+            {
+                Size = new Vector2(300, 100),
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre
             };
 
             #region EventDetails
 
-            eventName = "March Gameplay Test";
-            eventDescription = "This is a gameplay testing event for the month of march.";
-
-            playButton.SetAction(delegate
-            {
-                if (user.Value != null)
-                    user.Value.SessionMode = UserSessionMode.Event;
-
-                GMoney character = new GMoney();
-                user.Value!.AddItem(character);
-                user.Value.EquippedCharacter = character;
-                character.SetWeapon(new Sword());
-
-                EventGameplayScreen eventScreen = new EventGameplayScreen();
-
-                screenManager.SetScreen(eventScreen);
-                eventScreen.LoadGameplay(user.Value, new TestMap());
-            });
+            eventName = "April Gameplay Test";
 
             #endregion
         }
@@ -73,44 +61,97 @@ namespace GentrysQuest.Game.Overlays.GameMenu
             InternalChildren =
             [
                 playButton,
-                detailsContainer = new Container
+                endButton,
+                new SpriteText
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    Anchor = Anchor.TopRight,
-                    Origin = Anchor.TopRight,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Text = eventName,
+                    Font = new FontUsage(size: 48),
+                },
+                new Container
+                {
                     Masking = true,
-                    CornerRadius = 10,
-                    CornerExponent = 2,
-                    Size = new Vector2(0.5f, 0.8f),
-                    Children =
-                    [
-                        new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = Colour4.Gray,
-                        },
-                        descriptionText = new TaggedTextContainer
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Y = 50,
-                            Padding = new MarginPadding(5),
-                            Colour = Colour4.Black,
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
-                        },
-                        new SpriteText
-                        {
-                            Text = eventName,
-                            Colour = Colour4.Black,
-                            Font = FontUsage.Default.With(size: 30),
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                        }
-                    ]
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    RelativeSizeAxes = Axes.Both,
+                    Size = new Vector2(0.5f, 0.65f),
+                    Child = resultsLeaderboard = new OnlineResultsLeaderboard { ScoreLeaderboard = true }
+                },
+                new Container
+                {
+                    Masking = true,
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    RelativeSizeAxes = Axes.Both,
+                    Size = new Vector2(0.5f, 0.65f),
+                    Child = statisticsOverlay = new EventStatisticsOverlay()
                 }
             ];
             RelativeSizeAxes = Axes.Both;
-            descriptionText.SetTaggedText(eventDescription);
+            endButton.Hide();
+            playButton.SetAction(delegate
+            {
+                playButton.Hide();
+                endButton.Show();
+                if (user.Value == null)
+                    return;
+
+                EventSessionInventoryScope.Begin(user.Value);
+
+                showActiveControls();
+
+                #region InventorySetup
+
+                TestCharacter character = new TestCharacter(1);
+                user.Value.Characters.Add(character);
+                user.Value.EquippedCharacter = character;
+                user.Value.AddItem(new Bow());
+                user.Value.AddItem(new Hammer());
+                user.Value.AddItem(new Spear());
+                character.SetWeapon(new Sword());
+
+                #endregion
+
+                eventScreen = new EventGameplayScreen(EVENT_ID);
+                eventScreen.ScoreSubmitted += UpdateEvent;
+                eventScreen.GameplayEnded += onGameplayEnded;
+
+                screenManager.SetScreen(eventScreen);
+                eventScreen.LoadGameplay(user.Value, new TestMap());
+            });
+
+            endButton.SetAction(delegate
+            {
+                if (user.Value == null || eventScreen == null)
+                    return;
+
+                playButton.Show();
+                endButton.Hide();
+                _ = eventScreen.EndAsync(GameplayEndReason.EventEnded);
+            });
+
+            UpdateEvent();
+        }
+
+        public void UpdateEvent()
+        {
+            resultsLeaderboard.Load(EVENT_ID);
+            statisticsOverlay.Load(EVENT_ID);
+        }
+
+        private void showActiveControls()
+        {
+            endButton.Show();
+        }
+
+        private void onGameplayEnded(GameplayEndReason reason)
+        {
+            if (reason != GameplayEndReason.Death)
+                return;
+
+            playButton.Show();
+            endButton.Hide();
         }
     }
 }

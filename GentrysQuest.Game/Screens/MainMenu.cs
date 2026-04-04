@@ -91,6 +91,12 @@ namespace GentrysQuest.Game.Screens
             });
         }
 
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            if (user.Value != null) Schedule(_ => EnterSelection(), 0);
+        }
+
         public void PressPlay()
         {
             if (user.Value == null) profileButton.GoSelection();
@@ -116,7 +122,7 @@ namespace GentrysQuest.Game.Screens
         public void EnterSelection()
         {
             title.FadeOut(200);
-            gameMenuOverlay.Disappear();
+            gameMenuOverlay.Appear();
             playButton.FadeOut(200);
             quitButton.FadeOut(200);
             resetTitle();

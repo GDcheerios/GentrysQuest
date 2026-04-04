@@ -4,35 +4,30 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GentrysQuest.Game.Location;
 
-namespace GentrysQuest.Game.Online.API.Requests.Leaderboard
+namespace GentrysQuest.Game.Online.API.Requests.Gameplay
 {
-    public class SubmitScoreRequest : APIRequest<string>
+    public class VisitRequest : APIRequest<Visitation>
     {
-        private readonly int leaderboardId;
         private readonly int userId;
-        private readonly int score;
-        private readonly string visitation;
+        private readonly int locationId;
 
-        public SubmitScoreRequest(int leaderboardId, int userId, int score, string visitation)
+        public VisitRequest(int userId, int locationId)
         {
-            this.leaderboardId = leaderboardId;
             this.userId = userId;
-            this.score = score;
-            this.visitation = visitation;
+            this.locationId = locationId;
         }
 
         protected override HttpMethod Method => HttpMethod.Post;
-        public override string Target => "api/gq/submit-leaderboard";
+        public override string Target => "api/gq/visit/";
 
         protected override HttpContent CreateContent()
         {
             var payload = new
             {
-                leaderboard_id = leaderboardId,
-                user = userId,
-                score,
-                visitation
+                user_id = userId,
+                location = locationId
             };
 
             return new StringContent(

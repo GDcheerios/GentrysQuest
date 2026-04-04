@@ -1,5 +1,7 @@
 using GentrysQuest.Game.Entity;
 using GentrysQuest.Game.Utils;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 
 namespace GentrysQuest.Game.Content.Skills
 {
@@ -13,6 +15,7 @@ namespace GentrysQuest.Game.Content.Skills
         {
             int healAmount = (int)User.GetBase().Stats.Health.GetPercentFromTotal(10);
             User.GetBase().Heal(healAmount);
+            User.GetBase().DisplayHealthEvent($"{healAmount}", ColourInfo.GradientVertical(Colour4.Lime, Colour4.Green));
         }
     }
 }

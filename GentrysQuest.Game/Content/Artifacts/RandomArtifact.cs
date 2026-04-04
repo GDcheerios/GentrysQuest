@@ -55,7 +55,7 @@ namespace GentrysQuest.Game.Content.Artifacts
                     break;
 
                 case TriggerType.OnHeal:
-                    entity.OnHealthEvent += onHealthEvent;
+                    entity.OnHeal += onHealthEvent;
                     break;
             }
         }
@@ -64,7 +64,7 @@ namespace GentrysQuest.Game.Content.Artifacts
         {
             entity.OnHitEntity -= onHitEntity;
             entity.OnGetHit -= onGetHit;
-            entity.OnHealthEvent -= onHealthEvent;
+            entity.OnHeal -= onHealthEvent;
         }
 
         private void onHitEntity(DamageDetails details)
@@ -92,7 +92,7 @@ namespace GentrysQuest.Game.Content.Artifacts
             details.Damage = Math.Max(0, details.Damage - (int)effectValueA);
         }
 
-        private void onHealthEvent()
+        private void onHealthEvent(int amount)
         {
             if (Holder == null || handlingHealthEvent || effectType != EffectType.AttackFromHeal) return;
 

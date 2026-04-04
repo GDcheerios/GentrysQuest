@@ -12,6 +12,7 @@ namespace GentrysQuest.Game.Graphics
     public partial class MainGqButton : GqButton
     {
         public virtual string Text { get; set; }
+        private SpriteText text;
 
         public Container Container;
 
@@ -51,7 +52,7 @@ namespace GentrysQuest.Game.Graphics
                     new Container
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Child = new SpriteText
+                        Child = text = new SpriteText
                         {
                             Text = Text,
                             Anchor = Anchor.Centre,
@@ -64,6 +65,8 @@ namespace GentrysQuest.Game.Graphics
                 ]
             });
         }
+
+        public void SetText(string text) => this.text.Text = text;
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {

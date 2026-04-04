@@ -2,7 +2,6 @@ using System;
 using GentrysQuest.Game.Graphics.TextStyles;
 using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Online;
-using GentrysQuest.Game.Online.API;
 using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Overlays.GameMenu.GachaTab;
 using GentrysQuest.Game.Overlays.Inventory;
@@ -52,15 +51,13 @@ namespace GentrysQuest.Game.Overlays
         public readonly GachaContainer GachaContainer = new();
 
         public bool IsVisible { get; private set; }
+        public bool AccessLocked { get; private set; }
 
         [Resolved]
         private Bindable<IUser> user { get; set; }
 
         [Resolved]
         private ProfileButton userProfileButton { get; set; }
-
-        [Resolved]
-        private ScreenManager screenManager { get; set; }
 
         [Resolved]
         private InputHandler inputHandler { get; set; }
@@ -70,6 +67,9 @@ namespace GentrysQuest.Game.Overlays
 
         [Resolved]
         private GqWebSocketClient websocket { get; set; }
+
+        [Resolved]
+        private ScreenManager screenManager { get; set; }
 
         public GameMenuOverlay()
         {
@@ -96,7 +96,7 @@ namespace GentrysQuest.Game.Overlays
                             Children =
                             [
                                 BackButton = new GqMenuButton("Quit"),
-                                EventButton = new GqMenuButton("Weekly Event"),
+                                EventButton = new GqMenuButton("Event"),
                                 TravelButton = new GqMenuButton("Travel"),
                                 InventoryButton = new GqMenuButton("Inventory"),
                                 GachaButton = new GqMenuButton("Gacha"),
@@ -125,13 +125,13 @@ namespace GentrysQuest.Game.Overlays
 
             BackButton.SetAction(delegate
             {
-                user.Value.Save();
-                _ = websocket.DisconnectAsync();
-                APIAccess.ClearUserSession();
-                user.Value = null;
+                userProfileButton.SignOutUser();
                 screenManager.SetScreen(new MainMenuScreen());
             });
-            EventButton.SetAction(delegate { state.Value = SelectionState.WeeklyEvent; });
+            GachaButton.HideButton();
+            ProfileButton.HideButton();
+            TravelButton.HideButton();
+            EventButton.SetAction(delegate { state.Value = SelectionState.Event; });
             InventoryButton.SetAction(delegate { state.Value = SelectionState.Inventory; });
             GachaButton.SetAction(delegate { state.Value = SelectionState.Gacha; });
             TravelButton.SetAction(delegate { state.Value = SelectionState.Travel; });
@@ -154,16 +154,12 @@ namespace GentrysQuest.Game.Overlays
                 Key = Key.Escape,
                 Action = () =>
                 {
+                    if (AccessLocked) return;
+
                     if (IsVisible)
-                    {
                         Disappear();
-                        IsVisible = false;
-                    }
                     else
-                    {
                         Appear();
-                        IsVisible = true;
-                    }
                 }
             };
             InputEvent gameInventory = new InputEvent
@@ -173,6 +169,8 @@ namespace GentrysQuest.Game.Overlays
                 Key = Key.C,
                 Action = () =>
                 {
+                    if (AccessLocked) return;
+
                     switch (IsVisible)
                     {
                         case true when state.Value != SelectionState.Inventory:
@@ -181,12 +179,10 @@ namespace GentrysQuest.Game.Overlays
 
                         case true when state.Value == SelectionState.Inventory:
                             Disappear();
-                            IsVisible = false;
                             break;
 
                         default:
                             Appear();
-                            IsVisible = true;
                             state.Value = SelectionState.Inventory;
                             break;
                     }
@@ -199,6 +195,7 @@ namespace GentrysQuest.Game.Overlays
 
         public void Appear()
         {
+            if (AccessLocked) return;
             if (user.Value == null) return;
 
             title.FadeIn();
@@ -213,6 +210,7 @@ namespace GentrysQuest.Game.Overlays
             navBar.MoveToX(0, 150, Easing.Out);
             if (user.Value is GuestUser) EventButton.FadeTo(0.5f, 250, Easing.OutQuint);
             else EventButton.FadeTo(1, 250, Easing.OutQuint);
+            IsVisible = true;
         }
 
         public void Disappear()
@@ -222,13 +220,24 @@ namespace GentrysQuest.Game.Overlays
             GachaContainer.AnimateHide();
             navBar.MoveToX(1, 150, Easing.In);
             title?.MoveToY(0, 150, Easing.In).FadeOut(150, Easing.In);
+            IsVisible = false;
         }
 
         public void Toggle()
         {
+            if (AccessLocked) return;
+
             if (IsVisible) Disappear();
             else Appear();
             IsVisible = !IsVisible;
+        }
+
+        public void SetAccessLocked(bool locked)
+        {
+            AccessLocked = locked;
+
+            if (locked && IsVisible)
+                Disappear();
         }
 
         private void handleState(ValueChangedEvent<SelectionState> stateChange)
@@ -243,15 +252,16 @@ namespace GentrysQuest.Game.Overlays
                     InventoryOverlay.Show();
                     break;
 
-                case SelectionState.WeeklyEvent:
+                case SelectionState.Event:
                     if (user.Value is GuestUser)
                     {
-                        Notification.Create("You must be logged in to view the weekly event leaderboard.", NotificationType.Error);
+                        Notification.Create("You must be logged in to view the event leaderboard.", NotificationType.Error);
                         state.Value = SelectionState.Inventory;
                         return;
                     }
 
                     EventOverlay.Show();
+                    EventOverlay.UpdateEvent();
                     break;
 
                 case SelectionState.Travel:
@@ -267,6 +277,13 @@ namespace GentrysQuest.Game.Overlays
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void SetState(SelectionState newState)
+        {
+            Appear();
+            if (state.Value == newState) handleState(new ValueChangedEvent<SelectionState>(state.Value, newState));
+            else state.Value = newState;
         }
     }
 }

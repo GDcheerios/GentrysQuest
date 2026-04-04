@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using GentrysQuest.Game.Overlays;
+using GentrysQuest.Game.Overlays.GameMenu;
 using GentrysQuest.Game.Users;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -16,27 +18,37 @@ namespace GentrysQuest.Game.Screens.Gameplay
         [Resolved]
         private GameMenuOverlay gameMenuOverlay { get; set; }
 
+        [Resolved]
+        private ScreenManager screenManager { get; set; }
+
         protected override UserSessionMode SessionMode => UserSessionMode.Event;
 
         public override void OnEntering(ScreenTransitionEvent e)
         {
             base.OnEntering(e);
-            gameMenuOverlay.Disappear();
+            Schedule(() => gameMenuOverlay.Disappear());
+        }
+
+        protected override Task OnEnding(GameplayEndReason reason) => base.OnEnding(reason);
+
+        protected override void OnEnded(GameplayEndReason reason)
+        {
+            gameMenuOverlay.SetState(SelectionState.Event);
+            base.OnEnded(reason);
         }
 
         public override void OnSuspending(ScreenTransitionEvent e)
         {
+            if (e.Next is EventGameplayScreen)
+            {
+                base.OnSuspending(e);
+                return;
+            }
+
             IUser modeUser = User ?? currentUser?.Value;
-            if (modeUser != null)
-                modeUser.SessionMode = UserSessionMode.Normal;
+            EventSessionInventoryScope.End(modeUser);
 
             base.OnSuspending(e);
-        }
-
-        public void End()
-        {
-            // GameData.UnStore();
-            // base.End();
         }
     }
 }
