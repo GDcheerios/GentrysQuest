@@ -60,7 +60,10 @@ namespace GentrysQuest.Game
         protected override void Dispose(bool isDisposing)
         {
             if (isDisposing)
+            {
                 websocketClient.Dispose();
+                discordRpc.Dispose();
+            }
 
             base.Dispose(isDisposing);
         }

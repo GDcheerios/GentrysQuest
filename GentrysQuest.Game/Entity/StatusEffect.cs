@@ -86,6 +86,11 @@ public abstract class StatusEffect
     public int Stack;
 
     /// <summary>
+    /// Whether multiple applications of this effect should increase stack count.
+    /// </summary>
+    public virtual bool CanStack { get; protected set; } = true;
+
+    /// <summary>
     /// The current step
     /// </summary>
     public int CurrentStep = 1;

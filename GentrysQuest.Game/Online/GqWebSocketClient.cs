@@ -308,16 +308,48 @@ namespace GentrysQuest.Game.Online
                 return;
 
             disposed = true;
+            userRequestedDisconnect = true;
+            suppressReconnect = true;
+
+            // Avoid sync-over-async during app shutdown (can deadlock on captured contexts).
+            // Dispose is best-effort and forceful; normal graceful disconnect should happen via DisconnectAsync().
+            cancelReconnectLoop();
+            forceDisposeSocket();
+            sendGate.Dispose();
+            lifecycleGate.Dispose();
+        }
+
+        private void forceDisposeSocket()
+        {
+            try
+            {
+                receiveLoopCancellation?.Cancel();
+            }
+            catch
+            {
+            }
 
             try
             {
-                DisconnectAsync().GetAwaiter().GetResult();
+                socket?.Abort();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                socket?.Dispose();
+            }
+            catch
+            {
             }
             finally
             {
-                cancelReconnectLoop();
-                sendGate.Dispose();
-                lifecycleGate.Dispose();
+                socket = null;
+                receiveLoopCancellation?.Dispose();
+                receiveLoopCancellation = null;
+                receiveTask = null;
             }
         }
     }

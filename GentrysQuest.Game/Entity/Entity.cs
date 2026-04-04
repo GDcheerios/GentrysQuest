@@ -219,7 +219,7 @@ namespace GentrysQuest.Game.Entity
 
             foreach (var effect in Effects.Where(effect => effect.GetType() == statusEffect.GetType()))
             {
-                effect.Stack++;
+                effect.Stack = effect.CanStack ? effect.Stack + statusEffect.Stack : 1;
                 effect.RestartLifetime();
                 inList = true;
             }

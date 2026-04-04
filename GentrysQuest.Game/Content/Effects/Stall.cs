@@ -20,6 +20,7 @@ namespace GentrysQuest.Game.Content.Effects
         public override Colour4 EffectColor { get; protected set; } = Colour4.Gray;
         public override IconUsage Icon { get; protected set; } = FontAwesome.Solid.UserClock;
         public override bool IsInfinite { get; set; } = false;
+        public override bool CanStack { get; protected set; } = false;
 
         public override void Handle()
         {
