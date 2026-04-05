@@ -21,7 +21,7 @@ namespace GentrysQuest.Game.Online.API.Requests
             var payload = new
             {
                 name = "GentrysQuestClient",
-                expires_at = DateTimeOffset.UtcNow.AddHours(1).ToString("O"),
+                expires_at = DateTimeOffset.UtcNow.AddDays(30).ToString("O"),
                 scopes = new[]
                 {
                     "leaderboard:read",

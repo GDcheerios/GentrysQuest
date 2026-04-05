@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -20,15 +21,20 @@ namespace GentrysQuest.Game.Online.API
     public abstract class APIRequest<T> : APIRequest where T : class
     {
         public T Response { get; private set; }
+        public HttpStatusCode? LastStatusCode { get; private set; }
 
         public async Task PerformAsync()
         {
+            if (APIAccess.IsSessionExpired)
+                throw new SessionExpiredException("Session expired. Please log in again.");
+
             var endpoint = $@"{APIAccess.Endpoint.ServerUrl}/{Target}";
             Logger.Log($"Trying request @ {endpoint}", LoggingTarget.Network);
 
             try
             {
                 bool retriedWithRefreshedApiKey = false;
+                LastStatusCode = null;
 
                 while (true)
                 {
@@ -38,6 +44,8 @@ namespace GentrysQuest.Game.Online.API
 
                     using (var response = await Client.SendAsync(requestMessage))
                     {
+                        LastStatusCode = response.StatusCode;
+
                         if (shouldRetryWithRefreshedApiKey(response, retriedWithRefreshedApiKey))
                         {
                             await APIAccess.EnsureApiKeyAsync(true);
@@ -63,6 +71,10 @@ namespace GentrysQuest.Game.Online.API
                 }
 
                 Logger.Log($"successful with {endpoint}", LoggingTarget.Network);
+            }
+            catch (SessionExpiredException e)
+            {
+                Logger.Log(e.Message, LoggingTarget.Network, LogLevel.Important);
             }
             catch (HttpRequestException e)
             {

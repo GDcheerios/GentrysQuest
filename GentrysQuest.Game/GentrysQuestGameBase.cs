@@ -2,6 +2,8 @@ using GentrysQuest.Game.Audio;
 using GentrysQuest.Game.Database;
 using GentrysQuest.Game.Input;
 using GentrysQuest.Game.Online;
+using GentrysQuest.Game.Online.API;
+using GentrysQuest.Game.Overlays.Notifications;
 using GentrysQuest.Game.Users;
 using GentrysQuest.Game.Utils;
 using GentrysQuest.Resources;
@@ -55,12 +57,27 @@ namespace GentrysQuest.Game
             Resources.AddStore(new DllResourceStore(typeof(GentrysQuestResources).Assembly));
             _ = new GameClock(Clock);
             Add(AudioManager.Instance);
+            APIAccess.SessionExpired += handleSessionExpired;
+        }
+
+        private void handleSessionExpired()
+        {
+            Scheduler.Add(() =>
+            {
+                if (user.Value == null)
+                    return;
+
+                _ = websocketClient.DisconnectAsync();
+                user.Value = null;
+                Notification.Create("Session expired. Please log in again.", NotificationType.Error);
+            });
         }
 
         protected override void Dispose(bool isDisposing)
         {
             if (isDisposing)
             {
+                APIAccess.SessionExpired -= handleSessionExpired;
                 websocketClient.Dispose();
                 discordRpc.Dispose();
             }

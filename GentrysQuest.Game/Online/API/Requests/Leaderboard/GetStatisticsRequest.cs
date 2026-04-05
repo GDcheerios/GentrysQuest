@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GentrysQuest.Game.Online.API.Requests.Responses;
 
@@ -39,12 +38,7 @@ namespace GentrysQuest.Game.Online.API.Requests.Leaderboard
 
         public new async Task PerformAsync()
         {
-            var apiKey = APIAccess.GetApiKey();
-            if (apiKey == null)
-                throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
-
-            Client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue(apiKey.GetHeader());
+            Client.DefaultRequestHeaders.Authorization = await APIAccess.GetApiAuthorizationHeaderAsync();
 
             try
             {
