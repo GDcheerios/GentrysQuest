@@ -24,6 +24,10 @@ namespace GentrysQuest.Game.Online.API.Requests.Responses
         [JsonProperty("expires_at")]
         public DateTimeOffset? ExpiresAt;
 
+        [CanBeNull]
+        [JsonProperty("tokens")]
+        public ApiKeyTokensResponse Tokens;
+
         public string GetHeader() => $"{CombinedKey}";
     }
 }

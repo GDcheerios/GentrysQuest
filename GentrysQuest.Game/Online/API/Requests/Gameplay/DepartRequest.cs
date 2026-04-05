@@ -1,6 +1,5 @@
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace GentrysQuest.Game.Online.API.Requests.Gameplay;
@@ -16,12 +15,7 @@ public class DepartRequest : APIRequest<string>
 
     public new async Task PerformAsync()
     {
-        var apiKey = APIAccess.GetApiKey();
-        if (apiKey == null)
-            throw new InvalidOperationException("API key missing. Call EnsureApiKeyAsync first.");
-
-        Client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(apiKey.GetHeader());
+        Client.DefaultRequestHeaders.Authorization = await APIAccess.GetApiAuthorizationHeaderAsync();
 
         try
         {
