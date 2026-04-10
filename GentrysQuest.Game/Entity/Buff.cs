@@ -9,7 +9,7 @@ namespace GentrysQuest.Game.Entity
     {
         public StatType StatType { get; private set; }
         public bool IsPercent { get; private set; }
-        public int Level { get; private set; } = 1;
+        public int Level { get; set; } = 1;
         public Bindable<double> Value { get; private set; } = new Bindable<double>(0);
         public EntityBase ParentEntity;
 
@@ -18,7 +18,7 @@ namespace GentrysQuest.Game.Entity
             ParentEntity = parentEntity;
             StatType = GetRandomStat();
             IsPercent = MathBase.RandomBool();
-            updateStats();
+            UpdateStats();
         }
 
         public Buff(EntityBase parentEntity, StatType statType, bool isPercent)
@@ -26,7 +26,7 @@ namespace GentrysQuest.Game.Entity
             ParentEntity = parentEntity;
             StatType = statType;
             IsPercent = isPercent;
-            updateStats();
+            UpdateStats();
         }
 
         public Buff(EntityBase parentEntity, StatType statType)
@@ -34,7 +34,7 @@ namespace GentrysQuest.Game.Entity
             ParentEntity = parentEntity;
             StatType = statType;
             IsPercent = MathBase.RandomBool();
-            updateStats();
+            UpdateStats();
         }
 
         public Buff(double amount, StatType statType, bool isPercent)
@@ -61,10 +61,10 @@ namespace GentrysQuest.Game.Entity
             StatType = jsonBuff.BuffID;
             IsPercent = jsonBuff.IsPercent;
             Level = jsonBuff.Level;
-            updateStats();
+            UpdateStats();
         }
 
-        private void updateStats()
+        public void UpdateStats()
         {
             double value = 0;
             double starRating = 0;
@@ -154,10 +154,6 @@ namespace GentrysQuest.Game.Entity
 
             switch (ParentEntity)
             {
-                case Weapon.Weapon weapon:
-                    setValue(Level * (weapon.Difficulty + 1));
-                    break;
-
                 default:
                     setValue(((ParentEntity.StarRating.Value * starRating) + ((Level - 1) * level) + value) / percentDiffer);
                     break;
@@ -172,7 +168,7 @@ namespace GentrysQuest.Game.Entity
         public void Improve()
         {
             Level++;
-            updateStats();
+            UpdateStats();
         }
 
         public static StatType GetRandomStat()
