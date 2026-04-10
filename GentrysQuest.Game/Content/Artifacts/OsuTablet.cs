@@ -17,17 +17,17 @@ namespace GentrysQuest.Game.Content.Artifacts
                                                                      + "guarantees you to hit a [type]critical attack[/type] with an additional "
                                                                      + "[unit]50%[/unit][details] + 20% per stack[/details] damage.";
 
-        public override void OnEquip(Entity.Entity entity) => entity.OnGetHit += handleHit;
-        public override void OnUnequip(Entity.Entity entity) => entity.OnGetHit -= handleHit;
+        public override void OnEquip(Entity.Entity entity) => entity.OnHitEntity += handleHit;
+        public override void OnUnequip(Entity.Entity entity) => entity.OnHitEntity -= handleHit;
 
         private void handleHit(DamageDetails details)
         {
-            if (Holder.Weapon != null && Holder.Weapon.AttackAmount % (10 - StarRating.Value) == 0)
-            {
-                int percent = 50 + (20 * Stack);
-                details.Damage += (int)MathBase.GetPercent(details.Damage, percent);
-                details.IsCrit = true;
-            }
+            if (details == null) return;
+            if (Holder?.Weapon == null || Holder?.Weapon.AttackAmount % (10 - StarRating.Value) != 0) return;
+
+            int percent = 50 + (20 * Stack);
+            details.Damage += (int)MathBase.GetPercent(details.Damage, percent);
+            details.IsCrit = true;
         }
 
         public OsuTablet()
