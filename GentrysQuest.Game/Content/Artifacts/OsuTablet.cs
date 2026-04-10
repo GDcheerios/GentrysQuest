@@ -17,8 +17,8 @@ namespace GentrysQuest.Game.Content.Artifacts
                                                                      + "guarantees you to hit a [type]critical attack[/type] with an additional "
                                                                      + "[unit]50%[/unit][details] + 20% per stack[/details] damage.";
 
-        public override void OnEquip(Entity.Entity entity) => entity.OnGetHit += handleHit;
-        public override void OnUnequip(Entity.Entity entity) => entity.OnGetHit -= handleHit;
+        public override void OnEquip(Entity.Entity entity) => entity.OnHitEntity += handleHit;
+        public override void OnUnequip(Entity.Entity entity) => entity.OnHitEntity -= handleHit;
 
         private void handleHit(DamageDetails details)
         {
