@@ -52,9 +52,13 @@ namespace GentrysQuest.Game.Entity
 
         public bool CheckCollision(HitBox hitBox)
         {
-            if (Enabled && !hitBox.Equals(this)) return collisionQuad.Intersects(hitBox.collisionQuad) && Affiliation != hitBox.Affiliation;
+            if (!Enabled || hitBox == null || ReferenceEquals(hitBox, this) || !hitBox.Enabled)
+                return false;
 
-            return false;
+            if (IsDisposed || hitBox.IsDisposed || Parent == null || hitBox.Parent == null)
+                return false;
+
+            return collisionQuad.Intersects(hitBox.collisionQuad) && Affiliation != hitBox.Affiliation;
         }
     }
 }
