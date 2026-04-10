@@ -5,8 +5,8 @@
     <AssemblyName>GentrysQuest</AssemblyName>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>2026.404.3</Version>
-    <FileVersion>2026.404.3</FileVersion>
+    <Version>2026.405.0</Version>
+    <FileVersion>2026.405.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\GentrysQuest.Game\GentrysQuest.Game.csproj" />
