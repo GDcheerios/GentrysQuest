@@ -167,6 +167,10 @@ namespace GentrysQuest.Game.Entity.Weapon
             int additionalDamage = level;
             additionalDamage += (int)(1.05 * Difficulty * level);
             additionalDamage += level * (StarRating.Value + 2);
+
+            Buff.Level = 1 + (level / 5);
+            Buff.UpdateStats();
+
             Damage.SetAdditional(additionalDamage);
         }
 
