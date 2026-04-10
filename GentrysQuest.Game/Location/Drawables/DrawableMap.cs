@@ -25,7 +25,7 @@ namespace GentrysQuest.Game.Location.Drawables
         public void RemoveNpc(DrawableEntity entity)
         {
             Npcs.Remove(entity);
-            RemoveInternal(entity, true);
+            entity?.Expire();
         }
 
         public void Move(Vector2 vector)
@@ -39,6 +39,8 @@ namespace GentrysQuest.Game.Location.Drawables
             Reference = map;
             Reference.SetDrawable(this);
             Objects = new();
+            map.Objects.Clear();
+            map.Npcs.Clear();
 
             map.Load();
 
@@ -74,14 +76,19 @@ namespace GentrysQuest.Game.Location.Drawables
             foreach (MapObject mapObject in Objects)
             {
                 HitBoxScene.Remove(mapObject.Collider);
-                RemoveInternal(mapObject, true);
+                mapObject.Expire();
             }
 
             foreach (DrawableEntity entity in Npcs)
             {
                 HitBoxScene.Remove(entity.HitBox);
-                RemoveInternal(entity, true);
+                entity.Expire();
             }
+
+            Objects.Clear();
+            Npcs.Clear();
+            Reference?.Objects.Clear();
+            Reference?.Npcs.Clear();
         }
     }
 }

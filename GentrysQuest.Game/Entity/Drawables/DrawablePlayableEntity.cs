@@ -48,8 +48,8 @@ public partial class DrawablePlayableEntity : DrawableEntity
 
     public void RemoveClickContainer()
     {
+        if (clickContainer == null) return;
         RemoveInternal(clickContainer, true);
-        clickContainer.Dispose();
         clickContainer = null;
     }
 

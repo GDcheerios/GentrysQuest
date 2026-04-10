@@ -51,7 +51,7 @@ namespace GentrysQuest.Game.Location
 
         public void RemovePlayer(DrawablePlayableEntity player)
         {
-            if (player != null) RemoveInternal(player, true);
+            player?.Expire();
             this.player = null;
         }
 
@@ -66,7 +66,7 @@ namespace GentrysQuest.Game.Location
         public void RemoveEnemy(DrawableEnemyEntity enemyEntity)
         {
             enemies.Remove(enemyEntity);
-            RemoveInternal(enemyEntity, true);
+            enemyEntity?.Expire();
         }
 
         public List<Enemy> SpawnEnemies()
@@ -172,7 +172,7 @@ namespace GentrysQuest.Game.Location
                     AddInternal(projectile);
                     Scheduler.AddDelayed(() =>
                     {
-                        Remove(projectile, false);
+                        projectile.Expire();
                         HitBoxScene.Remove(projectile.HitBox);
                         removeProjectile(projectile);
                     }, projectile.Lifetime);
@@ -191,7 +191,7 @@ namespace GentrysQuest.Game.Location
                     enemy.QueuedProjectiles.Remove(projectile);
                     Scheduler.AddDelayed(() =>
                     {
-                        RemoveInternal(projectile, false);
+                        projectile.Expire();
                         HitBoxScene.Remove(projectile.HitBox);
                         removeProjectile(projectile);
                     }, projectile.Lifetime);
