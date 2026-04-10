@@ -17,7 +17,7 @@ namespace GentrysQuest.Game.Entity
         public virtual int? ContentID { get; set; } = null;
 
         public virtual string Name { get; set; } = "Entity";
-        public virtual StarRating StarRating { get; protected set; } = new StarRating(1);
+        public virtual StarRating StarRating { get; protected set; } = new(1);
         public virtual string Description { get; protected set; } = "This is a description";
         public Experience Experience { get; protected set; } = new();
 
