@@ -8,6 +8,7 @@ using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Primitives;
 using osuTK;
 
 namespace GentrysQuest.Game.Location
@@ -33,6 +34,7 @@ namespace GentrysQuest.Game.Location
             {
                 e.Position += -direction * value;
                 e.FocusedPosition += -direction * value;
+                e.OffsetAiPositions(-direction * value);
             });
             projectiles.ForEach(p => p.Position += -direction * value);
         }
@@ -88,15 +90,7 @@ namespace GentrysQuest.Game.Location
                     float distance = MathBase.RandomFloat(MIN_SPAWN_RADIUS, MAX_SPAWN_RADIUS);
                     spawnPosition = player.Position + (MathBase.GetAngleToVector(angle) * distance);
 
-                    CollisonHitBox spawnProbe = new CollisonHitBox(new MapObject
-                    {
-                        Position = spawnPosition,
-                        Size = new Vector2(ENEMY_COLLIDER_SIZE),
-                        Affiliation = AffiliationType.Enemy
-                    });
-
-                    validPosition = !HitBoxScene.Collides(spawnProbe);
-                    HitBoxScene.Remove(spawnProbe);
+                    validPosition = canSpawnEnemyAt(spawnPosition);
 
                     if (validPosition) break;
                 }
@@ -110,6 +104,36 @@ namespace GentrysQuest.Game.Location
             }
 
             return spawnedEnemies;
+        }
+
+        private bool canSpawnEnemyAt(Vector2 position)
+        {
+            if (!isInsideMapBounds(position))
+                return false;
+
+            float halfSize = ENEMY_COLLIDER_SIZE * 0.5f;
+            Vector2 topLeft = ToScreenSpace(position - new Vector2(halfSize));
+            Vector2 bottomRight = ToScreenSpace(position + new Vector2(halfSize));
+
+            RectangleF spawnBounds = new RectangleF(
+                topLeft.X,
+                topLeft.Y,
+                bottomRight.X - topLeft.X,
+                bottomRight.Y - topLeft.Y
+            );
+
+            return !HitBoxScene.Collides(spawnBounds, AffiliationType.Enemy);
+        }
+
+        private bool isInsideMapBounds(Vector2 scenePosition)
+        {
+            float halfSize = ENEMY_COLLIDER_SIZE * 0.5f;
+            Vector2 mapPosition = scenePosition - map.Position;
+
+            return mapPosition.X >= halfSize
+                   && mapPosition.Y >= halfSize
+                   && mapPosition.X <= map.DrawWidth - halfSize
+                   && mapPosition.Y <= map.DrawHeight - halfSize;
         }
 
         private void removeNpc(DrawableEntity npc) => map.RemoveNpc(npc);

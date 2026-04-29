@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.AI;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
@@ -11,6 +12,7 @@ namespace GentrysQuest.Game.Content.Enemies
         {
             Name = "Lost Spirit";
             Description = "A lost spirit";
+            AiProfile = AiProfile.Defensive();
 
             DrawableTexture = new DrawableTexture
             {

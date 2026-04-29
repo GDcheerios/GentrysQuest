@@ -79,7 +79,8 @@ public class Enemy : Entity
         {
             Difficulty = this.Difficulty,
             WeaponChoices = this.WeaponChoices,
-            ArtifactChoices = this.ArtifactChoices
+            ArtifactChoices = this.ArtifactChoices,
+            AiProfile = this.AiProfile
         };
 
         copy.Experience.Level.Current.Value = this.Experience.CurrentLevel();

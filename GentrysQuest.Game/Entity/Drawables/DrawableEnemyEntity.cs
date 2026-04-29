@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using GentrysQuest.Game.Content.Effects;
+using GentrysQuest.Game.Entity.AI;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -14,22 +14,22 @@ namespace GentrysQuest.Game.Entity.Drawables
         private DrawableEntity followEntity;
         public EnemyController EnemyController;
         private Box directionTrack;
+        private AiBrain brain;
+        private AiAttackController attackController;
         private Vector2 lastPosition;
-        private int stuckCounter = 0;
-        private const int stuckThreshold = 1; // Number of frames to consider as "stuck"
-        private const float stuckDistanceThreshold = 1f; // Minimum movement to consider as not stuck
-        private VisibilityBox surroundingVisibility;
+        private Vector2 smoothedDirection;
+        private double lastStuckCheckTime;
+        private double stuckRecoverUntil;
+        private const float STUCK_DISTANCE_THRESHOLD = 2f;
+        private const double STUCK_CHECK_INTERVAL = 500;
+        private const double STUCK_RECOVER_TIME = 450;
+        private const float TURN_EASE_PER_FRAME = 0.14f;
+        private const float STOP_EASE_PER_FRAME = 0.35f;
+        private const float STOP_DIRECTION_THRESHOLD = 0.12f;
         public AiState AiState = AiState.Idle;
 
-        /// <summary>
-        /// The last position check to determine if we should set a new destination.
-        /// </summary>
-        private double lastPositionCheckTime;
-
-        /// <summary>
-        /// Determines how long until the enemy will find a new position to move to while Idle.
-        /// </summary>
-        private const int NEW_POSITION_INTERVAL = 5000;
+        public AiCommand CurrentAiCommand => brain?.CurrentCommand;
+        public string CurrentAttackState => attackController?.DebugState ?? "None";
 
         public DrawableEnemyEntity(Entity entity)
             : base(entity, AffiliationType.Enemy)
@@ -44,9 +44,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         [BackgroundDependencyLoader]
         private void load()
         {
-            checkTime();
             ColliderBox.Size = new Vector2(0.1f);
-            AddInternal(surroundingVisibility = new VisibilityBox(this, true));
             AddInternal(EnemyController = new EnemyController(this));
             AddInternal(directionTrack = new Box
             {
@@ -61,88 +59,113 @@ namespace GentrysQuest.Game.Entity.Drawables
 #endif
                 Anchor = Anchor.Centre
             });
+
+            brain = GetBase().CreateAiBrain(this);
+            brain.SetTarget(followEntity);
+            attackController = new AiAttackController(this);
+            attackController.SetTarget(followEntity);
         }
 
-        public void FollowEntity(DrawableEntity drawableEntity) => followEntity = drawableEntity;
-
-        private Vector2 getDesirableDirection()
+        public void FollowEntity(DrawableEntity drawableEntity)
         {
-            float totalWeight = 0f;
-            Vector2 desirableDirection = Vector2.Zero;
+            followEntity = drawableEntity;
+            brain?.SetTarget(drawableEntity);
+            attackController?.SetTarget(drawableEntity);
+        }
 
-            // Weight factor to balance obstacle avoidance and player pursuit
-            const float avoidance_weight = 0.7f;
-            const float player_weight = 0.3f;
+        public void OffsetAiPositions(Vector2 offset) => brain?.OffsetPositions(offset);
 
-            Vector2 goToPosition = -MathBase.GetDirection(Position, FocusedPosition);
+        private Vector2 getSteeredDirection(Vector2 desiredDirection)
+        {
+            if (!isUsableDirection(desiredDirection))
+                return Vector2.Zero;
 
-            foreach (KeyValuePair<int, bool> angle in EnemyController.GetIntersectedAngles())
+            Dictionary<int, bool> angles = EnemyController.GetIntersectedAngles();
+            Vector2 bestDirection = Vector2.Zero;
+            float bestScore = float.MinValue;
+
+            foreach (KeyValuePair<int, bool> angle in angles)
             {
-                Vector2 directionVector = MathBase.GetAngleToVector((float)angle.Key).Normalized();
-                float dotProduct = Vector2.Dot(goToPosition, directionVector);
+                Vector2 directionVector = MathBase.GetAngleToVector(angle.Key).Normalized();
+                float score = Vector2.Dot(desiredDirection, directionVector);
 
-                // Adjust the weight based on whether this direction is obstructed
-                float weight = angle.Value ? avoidance_weight : -avoidance_weight;
+                if (angle.Value)
+                    score -= 3;
 
-                desirableDirection += weight * dotProduct * directionVector;
-                totalWeight += Math.Abs(dotProduct) * avoidance_weight;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestDirection = directionVector;
+                }
             }
 
-            // Add some influence of the direct player direction regardless of obstacles
-            desirableDirection += goToPosition * player_weight;
-            totalWeight += player_weight;
+            if (bestScore < -1)
+                return getUnstuckDirection();
 
-            if (totalWeight == 0)
-                return goToPosition;
+            return bestDirection.Normalized();
+        }
 
-            desirableDirection /= totalWeight;
+        private Vector2 getDesiredDirection(AiCommand command)
+        {
+            if (Clock.CurrentTime < stuckRecoverUntil)
+                return getUnstuckDirection();
 
-            Vector2 currentPosition = Position;
+            if (command.MovementPattern != null)
+                return command.MovementPattern.GetDirection(this, followEntity);
 
-            lastPosition = currentPosition;
+            if (command.Direction != null)
+                return command.Direction.Value;
 
-            return desirableDirection.Normalized();
+            if (command.Destination == null)
+                return Vector2.Zero;
+
+            if (MathBase.GetDistance(Position, command.Destination.Value) <= command.AcceptanceRadius)
+                return Vector2.Zero;
+
+            return safeDirection(Position, command.Destination.Value);
         }
 
         private Vector2 getUnstuckDirection()
         {
-            const float random_angle = 90;
-            return new Vector2((float)Math.Cos(random_angle), (float)Math.Sin(random_angle)).Normalized();
+            float angle = (float)(Clock.CurrentTime / 7 % 360);
+            return MathBase.GetAngleToVector(angle).Normalized();
         }
-
-        private bool canSeePlayer()
-        {
-            int x = 1;
-            const int visibility_distance = 20;
-            bool seenPlayer = false;
-            VisibilityBox[] boxes = new VisibilityBox[visibility_distance];
-
-            while (x < visibility_distance)
-            {
-                VisibilityBox box = new VisibilityBox(this)
-                {
-                    Position = MathBase.GetAngleToVector(MathBase.GetAngle(Position, Vector2.Zero)) * x
-                };
-                AddInternal(box);
-                x++;
-            }
-
-            foreach (VisibilityBox box in boxes) RemoveInternal(box, true);
-            return seenPlayer;
-        }
-
-        private Vector2 getDirectionToPlayer() => MathBase.GetDirection(Position, followEntity.Position);
-
-        private bool checkTime() => Clock.CurrentTime - lastPositionCheckTime > NEW_POSITION_INTERVAL;
-        private void updateTime() => lastPositionCheckTime = Clock.CurrentTime;
-        private void updatePosition() => FocusedPosition = new Vector2(MathBase.RandomFloat(-1000, 1000), MathBase.RandomFloat(-1000, 1000));
 
         public override void DoAttack(Vector2 position)
         {
             base.DoAttack(position);
-            // GetBase().AddEffect(new Stun((int)Weapon.GetBase().SkillRef.Cooldown));
-            GetBase().AddEffect(new Disarm(2000));
-            base.OnRelease();
+        }
+
+        private void updateStuckState(Vector2 movementDirection)
+        {
+            if (movementDirection == Vector2.Zero || Clock.CurrentTime - lastStuckCheckTime < STUCK_CHECK_INTERVAL)
+                return;
+
+            if (MathBase.GetDistance(Position, lastPosition) < STUCK_DISTANCE_THRESHOLD)
+            {
+                stuckRecoverUntil = Clock.CurrentTime + STUCK_RECOVER_TIME;
+                AiState = AiState.StuckRecovering;
+            }
+
+            lastPosition = Position;
+            lastStuckCheckTime = Clock.CurrentTime;
+        }
+
+        private Vector2 easeMovementDirection(Vector2 targetDirection)
+        {
+            float ease = targetDirection == Vector2.Zero ? STOP_EASE_PER_FRAME : TURN_EASE_PER_FRAME;
+            float frameScale = (float)(Clock.ElapsedFrameTime / (1000d / 60d));
+            float amount = 1 - MathF.Pow(1 - ease, frameScale);
+
+            smoothedDirection += (targetDirection - smoothedDirection) * amount;
+
+            if (targetDirection == Vector2.Zero && MathBase.GetMagnitude(smoothedDirection) < STOP_DIRECTION_THRESHOLD)
+            {
+                smoothedDirection = Vector2.Zero;
+                return Vector2.Zero;
+            }
+
+            return smoothedDirection;
         }
 
         protected override void Update()
@@ -150,61 +173,51 @@ namespace GentrysQuest.Game.Entity.Drawables
             base.Update();
             if (followEntity == null) return;
 
-            switch (AiState)
+            brain.UpdateBrain();
+            AiCommand command = brain.CurrentCommand;
+            AiState = command.State;
+
+            Vector2 lookAt = command.LookAt ?? command.Destination ?? followEntity.Position;
+            if (isUsableDirection(lookAt - Position))
+                DirectionLooking = (int)MathBase.GetAngle(Position, lookAt);
+
+            bool canReachTarget = GetBase().Weapon != null
+                                  && MathBase.GetDistance(Position, followEntity.Position) <= GetBase().Weapon!.Distance + GetBase().AiProfile.AttackRangePadding;
+            attackController.Update(command.ShouldAttack && canReachTarget, followEntity.Position, GetBase().AiProfile);
+
+            Vector2 desiredDirection = getDesiredDirection(command);
+            Vector2 targetDirection = Vector2.Zero;
+
+            if (GetBase().CanMove && desiredDirection != Vector2.Zero)
             {
-                case AiState.Pursuing:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) DoAttack(followEntity.Position);
-
-                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox))
-                    {
-                        FocusedPosition = Vector2.Zero;
-                        updateTime();
-                        break;
-                    }
-
-                    AiState = AiState.Wandering;
-
-                    break;
-
-                case AiState.Wandering:
-                    if (checkTime())
-                    {
-                        updateTime();
-                        updatePosition();
-                    }
-
-                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) AiState = AiState.Pursuing;
-
-                    break;
-
-                case AiState.Idle:
-                    if (surroundingVisibility.CheckCollision(followEntity.ColliderBox)) AiState = AiState.Pursuing;
-                    break;
-
-                case AiState.FollowGoal:
-                    if (Position == FocusedPosition) AiState = AiState.Wandering;
-                    break;
-
-                case AiState.HardPursue:
-                    if (GetBase().Weapon != null && MathBase.GetDistance(Position, followEntity.Position) < GetBase().Weapon!.Distance && GetBase().CanAttack) DoAttack(followEntity.Position);
-                    FocusedPosition = Vector2.Zero;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
+                targetDirection = getSteeredDirection(desiredDirection);
+                updateStuckState(targetDirection);
             }
 
-            DirectionLooking = (int)MathBase.GetAngle(Position, FocusedPosition);
+            Direction += easeMovementDirection(targetDirection);
 
-            if (GetBase().CanMove)
-            {
-                Direction += getDesirableDirection();
-                if (!float.IsFinite(Direction.X) && !float.IsFinite(Direction.Y)) return;
-            }
+            if (Direction != Vector2.Zero && !isUsableDirection(Direction))
+                return;
 
             float rotation = MathBase.GetAngle(Vector2.Zero, Direction) + 90;
             if (!float.IsNaN(rotation)) directionTrack.Rotation = rotation;
             Move(Direction != Vector2.Zero ? Direction.Normalized() : Vector2.Zero, GetSpeed());
+        }
+
+        private static Vector2 safeDirection(Vector2 from, Vector2 to)
+        {
+            Vector2 direction = to - from;
+
+            if (!isUsableDirection(direction))
+                return Vector2.Zero;
+
+            direction.Normalize();
+            return direction;
+        }
+
+        private static bool isUsableDirection(Vector2 direction)
+        {
+            return direction != Vector2.Zero && float.IsFinite(direction.X) && float.IsFinite(direction.Y);
         }
     }
 }

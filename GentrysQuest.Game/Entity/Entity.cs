@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GentrysQuest.Game.Entity.AI;
+using GentrysQuest.Game.Entity.Drawables;
 using GentrysQuest.Game.Utils;
 using JetBrains.Annotations;
 using osu.Framework.Graphics.Colour;
@@ -32,6 +34,7 @@ namespace GentrysQuest.Game.Entity
         // Equips
         [CanBeNull]
         public Weapon.Weapon Weapon;
+        public AiProfile AiProfile { get; set; } = AiProfile.Balanced();
 
         // Effects
         public List<StatusEffect> Effects = new();
@@ -304,6 +307,8 @@ namespace GentrysQuest.Game.Entity
         /// Defines how stats will update
         /// </summary>
         public virtual void UpdateStats() => OnUpdateStats?.Invoke();
+
+        public virtual AiBrain CreateAiBrain(DrawableEntity self) => new BasicCombatBrain(self);
 
         #endregion
 

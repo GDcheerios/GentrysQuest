@@ -1,4 +1,5 @@
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.AI;
 
 namespace GentrysQuest.Game.Content.Characters
 {
@@ -11,6 +12,7 @@ namespace GentrysQuest.Game.Content.Characters
 
             Stats.Speed.Point = 2;
             Stats.Tenacity.Point = 10;
+            AiProfile = AiProfile.Aggressive();
 
             TextureMapping = new();
             TextureMapping.Add("Idle", "enemies_gmoney_idle.png");

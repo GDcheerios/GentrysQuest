@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.AI;
 
 namespace GentrysQuest.Game.Content.Enemies
 {
@@ -17,6 +18,7 @@ namespace GentrysQuest.Game.Content.Enemies
 
             AudioMapping.Add("Spawn", "enemies_angry_chinese_man_spawn.m4a");
 
+            AiProfile = AiProfile.Aggressive();
             WeaponChoices.AddChoice(new Spear(), 100);
         }
     }

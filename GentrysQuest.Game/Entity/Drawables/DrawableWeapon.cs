@@ -133,7 +133,17 @@ namespace GentrysQuest.Game.Entity.Drawables
             }), delay + FADE_DELAY);
         }
 
-        private double getPatternSpeed(AttackKeyframe pattern) => pattern.TimeMs / Weapon.Holder.Stats.AttackSpeed.Current.Value;
+        private double getPatternSpeed(AttackKeyframe pattern)
+        {
+            double attackSpeed = Weapon?.Holder?.Stats.AttackSpeed.Current.Value ?? 1;
+
+            if (attackSpeed <= 0 || double.IsNaN(attackSpeed) || double.IsInfinity(attackSpeed))
+                attackSpeed = 1;
+
+            double duration = pattern.TimeMs / attackSpeed;
+
+            return duration < 0 || double.IsNaN(duration) || double.IsInfinity(duration) ? 0 : duration;
+        }
 
         /// <summary>
         /// Rests the weapon.

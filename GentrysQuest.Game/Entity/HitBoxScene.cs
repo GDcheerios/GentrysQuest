@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Graphics.Primitives;
 
 namespace GentrysQuest.Game.Entity
 {
@@ -43,5 +44,20 @@ namespace GentrysQuest.Game.Entity
             theHitBox != null
             && theHitBox.Parent != null
             && Snapshot().Where(hitBox => hitBox.GetType() == typeof(CollisonHitBox)).Any(theHitBox.CheckCollision);
+
+        public static bool Collides(RectangleF bounds, AffiliationType affiliation) =>
+            Snapshot()
+                .Where(hitBox => hitBox.GetType() == typeof(CollisonHitBox))
+                .Any(hitBox =>
+                    hitBox.Enabled
+                    && hitBox.Parent != null
+                    && hitBox.Affiliation != affiliation
+                    && intersects(bounds, hitBox.ScreenSpaceAabb));
+
+        private static bool intersects(RectangleF first, RectangleF second) =>
+            first.Left < second.Right
+            && first.Right > second.Left
+            && first.Top < second.Bottom
+            && first.Bottom > second.Top;
     }
 }

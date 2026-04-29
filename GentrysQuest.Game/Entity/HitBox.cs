@@ -27,6 +27,8 @@ namespace GentrysQuest.Game.Entity
             }
         }
 
+        public RectangleF ScreenSpaceAabb => ScreenSpaceDrawQuad.AABBFloat;
+
         public HitBox(dynamic parent)
         {
             this.parent = parent;

@@ -1,5 +1,6 @@
 using GentrysQuest.Game.Content.Weapons;
 using GentrysQuest.Game.Entity;
+using GentrysQuest.Game.Entity.AI;
 
 namespace GentrysQuest.Game.Content.Enemies
 {
@@ -13,6 +14,7 @@ namespace GentrysQuest.Game.Content.Enemies
             TextureMapping = new();
             TextureMapping.Add("Idle", "enemies_angry_pedestrian_idle.jpeg");
 
+            AiProfile = AiProfile.Aggressive();
             WeaponChoices.AddChoice(new Knife(), 100);
         }
     }
