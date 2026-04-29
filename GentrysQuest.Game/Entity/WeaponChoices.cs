@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GentrysQuest.Game.Utils;
 
@@ -5,8 +6,8 @@ namespace GentrysQuest.Game.Entity
 {
     public class WeaponChoices
     {
-        private List<Weapon.Weapon> weapons = new();
-        private List<int> chanceOfPicking = new();
+        private readonly List<Weapon.Weapon> weapons = new();
+        private readonly List<int> chanceOfPicking = new();
 
         public void AddChoice(Weapon.Weapon weapon, int chanceOfPicking = 50)
         {
@@ -20,8 +21,15 @@ namespace GentrysQuest.Game.Entity
             {
                 int i = MathBase.RandomChoice(weapons.Count);
                 if (MathBase.IsChanceSuccessful(chanceOfPicking[i], 100))
-                    return weapons[i];
+                    return createWeaponInstance(weapons[i]);
             }
+        }
+
+        private static Weapon.Weapon createWeaponInstance(Weapon.Weapon weapon)
+        {
+            if (weapon == null) return null;
+
+            return Activator.CreateInstance(weapon.GetType()) as Weapon.Weapon;
         }
     }
 }
