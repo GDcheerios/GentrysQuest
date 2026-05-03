@@ -21,18 +21,16 @@ namespace GentrysQuest.Game.Entity
         public bool IsPercent { get; private set; }
 
         public Bindable<double> Default { get; set; } = new();
-        public Bindable<double> Minimum { get; set; } = new();
         public Bindable<double> Current { get; set; } = new();
         public Bindable<double> Additional { get; set; } = new();
 
         private readonly Dictionary<string, Func<Stat, double, double>> totalModifiers = new();
         protected double LastTotal = 0;
 
-        public Stat(string name, StatType statType, double minimumValue)
+        public Stat(string name, StatType statType)
         {
             Name = name;
             StatType = statType;
-            Minimum.Value = minimumValue;
             Current.Value = Total();
 
             IsPercent = statType switch
@@ -61,7 +59,7 @@ namespace GentrysQuest.Game.Entity
 
         public virtual void SetDefaultValue(double value)
         {
-            Default.Value = ClampDefault(value);
+            Default.Value = value;
             Recalculate();
         }
 
@@ -96,8 +94,6 @@ namespace GentrysQuest.Game.Entity
         protected virtual double CalculateBaseTotal() => Default.Value + Additional.Value;
 
         protected virtual double TransformAdditional(double value) => value;
-
-        protected virtual double ClampDefault(double value) => value < Minimum.Value ? Minimum.Value : value;
 
         protected virtual double ClampCurrent(double value, double maxValue)
         {

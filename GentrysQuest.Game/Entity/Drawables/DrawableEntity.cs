@@ -266,7 +266,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         /// Manages the speed of the entity
         /// </summary>
         /// <returns></returns>
-        public double GetSpeed() => (SPEED_MAIN * Entity.Stats.Speed.Current.Value * Entity.SpeedModifier) + Entity.PositionJump;
+        public double GetSpeed() => SPEED_MAIN * Entity.Stats.Speed.GetCurrent() * Entity.SpeedModifier + Entity.PositionJump;
 
         public void AddParticle(Particle particle) => Particles.Add(particle);
 

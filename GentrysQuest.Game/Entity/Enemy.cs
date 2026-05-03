@@ -27,22 +27,15 @@ public class Enemy : Entity
         damage += (int)(10 * Difficulty * level);
         Stats.Attack.SetDefaultValue(damage);
 
-        Stats.Defense.SetDefaultValue(
-            CalculatePointBenefit(Difficulty * 30, Stats.Defense.Point, 18) +
-            CalculatePointBenefit(level * 1, Stats.Defense.Point, 2)
-        );
+        Stats.Defense.SetDefaultValue(100);
 
         Stats.CritRate.SetDefaultValue(20);
 
         Stats.CritDamage.SetDefaultValue(Difficulty * 20);
 
-        Stats.Speed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.Speed.Point, 0.2)
-        );
+        Stats.Speed.SetDefaultValue(0.75f);
 
-        Stats.AttackSpeed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
-        );
+        Stats.AttackSpeed.SetDefaultValue(1);
 
         RemoveStatModifierSourcesByPrefix("equipment:");
 

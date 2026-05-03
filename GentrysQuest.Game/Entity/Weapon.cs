@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Entity.Weapon
         /// A stat representing the damage.
         /// Makes more sense to have set in constructor
         /// </summary>
-        public Stat Damage = new("Damage", StatType.Attack, 0); // Base damage
+        public Stat Damage = new("Damage", StatType.Attack); // Base damage
 
         #endregion
 

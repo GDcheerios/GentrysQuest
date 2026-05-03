@@ -31,9 +31,7 @@ namespace GentrysQuest.Game.Content.Enemies
         {
             base.UpdateStats();
             Stats.Health.SetDefaultValue(100);
-            Stats.Health.Minimum.Value = 100;
             Stats.Speed.SetDefaultValue(0.25);
-            Stats.Speed.Minimum.Value = 0.25;
         }
     }
 }
