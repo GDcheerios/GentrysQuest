@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
         private Bindable<IUser> user { get; set; }
 
         private readonly string eventName;
-        public const int EVENT_ID = 4;
+        public const int EVENT_ID = 5;
 
         public EventOverlay()
         {
