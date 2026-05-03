@@ -1,7 +1,6 @@
+using System;
 using GentrysQuest.Game.Content.Skills;
 using GentrysQuest.Game.Entity;
-using osu.Framework.Bindables;
-using System;
 
 namespace GentrysQuest.Game.Content.Characters
 {
@@ -20,13 +19,12 @@ namespace GentrysQuest.Game.Content.Characters
 
             Secondary = new CursedSpeech();
 
-            Stats.Health.Minimum = new Bindable<double>(5);
-            Stats.Health.SetDefaultValue(1);
+            Stats.Health.SetDefaultValue(32432);
 
             Stats.Attack.Point = 4;
-            Stats.Attack.Minimum = new Bindable<double>(50);
+            Stats.Attack.SetDefaultValue(50);
 
-            Stats.Defense = new AirxyDefense("Defense", StatType.Defense, 0);
+            Stats.Defense = new AirxyDefense("Defense", StatType.Defense);
 
             OnGetHit += details =>
             {
@@ -49,13 +47,13 @@ namespace GentrysQuest.Game.Content.Characters
 
             RebuildStatAdditionalValues();
 
-            Stats.Health.SetDefaultValue(5 * Difficulty);
+            Stats.Health.SetDefaultValue(5 + (5 * Difficulty));
             Stats.Health.Current.Value = Math.Clamp(Stats.Health.Total() - missingHealth, 0, Stats.Health.Total());
         }
     }
 
-    public class AirxyDefense(string name, StatType statType, double minimumValue)
-        : Stat(name, statType, minimumValue)
+    public class AirxyDefense(string name, StatType statType)
+        : Stat(name, statType)
     {
         public override double GetDefault() => 0;
         public override double GetAdditional() => 0;
