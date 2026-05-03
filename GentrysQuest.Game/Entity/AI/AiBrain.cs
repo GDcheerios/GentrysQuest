@@ -40,7 +40,7 @@ namespace GentrysQuest.Game.Entity.AI
         protected Vector2 DirectionToTarget => HasTarget ? safeDirection(Self.Position, Target.Position) : Vector2.Zero;
         protected Vector2 DirectionFromTarget => -DirectionToTarget;
 
-        protected int WeaponRange => EntityBase?.Weapon?.Distance ?? 175;
+        protected int WeaponRange => EntityBase?.Weapon?.Distance ?? 75;
 
         protected bool TargetInWeaponRange(float padding = 0) => HasTarget && DistanceToTarget <= WeaponRange + padding;
 

@@ -55,6 +55,7 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
                 gameMenuOverlay.Disappear();
                 user.Value = new GuestUser();
                 user.Value.AddItem(player);
+                player.Invincible = true;
                 user.Value.AddItem(new Sword());
                 user.Value.AddItem(new Spear());
                 user.Value.AddItem(new Hammer());

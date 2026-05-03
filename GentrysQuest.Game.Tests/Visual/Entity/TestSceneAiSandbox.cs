@@ -136,7 +136,7 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             var entity = new GameEntity { Name = "Target" };
             entity.SetWeapon(new Sword());
             entity.Stats.Health.SetAdditional(999999);
-            entity.Stats.Speed.SetDefaultValue(7);
+            entity.Stats.Speed.SetDefaultValue(300);
             entity.Stats.AttackSpeed.SetDefaultValue(1);
             entity.DamageModifier = 0;
 
@@ -156,10 +156,9 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
                 HitBoxScene.Remove(agent.ColliderBox);
             }
 
-            var entity = new GameEntity { Name = "AI Agent", AiProfile = profile };
+            var entity = new Enemy { Name = "AI Agent", AiProfile = profile };
             entity.SetWeapon(weaponFactory());
             entity.Stats.Health.SetAdditional(999999);
-            entity.Stats.Speed.SetDefaultValue(2.2);
             entity.Stats.AttackSpeed.SetDefaultValue(1);
 
             agent = new DrawableEnemyEntity(entity)
@@ -302,7 +301,8 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             debugLines[0].Text = $"Profile: {profile.Temperament} / {profile.RangeStyle} / weapon {weapon?.Name ?? "None"} ({weapon?.Distance ?? 0}) / obstacles {obstaclePreset}";
             debugLines[1].Text = $"State: {agent.AiState} / attack {agent.CurrentAttackState} / wants attack {command?.ShouldAttack ?? false}";
             debugLines[2].Text = $"Movement: {command?.MovementMode.ToString() ?? "None"} / has movement {command?.HasMovement ?? false} / distance {distance:0.0}";
-            debugLines[3].Text = $"Agent: {agent.Position.X:0},{agent.Position.Y:0} / Target: {target.Position.X:0},{target.Position.Y:0} / health {agent.GetBase().Stats.Health.Current.Value:0}/{agent.GetBase().Stats.Health.Total():0}";
+            debugLines[3].Text =
+                $"Agent: {agent.Position.X:0},{agent.Position.Y:0} / Target: {target.Position.X:0},{target.Position.Y:0} / health {agent.GetBase().Stats.Health.Current.Value:0}/{agent.GetBase().Stats.Health.Total():0}";
             debugLines[4].Text = $"Ranges: vision {profile.VisionRange:0} / preferred {profile.PreferredDistance:0} / tolerance {profile.RangeTolerance:0} / padding {profile.AttackRangePadding:0}";
         }
 

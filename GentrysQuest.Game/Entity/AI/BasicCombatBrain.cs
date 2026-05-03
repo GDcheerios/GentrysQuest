@@ -141,14 +141,6 @@ namespace GentrysQuest.Game.Entity.AI
             return WeaponRange >= 450 ? AiRangeStyle.LongRange : AiRangeStyle.ShortRange;
         }
 
-        private float preferredDistance()
-        {
-            if (Profile.PreferredDistance > 0)
-                return Profile.PreferredDistance;
-
-            return effectiveRangeStyle() == AiRangeStyle.LongRange
-                ? Math.Max(WeaponRange * 0.7f, 350)
-                : Math.Max(WeaponRange * 0.55f, 90);
-        }
+        private float preferredDistance() => Profile.PreferredDistance;
     }
 }

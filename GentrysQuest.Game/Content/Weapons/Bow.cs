@@ -11,7 +11,7 @@ namespace GentrysQuest.Game.Content.Weapons
     public class Bow : Weapon
     {
         public override string Type => "Bow";
-        public override int Distance => 1000;
+        public override int Distance => 300;
         public override string Name { get; set; } = "Bow";
         public override string Description { get; protected set; } = "Just a bow.";
         public override bool IsGeneralDamageMode => false;
