@@ -12,8 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
-    <PackageReference Include="ppy.osu.Framework" Version="2025.1118.1" />
-    <PackageReference Include="ppy.osu.Framework.iOS" Version="2025.1021.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2026.428.0" />
+    <PackageReference Include="ppy.osu.Framework.iOS" Version="2026.428.0" />
     <PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
   </ItemGroup>
   <ItemGroup>
