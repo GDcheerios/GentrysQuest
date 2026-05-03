@@ -50,7 +50,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
 
             #region EventDetails
 
-            eventName = "April Gameplay Test";
+            eventName = "May Gameplay Test";
 
             #endregion
         }
