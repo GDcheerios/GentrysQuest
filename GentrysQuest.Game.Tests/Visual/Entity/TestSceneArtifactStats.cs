@@ -39,7 +39,6 @@ namespace GentrysQuest.Game.Tests.Visual.Entity
             statContainer.AddStat(new StatDrawable(getBuff(StatType.AttackSpeed)));
             statContainer.AddStat(new StatDrawable(getBuff(StatType.RegenSpeed)));
             statContainer.AddStat(new StatDrawable(getBuff(StatType.RegenStrength)));
-            statContainer.AddStat(new StatDrawable(getBuff(StatType.Tenacity)));
         }
 
         private void resetDisplay()

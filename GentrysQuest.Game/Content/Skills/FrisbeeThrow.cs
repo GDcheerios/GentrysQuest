@@ -1,6 +1,5 @@
 using GentrysQuest.Game.Content.Effects;
 using GentrysQuest.Game.Entity;
-using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Utils;
 
 namespace GentrysQuest.Game.Content.Skills

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GentrysQuest.Game.Entity.Weapon;
 using GentrysQuest.Game.Utils;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;

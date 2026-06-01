@@ -68,7 +68,6 @@ namespace GentrysQuest.Game.Entity.Drawables
                 StatType.AttackSpeed => FontAwesome.Solid.Wind,
                 StatType.RegenSpeed => FontAwesome.Solid.Recycle,
                 StatType.RegenStrength => FontAwesome.Solid.Vial,
-                StatType.Tenacity => FontAwesome.Solid.LayerGroup,
                 _ => icon.Icon
             };
         }

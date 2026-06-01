@@ -10,7 +10,6 @@
         Speed = 6,
         AttackSpeed = 7,
         RegenSpeed = 8,
-        RegenStrength = 9,
-        Tenacity = 10
+        RegenStrength = 9
     }
 }
