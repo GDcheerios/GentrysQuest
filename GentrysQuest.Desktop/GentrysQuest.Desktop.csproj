@@ -15,6 +15,6 @@
     <EmbeddedResource Include="game.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Velopack" Version="0.0.1298" />
+    <PackageReference Include="Velopack" Version="1.1.1" />
   </ItemGroup>
 </Project>
