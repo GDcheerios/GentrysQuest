@@ -36,9 +36,9 @@ namespace GentrysQuest.Game.Tests.Visual.Screens
 
         public TestSceneGameplay()
         {
-            // player = new TestCharacter(1);
-            player = new Airxy();
-            testWeapon = new Bow();
+            player = new TestCharacter(1);
+            // player = new Airxy();
+            testWeapon = new Sword();
             player.SetWeapon(testWeapon);
             Add(screens = new ScreenStack());
             Add(gameMenuOverlay = new GameMenuOverlay());
