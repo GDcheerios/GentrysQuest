@@ -104,9 +104,20 @@ namespace GentrysQuest.Game.Overlays.GameMenu
                 #region InventorySetup
 
                 BraydenMesserschmidt character = new BraydenMesserschmidt();
+                character.Experience.Xp.Requirement.Value = 25;
                 user.Value.Characters.Add(character);
                 user.Value.EquippedCharacter = character;
                 character.SetWeapon(new BraydensOsuPen());
+
+                character.OnLevelUp += () =>
+                {
+                    int level = character.Experience.CurrentLevel();
+                    int difficulty = character.Experience.CurrentLevel() / 20;
+                    int xpReq = 25;
+                    xpReq += level * 25;
+                    xpReq += difficulty * xpReq;
+                    character.Experience.Xp.Requirement.Value = xpReq;
+                };
 
                 #endregion
 
