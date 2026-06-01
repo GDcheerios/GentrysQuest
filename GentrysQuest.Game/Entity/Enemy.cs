@@ -17,7 +17,7 @@ public class Enemy : Entity
             level * 100 * (Stats.Health.Point + 1)
         );
 
-        int damage = 10 + level + 2 + 5 * Stats.Attack.Point;
+        int damage = 35 + level + 2 + 5 * Stats.Attack.Point;
         damage += (int)(10 * Difficulty * level);
         Stats.Attack.SetDefaultValue(damage);
 
@@ -30,13 +30,9 @@ public class Enemy : Entity
 
         // Stats.CritDamage.SetDefaultValue(Difficulty * 20);
 
-        Stats.Speed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.Speed.Point, 0.2)
-        );
+        Stats.Speed.SetDefaultValue(0.8f + CalculatePointBenefit(0, Stats.Speed.Point, 0.2));
 
-        Stats.AttackSpeed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
-        );
+        Stats.AttackSpeed.SetDefaultValue(0.35f + CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3));
 
         RebuildStatAdditionalValues();
 

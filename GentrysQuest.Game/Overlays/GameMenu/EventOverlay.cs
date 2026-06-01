@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
         private Bindable<IUser> user { get; set; }
 
         private readonly string eventName;
-        public const int EVENT_ID = 5;
+        public const int EVENT_ID = 6;
 
         public EventOverlay()
         {
@@ -50,7 +50,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
 
             #region EventDetails
 
-            eventName = "May Gameplay Test";
+            eventName = "June Gameplay Test";
 
             #endregion
         }
@@ -103,17 +103,26 @@ namespace GentrysQuest.Game.Overlays.GameMenu
 
                 #region InventorySetup
 
-                TestCharacter character = new TestCharacter(1);
+                BraydenMesserschmidt character = new BraydenMesserschmidt();
+                character.Experience.Xp.Requirement.Value = 25;
                 user.Value.Characters.Add(character);
                 user.Value.EquippedCharacter = character;
-                user.Value.AddItem(new Bow());
-                user.Value.AddItem(new Hammer());
-                user.Value.AddItem(new Spear());
-                character.SetWeapon(new Sword());
+                character.SetWeapon(new BraydensOsuPen());
+
+                character.OnLevelUp += () =>
+                {
+                    int level = character.Experience.CurrentLevel();
+                    int difficulty = character.Experience.CurrentLevel() / 20;
+                    int xpReq = 25;
+                    xpReq += level * 25;
+                    xpReq += difficulty * 100;
+                    character.Experience.Xp.Requirement.Value = xpReq;
+                };
 
                 #endregion
 
                 eventScreen = new EventGameplayScreen(EVENT_ID);
+                eventScreen.ScoreMultiplier = 0.30f;
                 eventScreen.ScoreSubmitted += UpdateEvent;
                 eventScreen.GameplayEnded += onGameplayEnded;
 

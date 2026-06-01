@@ -54,7 +54,7 @@ namespace GentrysQuest.Game.Audio
 
             AddInternal(gameMusic);
             gameMusic.Volume.Value = musicVolume.Value;
-            gameMusic.Start();
+            // gameMusic.Start();
             oldMusic?.Expire();
         }
 
@@ -89,7 +89,7 @@ namespace GentrysQuest.Game.Audio
         public void PlaySound(DrawableSample sample)
         {
             sample.Volume.Value = soundVolume.Value;
-            sample.Play();
+            // sample.Play();
         }
     }
 }

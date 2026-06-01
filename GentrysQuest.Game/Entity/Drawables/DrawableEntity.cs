@@ -158,7 +158,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             lastRegenTime = Clock.CurrentTime;
             Entity.Heal((int)Entity.Stats.RegenStrength.Current.Value);
-            Entity.DisplayHealthEvent(Entity.Stats.RegenStrength.Current.Value.ToString(), ColourInfo.SingleColour(Colour4.Green));
+            Entity.DisplayHealthEvent(((int)Entity.Stats.RegenStrength.Current.Value).ToString(), ColourInfo.SingleColour(Colour4.Green));
         }
 
         public void ApplyKnockback(Vector2 direction, float force, int duration, KnockbackType type)
@@ -311,12 +311,6 @@ namespace GentrysQuest.Game.Entity.Drawables
 
             // Reset the teleport
             if (Entity.PositionJump > 0) Entity.PositionJump--;
-
-            if (new ElapsedTime(Clock.CurrentTime, GetBase().LastTenacityTime) > new Second(0.5))
-            {
-                Entity.AddTenacity();
-                GetBase().LastTenacityTime = Clock.CurrentTime;
-            }
 
             // Regen should always be at the bottom
             // Skip if entity is dead or full health

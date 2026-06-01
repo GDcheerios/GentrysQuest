@@ -19,10 +19,8 @@ namespace GentrysQuest.Game.Entity
         public bool Invincible = false;
         public bool CanDie = true;
         public bool CanKnockback = true;
-        public int CurrentTenacity;
         public Vector2 PositionRef;
         public double LastDamageTime;
-        public double LastTenacityTime;
 
         // Stats
         public Stats Stats = new();
@@ -52,7 +50,6 @@ namespace GentrysQuest.Game.Entity
 
         public Entity()
         {
-            CurrentTenacity = (int)Stats.Tenacity.Total();
             Stats.Health.Current.ValueChanged += delegate { OnHealthEvent?.Invoke(); };
             CalculateXpRequirement();
         }
@@ -198,18 +195,6 @@ namespace GentrysQuest.Game.Entity
 
             return null;
         }
-
-        public void AddTenacity()
-        {
-            if (CurrentTenacity < Stats.Tenacity.GetCurrent()) CurrentTenacity++;
-        }
-
-        public void RemoveTenacity()
-        {
-            if (CurrentTenacity > 0) CurrentTenacity--;
-        }
-
-        public bool HasTenacity() => CurrentTenacity > 0;
 
         public void AddEffect(StatusEffect statusEffect, Entity effectedBy = null)
         {

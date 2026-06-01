@@ -1,6 +1,6 @@
 using GentrysQuest.Game.Utils;
 
-namespace GentrysQuest.Game.Entity.Weapon
+namespace GentrysQuest.Game.Entity
 {
     /// <summary>
     /// The effect that may apply on hit
