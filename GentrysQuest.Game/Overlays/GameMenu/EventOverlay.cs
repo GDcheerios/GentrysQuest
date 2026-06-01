@@ -50,7 +50,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
 
             #region EventDetails
 
-            eventName = "May Gameplay Test";
+            eventName = "June Gameplay Test";
 
             #endregion
         }
@@ -103,13 +103,10 @@ namespace GentrysQuest.Game.Overlays.GameMenu
 
                 #region InventorySetup
 
-                TestCharacter character = new TestCharacter(1);
+                BraydenMesserschmidt character = new BraydenMesserschmidt();
                 user.Value.Characters.Add(character);
                 user.Value.EquippedCharacter = character;
-                user.Value.AddItem(new Bow());
-                user.Value.AddItem(new Hammer());
-                user.Value.AddItem(new Spear());
-                character.SetWeapon(new Sword());
+                character.SetWeapon(new BraydensOsuPen());
 
                 #endregion
 
