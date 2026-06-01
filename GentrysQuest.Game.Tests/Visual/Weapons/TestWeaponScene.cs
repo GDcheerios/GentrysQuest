@@ -24,7 +24,6 @@ namespace GentrysQuest.Game.Tests.Visual.Weapons
             enemy = new DrawableEnemyEntity(new Game.Entity.Entity()) { Position = new Vector2(500, 0) };
             enemy.GetBase().DamageModifier = 0;
             enemy.GetBase().Stats.Health.SetAdditional(999999);
-            enemy.GetBase().Stats.Tenacity.SetAdditional(999999);
             entity = new DrawableEntity(new Game.Entity.Entity());
             entity.GetBase().SetWeapon(weapon);
             Add(new Box

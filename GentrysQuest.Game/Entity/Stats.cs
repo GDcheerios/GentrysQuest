@@ -13,7 +13,6 @@
         public Stat AttackSpeed = new("AttackSpeed", StatType.AttackSpeed, 1);
         public Stat RegenSpeed = new("RegenSpeed", StatType.RegenSpeed, 0);
         public Stat RegenStrength = new IntStat("RegenStrength", StatType.RegenStrength, 1);
-        public Stat Tenacity = new IntStat("Tenacity", StatType.Tenacity, 3);
         private readonly Stat[] statGrouping;
 
         public Stats()
@@ -28,8 +27,7 @@
                 Speed,
                 AttackSpeed,
                 RegenSpeed,
-                RegenStrength,
-                Tenacity
+                RegenStrength
             ];
         }
 

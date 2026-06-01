@@ -33,7 +33,6 @@ namespace GentrysQuest.Game.Entity
             Name = name;
             StatType = statType;
             Minimum.Value = minimumValue;
-            Current.Value = Total();
 
             IsPercent = statType switch
             {

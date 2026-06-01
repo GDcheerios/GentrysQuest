@@ -135,13 +135,6 @@ namespace GentrysQuest.Game.Entity
                     level = 1;
                     IsPercent = false;
                     break;
-
-                case StatType.Tenacity:
-                    value = 0;
-                    starRating = 1;
-                    level = 1;
-                    IsPercent = false;
-                    break;
             }
 
             if (!IsPercent) percentDiffer = 1;

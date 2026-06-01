@@ -30,13 +30,10 @@ public class Enemy : Entity
 
         // Stats.CritDamage.SetDefaultValue(Difficulty * 20);
 
-        Stats.Speed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.Speed.Point, 0.2)
-        );
-
-        Stats.AttackSpeed.SetDefaultValue(
-            CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
-        );
+        Stats.Speed.SetDefaultValue(0.25f);
+        // Stats.Speed.SetDefaultValue(0.5f + CalculatePointBenefit(0, Stats.Speed.Point, 0.2));
+        //
+        // Stats.AttackSpeed.SetDefaultValue(0.5f + CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3));
 
         RebuildStatAdditionalValues();
 
