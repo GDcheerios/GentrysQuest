@@ -15,7 +15,7 @@ namespace GentrysQuest.Game.Content.Weapons
         public override string Name { get; set; } = "Brayden's Osu Pen";
 
         public override string Description { get; protected set; } = "The man himself, Brayden's osu pen!\n"
-                                                                     + "On a spinning attack you have a [unit]20%[/unit] chance to [type]bleed[/type] enemies for [unit]6 seconds[/unit]. ";
+                                                                     + "[unit]20%[/unit] chance to [type]bleed[/type] enemies for [unit]6 seconds[/unit]. ";
 
         public override StarRating StarRating { get; protected set; } = new(5);
 
@@ -23,22 +23,15 @@ namespace GentrysQuest.Game.Content.Weapons
 
         private readonly AttackAnimationRegistry attackRegistry = new AttackAnimationRegistry();
 
-        private bool didSpin;
-
-        /// <summary>
-        /// How long until this weapon considers the attack as spin attack
-        /// </summary>
-        private const double spin_time = 250;
-
         public override AttackKeyframe RestingEvent { get; protected set; } = new AttackKeyframe(50)
         {
             Direction = -105
         };
 
         private string nextAnimation = "first";
-        private AttackKeyframe lastFromFirst;
-        private AttackKeyframe lastFromSecond;
-        private AttackKeyframe lastFromSpin;
+        private readonly AttackKeyframe lastFromFirst;
+        private readonly AttackKeyframe lastFromSecond;
+        private const Easing transition = Easing.InOutCirc;
 
         public BraydensOsuPen()
         {
@@ -69,8 +62,9 @@ namespace GentrysQuest.Game.Content.Weapons
             {
                 Direction = 90,
                 Distance = distance,
-                Transition = Easing.OutCirc,
                 HitboxSize = hbSize,
+                Transition = transition,
+                OnHitEffects = [lastComboEffect],
                 Event = () =>
                 {
                     nextAnimation = "second";
@@ -86,30 +80,17 @@ namespace GentrysQuest.Game.Content.Weapons
 
             lastFromSecond = new AttackKeyframe(time)
             {
-                Direction = -90, Distance = distance, Transition = Easing.OutCirc, HitboxSize = hbSize, Event = () =>
+                Direction = -90, Distance = distance,
+                HitboxSize = hbSize,
+                Transition = transition,
+                OnHitEffects = [lastComboEffect],
+                Event = () =>
                 {
                     nextAnimation = "first";
                     RestingEvent = lastFromSecond;
                 }
             };
             attackRegistry.AddKeyframe(lastFromSecond);
-
-            attackRegistry.RegisterAnimation("spin");
-            attackRegistry.AddKeyframe(new AttackKeyframe { Direction = -90, Distance = distance, HitboxSize = hbSize });
-            attackRegistry.AddKeyframe(new AttackKeyframe(1000)
-            {
-                Direction = 360,
-                Distance = distance,
-                HitboxSize = hbSize,
-                Transition = Easing.OutQuart,
-                OnHitEffects = [lastComboEffect],
-                ResetHitBox = true,
-                Event = () =>
-                {
-                    nextAnimation = "first";
-                    RestingEvent = lastFromFirst;
-                }
-            });
 
             #endregion
 
@@ -122,27 +103,22 @@ namespace GentrysQuest.Game.Content.Weapons
             #endregion
         }
 
+        private void swing()
+        {
+            if (!DrawableInstance.AnimationPlaying && IsClicking) DrawableInstance.PlayAnimation(attackRegistry.GetAnimation(nextAnimation));
+        }
+
         public override void OnRelease()
         {
             base.OnRelease();
 
-            if (didSpin)
-            {
-                didSpin = false;
-                return;
-            }
-
-            DrawableInstance.PlayAnimation(attackRegistry.GetAnimation(nextAnimation));
+            swing();
         }
 
         public override void OnUpdate()
         {
-            if (HoldDuration() > spin_time)
-            {
-                DrawableInstance.PlayAnimation(attackRegistry.GetAnimation("spin"));
-                EndAttack();
-                didSpin = true;
-            }
+            base.OnUpdate();
+            swing();
         }
     }
 }
