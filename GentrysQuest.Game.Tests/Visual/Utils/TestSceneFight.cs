@@ -33,9 +33,9 @@ namespace GentrysQuest.Game.Tests.Visual.Utils
         [BackgroundDependencyLoader]
         private void load()
         {
-            gameplayHud.SetEntity(player.GetBase());
             Add(gameplayHud);
             Add(mapScene);
+            gameplayHud.SetEntity(player.GetBase());
         }
 
         [Test]
