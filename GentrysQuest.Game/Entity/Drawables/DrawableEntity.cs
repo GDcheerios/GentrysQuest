@@ -158,7 +158,7 @@ namespace GentrysQuest.Game.Entity.Drawables
         {
             lastRegenTime = Clock.CurrentTime;
             Entity.Heal((int)Entity.Stats.RegenStrength.Current.Value);
-            Entity.DisplayHealthEvent(Entity.Stats.RegenStrength.Current.Value.ToString(), ColourInfo.SingleColour(Colour4.Green));
+            Entity.DisplayHealthEvent(((int)Entity.Stats.RegenStrength.Current.Value).ToString(), ColourInfo.SingleColour(Colour4.Green));
         }
 
         public void ApplyKnockback(Vector2 direction, float force, int duration, KnockbackType type)
