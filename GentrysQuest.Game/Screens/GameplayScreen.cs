@@ -34,6 +34,7 @@ namespace GentrysQuest.Game.Screens
         private bool ending;
         private bool deathStatisticRecorded;
         protected int? ID { get; set; }
+        public float ScoreMultiplier { get; set; } = 1f;
 
         private const double FAILED_SPAWN_RETRY_MS = 500;
 
@@ -392,7 +393,7 @@ namespace GentrysQuest.Game.Screens
             if (scoreIncrease <= 0) scoreIncrease = statistic.ScoreReward;
             if (scoreIncrease <= 0) return;
 
-            score += scoreIncrease;
+            score += (int)(scoreIncrease * ScoreMultiplier);
             this.TransformTo(nameof(DisplayedScore), score, 350, Easing.OutQuint);
         }
 

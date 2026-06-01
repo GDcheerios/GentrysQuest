@@ -12,12 +12,12 @@ namespace GentrysQuest.Game.Content.Enemies
 
             TextureMapping = new();
 
-            WeaponChoices.AddChoice(new Bow());
-            WeaponChoices.AddChoice(new Knife());
+            // WeaponChoices.AddChoice(new Bow());
+            // WeaponChoices.AddChoice(new Knife());
             WeaponChoices.AddChoice(new Sword());
             WeaponChoices.AddChoice(new Spear());
-            WeaponChoices.AddChoice(new Hammer());
-            WeaponChoices.AddChoice(new BraydensOsuPen());
+            //WeaponChoices.AddChoice(new Hammer());
+            //WeaponChoices.AddChoice(new BraydensOsuPen());
 
             ArtifactChoices.GuaranteeDrop = false;
             ArtifactChoices.MultipleDrop = false;

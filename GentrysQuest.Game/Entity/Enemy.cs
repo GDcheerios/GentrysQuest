@@ -32,7 +32,7 @@ public class Enemy : Entity
 
         Stats.Speed.SetDefaultValue(0.8f + CalculatePointBenefit(0, Stats.Speed.Point, 0.2));
 
-        Stats.AttackSpeed.SetDefaultValue(0.5f + CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3));
+        Stats.AttackSpeed.SetDefaultValue(0.35f + CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3));
 
         RebuildStatAdditionalValues();
 

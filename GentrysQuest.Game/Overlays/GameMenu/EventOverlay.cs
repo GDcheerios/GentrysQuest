@@ -30,7 +30,7 @@ namespace GentrysQuest.Game.Overlays.GameMenu
         private Bindable<IUser> user { get; set; }
 
         private readonly string eventName;
-        public const int EVENT_ID = 5;
+        public const int EVENT_ID = 6;
 
         public EventOverlay()
         {
@@ -115,13 +115,14 @@ namespace GentrysQuest.Game.Overlays.GameMenu
                     int difficulty = character.Experience.CurrentLevel() / 20;
                     int xpReq = 25;
                     xpReq += level * 25;
-                    xpReq += difficulty * xpReq;
+                    xpReq += difficulty * 100;
                     character.Experience.Xp.Requirement.Value = xpReq;
                 };
 
                 #endregion
 
                 eventScreen = new EventGameplayScreen(EVENT_ID);
+                eventScreen.ScoreMultiplier = 0.30f;
                 eventScreen.ScoreSubmitted += UpdateEvent;
                 eventScreen.GameplayEnded += onGameplayEnded;
 

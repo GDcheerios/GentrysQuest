@@ -14,9 +14,12 @@ namespace GentrysQuest.Game.Content.Maps
         {
             Name = "Test Map";
             DifficultyScales = true;
-            Size = new Vector2(2000);
+            Size = new Vector2(10000);
             AllowRandomSpawning = true;
-            // TimeToSpawnEnemies = 10;
+            TimeToSpawnEnemies = 6500;
+            MaxEnemySpawn = 3;
+            MinEnemySpawn = 1;
+            MaxEnemies = 10;
             Enemies =
             [
                 new TestEnemy()
@@ -28,7 +31,7 @@ namespace GentrysQuest.Game.Content.Maps
         {
             base.Load();
             Objects.Add(new MapObject { HasCollider = false, Colour = Colour4.DarkGray, Size = Size * 2, Position = Size / 2 });
-            for (int i = 0; i < 100; i++) Objects.Add(new MapObject { HasCollider = true, Colour = Colour4.Black, Size = getRandVec(10, 300), Position = getRandVec(0, Size.X * 2) });
+            for (int i = 0; i < 100; i++) Objects.Add(new MapObject { HasCollider = true, Colour = Colour4.Black, Size = getRandVec(10, 500), Position = getRandVec(0, Size.X * 2) });
         }
 
         private Vector2 getRandVec(float min, float max) => new(MathBase.RandomFloat(min, max), MathBase.RandomFloat(min, max));
