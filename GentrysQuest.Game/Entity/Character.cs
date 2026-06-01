@@ -72,6 +72,7 @@ public class Character : Entity
         );
 
         Stats.AttackSpeed.SetDefaultValue(
+            1 +
             CalculatePointBenefit(0, Stats.AttackSpeed.Point, 0.3)
         );
 
