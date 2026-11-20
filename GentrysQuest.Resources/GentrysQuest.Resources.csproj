@@ -9,6 +9,8 @@
     <EmbeddedResource Include="Tracks\**\*" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="MapAssets\" />
+    <Folder Include="Maps\" />
     <Folder Include="Samples\" />
     <Folder Include="Tracks\" />
   </ItemGroup>
